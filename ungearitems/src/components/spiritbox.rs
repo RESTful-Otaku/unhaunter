@@ -7,16 +7,30 @@ use uncore::{
 };
 use uncore::{kelvin_to_celsius, random_seed};
 
+/// A component representing the Spirit Box gear item.
+/// This device scans radio frequencies and can sometimes pick up paranormal vocal phenomena.
 #[derive(Component, Debug, Clone, Default)]
 pub struct SpiritBox {
+    /// Whether the spirit box is currently turned on.
     pub enabled: bool,
+    /// A frame counter used for animating the display sprites.
     pub mode_frame: u32,
+    /// True if the ghost is currently providing a direct response through the box.
+    /// This is set to true only for legitimate ghost answers, not for interference.
     pub ghost_answer: bool,
+    /// The timestamp (`time.elapsed_secs()`) of the last significant state change,
+    /// used to time animations and response logic.
     pub last_change_secs: f32,
+    /// Accumulates when conditions are right (darkness, proximity to ghost, low temp).
+    /// When this reaches a threshold, a ghost response can be triggered.
     pub charge: f32,
+    /// A timer for the visual glitching effect on the display, usually caused by
+    /// electromagnetic interference from the ghost.
     pub display_glitch_timer: f32,
+    /// A timer for audio static/interference effects.
     pub interference2_timer: f32,
-    pub last_good_answer: f32,
+    /// True if the UI hint for acknowledging the evidence should be blinking.
+    /// This is used to draw the player's attention to new evidence.
     pub blinking_hint_active: bool,
 }
 
@@ -112,8 +126,8 @@ impl GearUsable for SpiritBox {
 
     fn is_sound_showing_evidence(&self) -> f32 {
         // SpiritBox is playing a sound/answering when it's enabled, not glitching,
-        // and ghost_answer is true (which means it's actively replying)
-        if self.enabled && self.display_glitch_timer <= 0.0 && self.last_good_answer > 0.0 {
+        // and ghost_answer is true.
+        if self.enabled && self.display_glitch_timer <= 0.0 && self.ghost_answer {
             1.0
         } else {
             0.0
@@ -186,61 +200,50 @@ impl GearUsable for SpiritBox {
             .unwrap_or_default()
             .lux;
 
+        // Only charge up for a response if the ghost has the Spirit Box evidence.
         if gs.bf.evidences.contains(&Evidence::SpiritBox) {
             let light_clamped = (light_lux * 5.0).clamp(0.3, 10.0);
             let temp_clamped = (temp_celsius - 3.0).clamp(0.5, 10.0);
             self.charge += sound_reading / temp_clamped.powi(2) / light_clamped / 15.0
                 * gs.bf.ghost_dynamics.spirit_box_clarity.max(0.0);
-            // info!(
-            //     "charge: {:.2} sound:{:.2} temp:{:.2} light:{:.2}",
-            //     self.charge,
-            //     sound_reading,
-            //     temp_clamped.powi(2),
-            //     light_clamped
-            // );
         }
         if self.ghost_answer {
             if delta > 3.0 {
                 self.ghost_answer = false;
-                self.last_good_answer = 0.0;
             }
         } else if delta > 0.3 && self.interference2_timer <= 0.0 && self.display_glitch_timer <= 0.0
         {
             self.last_change_secs = sec;
             gs.play_audio("sounds/effects-radio-scan.ogg".into(), 0.4, pos);
+
             let r = if self.charge > 30.0 {
                 self.charge = 0.0;
                 rng.random_range(0..10)
             } else {
-                99
+                99 // Not enough charge, no answer
             };
-            self.ghost_answer = true;
-            match r {
-                0 => gs.play_audio("sounds/effects-radio-answer1.ogg".into(), 0.7, pos),
-                1 => gs.play_audio("sounds/effects-radio-answer2.ogg".into(), 0.7, pos),
-                2 => gs.play_audio("sounds/effects-radio-answer3.ogg".into(), 0.7, pos),
-                3 => gs.play_audio("sounds/effects-radio-answer4.ogg".into(), 0.4, pos),
-                _ => self.ghost_answer = false,
-            }
+
+            self.ghost_answer = matches!(r, 0..=3);
+
             if self.ghost_answer {
-                self.last_good_answer = sec;
+                match r {
+                    0 => gs.play_audio("sounds/effects-radio-answer1.ogg".into(), 0.7, pos),
+                    1 => gs.play_audio("sounds/effects-radio-answer2.ogg".into(), 0.7, pos),
+                    2 => gs.play_audio("sounds/effects-radio-answer3.ogg".into(), 0.7, pos),
+                    3 => gs.play_audio("sounds/effects-radio-answer4.ogg".into(), 0.4, pos),
+                    _ => self.ghost_answer = false, // Should not happen, but safeguard.
+                }
             }
         } else if delta > 0.3 && self.interference2_timer > 0.0 && self.display_glitch_timer <= 0.0
         {
             self.last_change_secs = sec;
-            self.ghost_answer = true;
-            self.last_good_answer = 0.0;
             gs.play_audio("sounds/effects-radio-scan.ogg".into(), 0.4, pos);
         }
 
         // Update blinking_hint_active
         const HINT_ACKNOWLEDGE_THRESHOLD: u32 = 3;
         // Spirit Box shows evidence when ghost_answer is true and it's not glitching/interfered.
-        // last_good_answer > 0 indicates a "real" answer, not just interference.
-        if self.ghost_answer
-            && self.last_good_answer > 0.0
-            && self.display_glitch_timer <= 0.0
-            && self.interference2_timer <= 0.0
+        if self.ghost_answer && self.display_glitch_timer <= 0.0 && self.interference2_timer <= 0.0
         {
             let count = gs
                 .player_profile
@@ -277,7 +280,6 @@ impl GearUsable for SpiritBox {
         // Effect 2: interference2
         if rng.random_range(0.0..1.0) < effect_strength.powi(2) * 0.6 {
             self.interference2_timer = rng.random_range(0.3..0.8);
-            self.ghost_answer = true;
         }
     }
 
