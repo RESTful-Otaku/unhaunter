@@ -244,6 +244,7 @@ impl WalkieEvent {
             WalkieEvent::IncorrectRepellentHint(_) => WalkieRepeatBehavior::AlwaysRepeat,
 
             // Critical feedback messages - normal repeat
+            WalkieEvent::GhostNearHunt => WalkieRepeatBehavior::NormalRepeat,
             WalkieEvent::QuartzCrackedFeedback => WalkieRepeatBehavior::NormalRepeat,
             WalkieEvent::QuartzShatteredFeedback => WalkieRepeatBehavior::NormalRepeat,
 
@@ -287,7 +288,6 @@ impl WalkieEvent {
 
             // Low priority hints - can be suppressed more
             WalkieEvent::GearInVan => WalkieRepeatBehavior::LowRepeat,
-            WalkieEvent::GhostNearHunt => WalkieRepeatBehavior::LowRepeat,
             WalkieEvent::ClearEvidenceFoundNoActionCKey => WalkieRepeatBehavior::LowRepeat,
             WalkieEvent::ClearEvidenceFoundNoActionTruck => WalkieRepeatBehavior::LowRepeat,
         }
