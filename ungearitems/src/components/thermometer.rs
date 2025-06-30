@@ -3,6 +3,7 @@ use crate::metrics;
 use super::{Gear, GearKind, GearSpriteID, GearUsable, on_off};
 use bevy::prelude::*;
 use rand::Rng;
+use rand::prelude::IndexedRandom;
 use uncore::behavior::Behavior;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::position::Position;
@@ -258,16 +259,19 @@ fn temperature_update(
         let ghost_in_room = roomdb.room_tiles.get(&bpos);
         let breach_in_room = roomdb.room_tiles.get(&gs.spawn_point);
         let power = freezing * 0.5 + 0.5;
-        for npos in bpos.iter_xy_neighbors(3, bf.map_size) {
-            if ghost_in_room != roomdb.room_tiles.get(&npos)
-                || !bf.collision_field[npos.ndidx()].player_free
-            {
-                // Only make current room colder
-                continue;
+        const ENABLE_GHOST_COLD_TEMPS: bool = false;
+        if ENABLE_GHOST_COLD_TEMPS {
+            for npos in bpos.iter_xy_neighbors(3, bf.map_size) {
+                if ghost_in_room != roomdb.room_tiles.get(&npos)
+                    || !bf.collision_field[npos.ndidx()].player_free
+                {
+                    // Only make current room colder
+                    continue;
+                }
+                let t = &mut bf.temperature_field[npos.ndidx()];
+                *t = (*t + ghost_target_temp * GHOST_MAX_POWER * power)
+                    / (1.0 + GHOST_MAX_POWER * power);
             }
-            let t = &mut bf.temperature_field[npos.ndidx()];
-            *t = (*t + ghost_target_temp * GHOST_MAX_POWER * power)
-                / (1.0 + GHOST_MAX_POWER * power);
         }
         for npos in gs.spawn_point.iter_xy_neighbors(3, bf.map_size) {
             if breach_in_room != roomdb.room_tiles.get(&gs.spawn_point)
@@ -287,7 +291,7 @@ fn temperature_update(
         .temperature_field
         .indexed_iter()
         .filter_map(|(p, t)| {
-            if rng.random_range(0..8) == 0 {
+            if rng.random_range(0..8) < 1 {
                 Some((p, *t))
             } else {
                 None
@@ -298,9 +302,9 @@ fn temperature_update(
     const INSIDE_CONDUCTIVITY: f32 = 80000.0;
 
     // Closed Doors
-    const OTHER_CONDUCTIVITY: f32 = 2000.0;
+    const OTHER_CONDUCTIVITY: f32 = 20000.0;
     const WALL_CONDUCTIVITY: f32 = 0.00001;
-    let smooth: f32 = 1.00 / difficulty.0.temperature_spread_speed;
+    let smooth: f32 = (1.00 / difficulty.0.temperature_spread_speed).clamp(1.0, 10000.0);
 
     // Collect all temperature changes before applying them
     let mut temp_changes: std::collections::HashMap<(usize, usize, usize), Vec<f32>> =
@@ -333,14 +337,16 @@ fn temperature_update(
                     y: bpos.y,
                     z: stair_target_z,
                 };
-                // Add stair neighbor - we'll process all neighbors now instead of random selection
-                neighbors.push(stair_neighbor);
+                // Add stair neighbors - we'll process all neighbors now instead of random selection
+                neighbors.push(stair_neighbor.left());
+                neighbors.push(stair_neighbor.right());
+                neighbors.push(stair_neighbor.top());
+                neighbors.push(stair_neighbor.bottom());
             }
         }
 
-        // Process ALL neighbors instead of randomly selecting just one
-        // This ensures proper diffusion through all connections including stairs
-        for neigh in neighbors {
+        // Process only 1 neighbor at random
+        if let Some(neigh) = neighbors.choose(&mut rng) {
             let neigh_ndidx = neigh.ndidx();
             let Some(neigh_free) = bf
                 .collision_field
@@ -359,7 +365,7 @@ fn temperature_update(
                 _ => OTHER_CONDUCTIVITY,
             };
 
-            let nis_outside = roomdb.room_tiles.get(&neigh).is_none();
+            let nis_outside = roomdb.room_tiles.get(neigh).is_none();
             if nis_outside && neigh_free.0 && !is_stair_connection {
                 neigh_k = OUTSIDE_CONDUCTIVITY;
             }
@@ -368,29 +374,73 @@ fn temperature_update(
                 .get(neigh_ndidx)
                 .copied()
                 .unwrap_or(bf.ambient_temp);
-            let mid_temp = (temp * self_k.min(10.0) + neigh_temp * neigh_k.min(10.0))
-                / (self_k.min(10.0) + neigh_k.min(10.0));
+
+            // Special case: temperature floor at 1°C for diffusion calculations
+            // Prevents making neighbors colder than 1°C while preserving energy
+            let temp_for_diffusion = temp.max(celsius_to_kelvin(1.0));
+            let neigh_temp_for_diffusion = neigh_temp.max(celsius_to_kelvin(1.0));
+
+            // Convert temperatures to energy using E = T³ (energy conservation approach)
+            let temp_energy = temp.powi(3);
+            let neigh_energy = neigh_temp.powi(3);
+
+            // Use diffusion-limited temperatures for energy transfer calculations
+            let temp_energy_for_diffusion = temp_for_diffusion.powi(3);
+            let neigh_energy_for_diffusion = neigh_temp_for_diffusion.powi(3);
+
+            // Define thermal mass based on tile type (how much energy the material can store)
+            let self_thermal_mass = match free {
+                (true, true) => 1.0,      // Open air - full thermal mass
+                (false, false) => 0.0001, // Solid wall - low thermal mass (changes temp quickly)
+                _ => 1.0,                 // Doors/dynamic - full thermal mass
+            };
+
+            let neigh_thermal_mass = match neigh_free {
+                (true, true) => 1.0,      // Open air - full thermal mass
+                (false, false) => 0.0001, // Solid wall - low thermal mass
+                _ => 1.0,                 // Doors/dynamic - full thermal mass
+            };
+
+            // Calculate weighted average energy, accounting for thermal mass
+            // Use diffusion-limited energies for the energy transfer calculation
+            let total_mass = self_thermal_mass + neigh_thermal_mass;
+            let mid_energy = (temp_energy_for_diffusion * self_thermal_mass
+                + neigh_energy_for_diffusion * neigh_thermal_mass)
+                / total_mass;
+
             let conductivity = (self_k.recip() + neigh_k.recip()).recip() / smooth;
-            let diff = (temp + mid_temp * conductivity) / (conductivity + 1.0) - temp;
-            let mut new_temp1: f32;
-            let mut new_temp2: f32;
+            let energy_diff = (temp_energy_for_diffusion + mid_energy * conductivity)
+                / (conductivity + 1.0)
+                - temp_energy_for_diffusion;
 
-            // Break conservation of energy to make a tendency of temps to go cold (by not going warm)
-            const COLD_EFFECT: f32 = 0.2;
-            let filter_cold_effect = kelvin_to_celsius(mid_temp - 5.0).clamp(0.0, 20.0) / 20.0;
-            let cold: f32 =
-                1.0 + COLD_EFFECT * filter_cold_effect.powi(2) * if is_outside { 0.0 } else { 1.0 };
+            // Apply stability limit: cap energy changes to 10% of each component's energy
+            const MAX_ENERGY_CHANGE_RATIO: f32 = 0.9;
+            let max_self_energy_change = temp_energy_for_diffusion * MAX_ENERGY_CHANGE_RATIO;
+            let max_neigh_energy_change = neigh_energy_for_diffusion * MAX_ENERGY_CHANGE_RATIO;
 
-            if diff > 0.0 {
-                new_temp1 = temp + (diff / cold);
-                new_temp2 = neigh_temp - diff;
-            } else {
-                new_temp1 = temp + diff;
-                new_temp2 = neigh_temp - (diff / cold);
-            }
+            // Limit the base energy difference to prevent instability
+            let limited_energy_diff = energy_diff.clamp(
+                -max_self_energy_change.min(max_neigh_energy_change),
+                max_self_energy_change.min(max_neigh_energy_change),
+            );
 
-            if is_outside || nis_outside {
-                let k: f32 = 0.2;
+            // Apply energy diffusion with thermal mass consideration
+            // Walls (low thermal mass) change temperature more easily
+            let self_energy_change = limited_energy_diff / self_thermal_mass;
+            let neigh_energy_change = -limited_energy_diff / neigh_thermal_mass;
+
+            // Apply changes to the actual energies (not diffusion-limited ones)
+            // but ensure we don't go below 1°C equivalent energy
+            let min_energy_1c = celsius_to_kelvin(1.0).powi(3);
+            let new_energy1 = (temp_energy + self_energy_change).max(min_energy_1c);
+            let new_energy2 = (neigh_energy + neigh_energy_change).max(min_energy_1c);
+
+            // Convert back to temperature using T = ∛E
+            let mut new_temp1: f32 = new_energy1.cbrt();
+            let mut new_temp2: f32 = new_energy2.cbrt();
+
+            if is_outside && nis_outside {
+                let k: f32 = 0.02;
                 new_temp1 = (new_temp1 + bf.ambient_temp * k) / (1.00 + k);
                 new_temp2 = (new_temp2 + bf.ambient_temp * k) / (1.00 + k);
             }
