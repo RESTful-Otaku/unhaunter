@@ -166,7 +166,11 @@ fn load_level_handler(
     p.bf.map_size = map_size;
     p.bf.origin = (map_min_x, map_min_y, 0);
     p.bf.temperature_field = Array3::from_elem(map_size, p.bf.ambient_temp);
+    p.bf.temperature_field_prev = Array3::from_elem(map_size, p.bf.ambient_temp);
+    p.bf.temperature_activity = Array3::from_elem(map_size, 0.0);
     p.bf.collision_field = Array3::from_elem(map_size, CollisionFieldData::default());
+    p.bf.connectivity_scores =
+        Array3::from_elem(map_size, p.bf.temp_diffusion_config.default_score);
     p.bf.light_field = Array3::from_elem(map_size, LightFieldData::default());
     p.bf.miasma.pressure_field = Array3::from_elem(map_size, 0.0);
     p.bf.miasma.velocity_field = Array3::from_elem(map_size, Vec2::ZERO);

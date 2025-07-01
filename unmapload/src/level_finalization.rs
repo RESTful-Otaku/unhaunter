@@ -256,9 +256,14 @@ fn process_pre_meshes(
 fn load_map_add_prebaked_lighting(
     mut bf: ResMut<BoardData>,
     qt: Query<(Entity, &Position, &Behavior)>,
+    roomdb: Res<RoomDB>,
 ) {
     // Ensure the collision field is up to date first
     rebuild_collision_data(&mut bf, &qt);
+
+    // Precompute connectivity scores for temperature diffusion
+    bf.precompute_connectivity_scores(Some(&roomdb));
+    info!("Precomputed connectivity scores for temperature diffusion");
 
     // Call the prebaking function to calculate static lighting
     prebake_lighting_field(&mut bf, &qt);
