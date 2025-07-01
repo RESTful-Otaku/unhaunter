@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_platform::collections::HashSet;
 use uncore::difficulty::CurrentDifficulty;
 use uncore::resources::current_evidence_readings::CurrentEvidenceReadings;
+use uncore::resources::ghost_guess::GhostGuess;
 use uncore::states::AppState;
 use uncore::types::evidence::Evidence;
 use uncore::types::gear_kind::GearKind;
@@ -11,6 +12,7 @@ use unwalkiecore::{events::WalkieEvent, resources::WalkiePlay};
 fn trigger_almost_ready_to_craft_repellent_system(
     player_query: Query<&PlayerGear>,
     current_evidence_readings: Res<CurrentEvidenceReadings>,
+    ghost_guess: Res<GhostGuess>,
     app_state: Res<State<AppState>>,
     difficulty: Res<CurrentDifficulty>,
     mut walkie_play: ResMut<WalkiePlay>,
@@ -49,6 +51,11 @@ fn trigger_almost_ready_to_craft_repellent_system(
         if current_evidence_readings.is_clearly_visible(evidence, HIGH_CLARITY_THRESHOLD) {
             clear_evidences.insert(evidence);
         }
+    }
+
+    // Collect all player-marked evidences
+    for evidence in ghost_guess.evidences_found.iter() {
+        clear_evidences.insert(*evidence);
     }
 
     // If no clear evidence, don't prompt

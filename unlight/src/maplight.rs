@@ -45,6 +45,7 @@ use uncore::utils::light::{compute_color_exposure, lerp_color};
 use uncore::{
     behavior::{Behavior, Orientation},
     components::{game_config::GameConfig, sprite_type::SpriteType},
+    kelvin_to_celsius,
 };
 use uncore::{components::board::boardposition::BoardPosition, utils::PrintingTimer};
 use unfog::components::MiasmaSprite;
@@ -734,6 +735,34 @@ fn apply_lighting(
                         new_mat.data.color = Color::srgb(1.0, l / 4.0, l / 16.0).into();
                     }
                 }
+            }
+            const DEBUG_TEMPERATURE: bool = false;
+            if DEBUG_TEMPERATURE {
+                let temp_celsius = kelvin_to_celsius(bf.temperature_field[bpos.ndidx()]);
+                // Map temperature to continuous color gradient: 0°C to 16°C -> blue-cyan-green-yellow-red
+                let normalized_temp = (temp_celsius / 16.0).clamp(0.0, 1.0);
+
+                // Create smooth color transition using HSV-like interpolation
+                let (r, g, b) = if normalized_temp <= 0.25 {
+                    // Blue to Cyan (0.0 to 0.25)
+                    let t = normalized_temp / 0.25;
+                    (0.0, t, 1.0)
+                } else if normalized_temp <= 0.5 {
+                    // Cyan to Green (0.25 to 0.5)
+                    let t = (normalized_temp - 0.25) / 0.25;
+                    (0.0, 1.0, 1.0 - t)
+                } else if normalized_temp <= 0.75 {
+                    // Green to Yellow (0.5 to 0.75)
+                    let t = (normalized_temp - 0.5) / 0.25;
+                    (t, 1.0, 0.0)
+                } else {
+                    // Yellow to Red (0.75 to 1.0)
+                    let t = (normalized_temp - 0.75) / 0.25;
+                    (1.0, 1.0 - t, 0.0)
+                };
+                new_mat.data.ambient_color = Color::srgb(r / 3.0, g / 3.0, b / 3.0).into();
+                new_mat.data.gamma = 2.5;
+                new_mat.data.color = Color::srgba(r, g, b, new_mat.data.color.alpha()).into();
             }
             let invisible = new_mat.data.color.alpha() < 0.005 || behavior.p.display.disable;
             let new_vis = if invisible {
