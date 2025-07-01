@@ -3,7 +3,6 @@ use crate::metrics;
 use super::{Gear, GearKind, GearSpriteID, GearUsable, on_off};
 use bevy::prelude::*;
 use rand::Rng;
-use rand::prelude::IndexedRandom;
 use uncore::behavior::Behavior;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::position::Position;
@@ -254,12 +253,12 @@ fn temperature_update(
             continue;
         }
         let ghost_target_temp: f32 = celsius_to_kelvin(1.0 - 4.0 * freezing);
-        const GHOST_MAX_POWER: f32 = 1.0;
-        const BREACH_MAX_POWER: f32 = 20.0;
+        const GHOST_MAX_POWER: f32 = 0.01;
+        const BREACH_MAX_POWER: f32 = 10.0;
         let ghost_in_room = roomdb.room_tiles.get(&bpos);
         let breach_in_room = roomdb.room_tiles.get(&gs.spawn_point);
         let power = freezing * 0.5 + 0.5;
-        const ENABLE_GHOST_COLD_TEMPS: bool = false;
+        const ENABLE_GHOST_COLD_TEMPS: bool = true;
         if ENABLE_GHOST_COLD_TEMPS {
             for npos in bpos.iter_xy_neighbors(3, bf.map_size) {
                 if ghost_in_room != roomdb.room_tiles.get(&npos)
@@ -268,21 +267,31 @@ fn temperature_update(
                     // Only make current room colder
                     continue;
                 }
+
+                // Calculate distance-based power decay
+                let distance2 = npos.distance2(&bpos) + 1.0; // Add small constant to avoid division by zero
+                let distance_decay = 1.0 / distance2;
+                let effective_power = GHOST_MAX_POWER * power * distance_decay;
+
                 let t = &mut bf.temperature_field[npos.ndidx()];
-                *t = (*t + ghost_target_temp * GHOST_MAX_POWER * power)
-                    / (1.0 + GHOST_MAX_POWER * power);
+                *t = (*t + ghost_target_temp * effective_power) / (1.0 + effective_power);
             }
         }
         for npos in gs.spawn_point.iter_xy_neighbors(3, bf.map_size) {
-            if breach_in_room != roomdb.room_tiles.get(&gs.spawn_point)
+            if breach_in_room != roomdb.room_tiles.get(&npos)
                 || !bf.collision_field[npos.ndidx()].player_free
             {
                 // Only make current room colder
                 continue;
             }
+
+            // Calculate distance-based power decay
+            let distance2 = npos.distance2(&gs.spawn_point) + 1.0; // Add small constant to avoid division by zero
+            let distance_decay = 1.0 / distance2;
+            let effective_power = BREACH_MAX_POWER * power * distance_decay;
+
             let t = &mut bf.temperature_field[npos.ndidx()];
-            *t = (*t + ghost_target_temp * BREACH_MAX_POWER * power)
-                / (1.0 + BREACH_MAX_POWER * power)
+            *t = (*t + ghost_target_temp * effective_power) / (1.0 + effective_power);
         }
     }
 
@@ -291,7 +300,14 @@ fn temperature_update(
         .temperature_field
         .indexed_iter()
         .filter_map(|(p, t)| {
-            if rng.random_range(0..8) < 1 {
+            // Use temperature activity (how much this tile changed last frame) for selection
+            let activity = bf.temperature_activity.get(p).copied().unwrap_or(0.0);
+
+            // Base selection probability: higher activity = higher chance
+            // Scale activity to reasonable range (0.0-1.0+) and add baseline
+            let activity_factor = (activity * 0.02).clamp(0.0, 1.0) + 0.001;
+
+            if rng.random_range(0.0..1.0) < activity_factor {
                 Some((p, *t))
             } else {
                 None
@@ -304,10 +320,10 @@ fn temperature_update(
     // Closed Doors
     const OTHER_CONDUCTIVITY: f32 = 20000.0;
     const WALL_CONDUCTIVITY: f32 = 0.00001;
-    let smooth: f32 = (1.00 / difficulty.0.temperature_spread_speed).clamp(1.0, 10000.0);
+    let smooth: f32 = 1.0; // / difficulty.0.temperature_spread_speed;
 
-    // Collect all temperature changes before applying them
-    let mut temp_changes: std::collections::HashMap<(usize, usize, usize), Vec<f32>> =
+    // Collect all energy changes before applying them
+    let mut energy_changes: std::collections::HashMap<(usize, usize, usize), Vec<f32>> =
         std::collections::HashMap::new();
 
     for (p, temp) in old_temps.into_iter() {
@@ -346,7 +362,9 @@ fn temperature_update(
         }
 
         // Process only 1 neighbor at random
-        if let Some(neigh) = neighbors.choose(&mut rng) {
+        // use rand::prelude::IndexedRandom;
+        // if let Some(neigh) = neighbors.choose(&mut rng) {
+        for neigh in &neighbors {
             let neigh_ndidx = neigh.ndidx();
             let Some(neigh_free) = bf
                 .collision_field
@@ -375,30 +393,25 @@ fn temperature_update(
                 .copied()
                 .unwrap_or(bf.ambient_temp);
 
-            // Special case: temperature floor at 1°C for diffusion calculations
-            // Prevents making neighbors colder than 1°C while preserving energy
-            let temp_for_diffusion = temp.max(celsius_to_kelvin(1.0));
-            let neigh_temp_for_diffusion = neigh_temp.max(celsius_to_kelvin(1.0));
-
             // Convert temperatures to energy using E = T³ (energy conservation approach)
+            // No temperature floor restriction - work directly with actual temperatures
             let temp_energy = temp.powi(3);
             let neigh_energy = neigh_temp.powi(3);
 
-            // Use diffusion-limited temperatures for energy transfer calculations
-            let temp_energy_for_diffusion = temp_for_diffusion.powi(3);
-            let neigh_energy_for_diffusion = neigh_temp_for_diffusion.powi(3);
+            // Use the actual energies for diffusion calculations
+            let temp_energy_for_diffusion = temp_energy;
+            let neigh_energy_for_diffusion = neigh_energy;
 
-            // Define thermal mass based on tile type (how much energy the material can store)
             let self_thermal_mass = match free {
-                (true, true) => 1.0,      // Open air - full thermal mass
-                (false, false) => 0.0001, // Solid wall - low thermal mass (changes temp quickly)
-                _ => 1.0,                 // Doors/dynamic - full thermal mass
+                (true, true) => 0.9,
+                (false, false) => 0.00001,
+                _ => 1.0,
             };
 
             let neigh_thermal_mass = match neigh_free {
-                (true, true) => 1.0,      // Open air - full thermal mass
-                (false, false) => 0.0001, // Solid wall - low thermal mass
-                _ => 1.0,                 // Doors/dynamic - full thermal mass
+                (true, true) => 0.9,
+                (false, false) => 0.00001,
+                _ => 1.0,
             };
 
             // Calculate weighted average energy, accounting for thermal mass
@@ -430,37 +443,95 @@ fn temperature_update(
             let neigh_energy_change = -limited_energy_diff / neigh_thermal_mass;
 
             // Apply changes to the actual energies (not diffusion-limited ones)
-            // but ensure we don't go below 1°C equivalent energy
-            let min_energy_1c = celsius_to_kelvin(1.0).powi(3);
-            let new_energy1 = (temp_energy + self_energy_change).max(min_energy_1c);
-            let new_energy2 = (neigh_energy + neigh_energy_change).max(min_energy_1c);
+            // Remove 1°C temperature floor restriction for energy calculations
+            let new_energy1 = temp_energy + self_energy_change;
+            let new_energy2 = neigh_energy + neigh_energy_change;
 
-            // Convert back to temperature using T = ∛E
-            let mut new_temp1: f32 = new_energy1.cbrt();
-            let mut new_temp2: f32 = new_energy2.cbrt();
-
-            if is_outside && nis_outside {
+            // Handle ambient temperature influence in energy space
+            let adjusted_energy1 = if is_outside && nis_outside {
                 let k: f32 = 0.02;
-                new_temp1 = (new_temp1 + bf.ambient_temp * k) / (1.00 + k);
-                new_temp2 = (new_temp2 + bf.ambient_temp * k) / (1.00 + k);
-            }
+                let ambient_energy = bf.ambient_temp.powi(3);
+                (new_energy1 + ambient_energy * k) / (1.00 + k)
+            } else {
+                new_energy1
+            };
 
-            // Store temperature changes instead of applying immediately
-            temp_changes.entry(p).or_default().push(new_temp1);
-            temp_changes.entry(neigh_ndidx).or_default().push(new_temp2);
+            let adjusted_energy2 = if is_outside && nis_outside {
+                let k: f32 = 0.02;
+                let ambient_energy = bf.ambient_temp.powi(3);
+                (new_energy2 + ambient_energy * k) / (1.00 + k)
+            } else {
+                new_energy2
+            };
+
+            // Store energy changes instead of temperature changes
+            energy_changes.entry(p).or_default().push(adjusted_energy1);
+            energy_changes
+                .entry(neigh_ndidx)
+                .or_default()
+                .push(adjusted_energy2);
         }
     }
 
-    // Apply all accumulated temperature changes by averaging them
-    for (pos_idx, changes) in temp_changes {
-        if !changes.is_empty() {
-            let avg_temp = changes.iter().sum::<f32>() / changes.len() as f32;
-            // Check for NaN and clamp to reasonable bounds
-            if avg_temp.is_finite() {
-                bf.temperature_field[pos_idx] =
-                    avg_temp.clamp(celsius_to_kelvin(-50.0), celsius_to_kelvin(100.0));
+    // Apply all accumulated energy changes by averaging them in energy space
+    // and track activity for adaptive selection
+    let mut updated_positions = std::collections::HashSet::new();
+    let mut debug_total_activity = 0.0;
+    let mut debug_activity_count = 0;
+    for (pos_idx, energy_list) in energy_changes {
+        if !energy_list.is_empty() {
+            let old_temp = bf.temperature_field[pos_idx];
+
+            // Average all energies in energy space
+            let avg_energy = energy_list.iter().sum::<f32>() / energy_list.len() as f32;
+
+            // Check for NaN and clamp energy to reasonable bounds
+            if avg_energy.is_finite() && avg_energy > 0.0 {
+                // Convert back to temperature using T = ∛E
+                let new_temp = avg_energy
+                    .cbrt()
+                    .clamp(celsius_to_kelvin(-50.0), celsius_to_kelvin(100.0));
+                bf.temperature_field[pos_idx] = new_temp;
+
+                // Update activity: track the sum of absolute temperature changes for this tile
+                // Convert energy changes back to temperature space for reasonable activity values
+                let mut total_temp_change = 0.0;
+                for energy in &energy_list {
+                    let temp_from_energy = energy.cbrt();
+                    total_temp_change += (temp_from_energy - old_temp).abs();
+                }
+
+                // Debug tracking
+                debug_total_activity += total_temp_change;
+                debug_activity_count += 1;
+
+                let current_activity = bf.temperature_activity.get(pos_idx).copied().unwrap_or(0.0);
+                // Exponential moving average with activity addition
+                let new_activity = (current_activity / 1.05) + total_temp_change;
+                bf.temperature_activity[pos_idx] = new_activity;
+
+                updated_positions.insert(pos_idx);
             }
         }
+    }
+
+    // Debug output for activity tracking
+    if debug_activity_count > 0 {
+        let avg_activity = debug_total_activity / debug_activity_count as f32;
+
+        // Calculate average activity across all tiles
+        let total_tiles = bf.temperature_activity.len();
+        let sum_activity: f32 = bf.temperature_activity.iter().sum();
+        let avg_tile_activity = if total_tiles > 0 {
+            sum_activity / total_tiles as f32
+        } else {
+            0.0
+        };
+
+        debug!(
+            "Frame activity debug: {} tiles updated, avg total_temp_change: {:.6}, avg_tile_activity: {:.6}",
+            debug_activity_count, avg_activity, avg_tile_activity
+        );
     }
 
     measure.end_ms();
