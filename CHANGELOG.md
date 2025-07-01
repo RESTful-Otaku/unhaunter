@@ -27,10 +27,14 @@
 * Repellent particles now change color upon hitting ghosts (electric blue for correct, bright red for incorrect).
 * Smart hint system provides feedback for incorrect repellent usage.
 * Adjusted Temps/Geiger to be easier and more reliable to get.
+* Increased probability of evidence hints to help player progression.
+* Made sanity warnings more frequent and responsive.
 
 **Walkie-Talkie System:**
 
 * Ghost hunt warnings are now only triggered if the player is inside the location and the ghost is sufficiently healthy.
+* Hunt warnings now repeat at normal frequency for better player awareness.
+* System now ensures players are properly informed when repellent can be crafted.
 * Walkie-talkie hints for player sanity and wellbeing are now more sensitive and frequent.
 * Increased repeat frequency for hints about crafting repellents when enough evidence is gathered.
 * Walkie event priority is reduced if messages have been played before to avoid repetition.
@@ -41,6 +45,7 @@
 * Increased visible duration for hint UI messages.
 * Better camera reference point for improved player centering.
 * Adjusted flashlight lighting effect.
+* Prevented hover interactions on mostly invisible UI elements - fixes UI elements being hovered and sticky.
 
 **Other:**
 
@@ -49,6 +54,7 @@
 
 **Fixes:**
 
+* Fixed Spirit Box False Positives: Resolved bug causing incorrect spirit box readings.
 * Fixed error on negative miasma pressure that got NaN into player position and direction, making the game randomly unplayable.
 * Fix for random crash when expelling an entity (sound file format error)
 * Fix collision bug when a door is closed on top of the player.
