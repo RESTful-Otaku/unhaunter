@@ -1,9 +1,9 @@
-pub mod table;
-pub mod json;
 pub mod csv;
+pub mod json;
+pub mod table;
 
-use uncore::types::ghost::types::GhostType;
 use crate::cli::OutputFormat;
+use uncore::types::ghost::types::GhostType;
 
 pub fn show_ghost_list(ghosts: &[GhostType], format: &OutputFormat) {
     match format {
