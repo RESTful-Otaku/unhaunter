@@ -341,12 +341,12 @@ fn repellent_update(
             if dist2 < 4.5 {
                 let dist2b = (dist2 + 1.0) * 2.0;
                 if ghost.class == rep.class {
-                    ghost.repellent_hits_frame += dt * 50.2 / dist2b;
+                    ghost.repellent_hits_frame += dt * 120.2 / dist2b;
                     // Correct repellent - turn electric blue
                     rep.hit_correct = true;
                 } else {
                     // Incorrect repellent - turn bright red
-                    ghost.repellent_misses_frame += dt * 50.2 / dist2b;
+                    ghost.repellent_misses_frame += dt * 120.2 / dist2b;
                     rep.hit_incorrect = true;
                 }
                 rep.life -= 20.0 * dt / dist2b;
