@@ -924,16 +924,11 @@ fn apply_lighting(
                 opacity = opacity * (1.0 - k_hit) + orig_opacity.cbrt() * k_hit;
 
                 dst_color = srgba
-                    .with_red(
-                        r * ld.visible
-                            + e_rl * 1.1
-                            + e_infra / 3.0
-                            + gs.repellent_misses_delta / 2.0,
-                    )
-                    .with_green(
-                        g * ld.visible + e_uv + e_rl + e_infra + gs.repellent_misses_delta / 2.5,
-                    )
+                    .with_red(r * ld.visible + e_rl * 1.1 + gs.repellent_misses_delta / 2.0)
+                    .with_green(g * ld.visible + e_uv + e_rl + gs.repellent_misses_delta / 2.5)
                     .into();
+                dst_color = dst_color
+                    .with_luminance((dst_color.luminance() - e_infra / 2.0).clamp(0.0, 1.0));
             }
             smooth = 1.0;
             dst_color = lerp_color(sprite.color, dst_color, 0.1);
