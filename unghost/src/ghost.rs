@@ -1,9 +1,8 @@
-use std::f64::consts::PI;
-
 use bevy::color::palettes::css;
 use bevy::prelude::*;
 use ordered_float::OrderedFloat;
 use rand::Rng;
+use std::f64::consts::PI;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::direction::Direction;
 use uncore::components::board::mapcolor::MapColor;
@@ -28,6 +27,7 @@ use ungearitems::components::sage::{SageSmokeParticle, SmokeParticleTimer};
 use ungearitems::components::salt::{SaltyTrace, SaltyTraceTimer, UVReactive};
 
 use crate::metrics::{GHOST_ENRAGE, GHOST_MOVEMENT};
+use uncore::events::ambient_sound_mute::AmbientSoundMuteEvent;
 
 /// Enables/disables debug logs for hunting behavior.
 const DEBUG_HUNTS: bool = true;
@@ -119,6 +119,7 @@ fn ghost_movement(
                     if ghost.hunt_target {
                         // Check if it was actually hunting
                         ghost.times_hunted_this_mission += 1;
+                        // Removed mute event - mute is triggered anticipatory during hunt warning
                     }
                     ghost.hunting = 0.0;
                     ghost.hunt_target = false;
@@ -269,6 +270,7 @@ fn ghost_movement(
                     if !ghost.hunt_target {
                         ghost.hunt_time_secs = time.elapsed_secs();
                         warn!("Hunting player for {:.1}s", ghost.hunting);
+                        // Removed mute event - now triggered anticipatory during hunt warning
                     }
                 } else if ghost.hunt_target {
                     warn!("Hunt temporarily ended (remaining) {:.1}s", ghost.hunting);
@@ -371,6 +373,7 @@ fn ghost_enrage(
     mut last_roar: Local<f32>,
     difficulty: Res<CurrentDifficulty>,
     roomdb: Res<RoomDB>,
+    mut ev_ambient_mute: EventWriter<AmbientSoundMuteEvent>,
 ) {
     let measure = GHOST_ENRAGE.time_measure();
 
@@ -462,11 +465,32 @@ fn ghost_enrage(
             continue;
         }
 
+        // --- Pre-Warning Logic ---
+        if ghost.pre_warning_timer > 0.0 {
+            ghost.pre_warning_timer -= dt;
+            if ghost.pre_warning_timer <= 0.0 {
+                // Pre-warning timer expired, start actual hunt warning with roar
+                if !ghost.hunt_warning_active {
+                    ghost.hunt_warning_active = true;
+                    ghost.hunt_warning_timer = 5.0;
+                    ghost.hunt_warning_intensity = 0.0;
+
+                    should_roar = RoarType::Full;
+                    roar_time = 0.2;
+                }
+            }
+        }
+
         // --- Hunt Warning Logic ---
         if ghost.hunt_warning_active {
             ghost.hunt_warning_timer -= dt;
             ghost.hunt_warning_intensity = 1.0 - (ghost.hunt_warning_timer / 10.0);
-            if ghost.hunt_warning_timer <= 0.0 {
+
+            // Send stronger mute event when hunt is about to start (anticipatory)
+            if ghost.hunt_warning_timer <= 0.5 && ghost.hunt_warning_timer > 0.5 - dt {
+                // Send stronger/faster mute for actual hunt start
+                ev_ambient_mute.write(AmbientSoundMuteEvent::default());
+
                 // Trigger hunt after warning period
                 ghost.hunt_warning_active = false;
                 ghost.hunt_warning_intensity = 1.0; //Max intensity
@@ -540,20 +564,22 @@ fn ghost_enrage(
         }
 
         // --- Hunt Trigger Logic ---
-        if ghost.rage > rage_limit && !ghost.hunt_warning_active && !ghost.hunt_target {
-            // Start Hunt Warning Phase
-            ghost.hunt_warning_active = true;
-            ghost.hunt_warning_timer = 5.0;
-            ghost.hunt_warning_intensity = 0.0;
+        if ghost.rage > rage_limit
+            && !ghost.hunt_warning_active
+            && !ghost.hunt_target
+            && ghost.pre_warning_timer <= 0.0
+        {
+            // Start Pre-Warning Phase (anticipatory audio muting)
+            ghost.pre_warning_timer = 3.0;
             ghost.rage_limit_multiplier *= 1.3;
 
             let prev_rage = ghost.rage;
             ghost.rage /= 1.0 + difficulty.0.ghost_hunt_cooldown;
-            if ghost.hunting < 1.0 {
-                should_roar = RoarType::Full;
-                roar_time = 0.2;
-            }
             ghost.hunting += prev_rage / 50.0 + 5.0;
+            ghost.hunt_warning_active = false;
+
+            // Send anticipatory mute event BEFORE the hunt warning begins
+            ev_ambient_mute.write(AmbientSoundMuteEvent::default());
         } else if ghost.rage > rage_limit / 2.0 && ghost.hunting < 1.0 && roar_time > 10.0 {
             should_roar = RoarType::Dim;
             if ghost.rage_limit_multiplier > 1.0 {
