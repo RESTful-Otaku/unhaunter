@@ -1,3 +1,4 @@
+pub mod audio;
 pub mod cached_board_pos;
 pub mod lighting;
 pub mod maplight;
