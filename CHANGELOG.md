@@ -1,4 +1,4 @@
-### Version 0.3.1-beta1 - 2025-06-29
+### Version 0.3.1 - 2025-07-10
 
 **Mouse Aiming**
 
@@ -29,6 +29,9 @@
 * Adjusted Temps/Geiger to be easier and more reliable to get.
 * Increased probability of evidence hints to help player progression.
 * Made sanity warnings more frequent and responsive.
+* Ambient audio drops just before hunts.
+* Lock down evidences given by walkie talkie hints.
+* Ghost is now easy to expel, needing less repellent to do so.
 
 **Walkie-Talkie System:**
 
@@ -46,6 +49,7 @@
 * Better camera reference point for improved player centering.
 * Adjusted flashlight lighting effect.
 * Prevented hover interactions on mostly invisible UI elements - fixes UI elements being hovered and sticky.
+* Ghost now goes black under night vision instead of green - this is to avoid players confusing this with UV reactions.
 
 **Other:**
 
