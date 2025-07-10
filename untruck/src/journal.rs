@@ -41,6 +41,7 @@ fn force_discard_evidence_system(
                         evidence_type, tui_button.status
                     );
                     tui_button.status = TruckButtonState::Discard;
+                    tui_button.computer_locked = true;
                     button_found = true;
                     break;
                 }
@@ -93,7 +94,7 @@ fn button_system(
     // First pass: Handle evidence button clicks and detect ghost button clicks.
     for (interaction, _, _, _, mut tui_button) in &mut interaction_query {
         // Skip buttons that use hold timer or are currently disabled from a previous frame
-        if tui_button.disabled || tui_button.hold_duration.is_some() {
+        if tui_button.disabled || tui_button.hold_duration.is_some() || tui_button.computer_locked {
             continue;
         }
 

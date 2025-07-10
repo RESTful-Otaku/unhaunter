@@ -25,6 +25,8 @@ pub struct TruckUIButton {
     pub blinking_hint_active: bool,
     /// Frame counter for blinking animation
     pub frame_counter: u32,
+    /// Whether the button is locked computer side, meaning it has a value already that cannot be changed anymore.
+    pub computer_locked: bool,
 }
 
 impl TruckUIButton {
@@ -180,6 +182,7 @@ impl From<TruckButtonType> for TruckUIButton {
             holding: false,
             blinking_hint_active: false,
             frame_counter: 0,
+            computer_locked: false,
         }
     }
 }

@@ -1,7 +1,7 @@
-use uncore::types::{evidence::Evidence, ghost::types::GhostType};
+use enum_iterator::all;
 use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
-use enum_iterator::all;
+use uncore::types::{evidence::Evidence, ghost::types::GhostType};
 
 // This command will find unique evidence combinations that identify specific ghosts,
 // or list all unique N-evidence combinations present in the game.
@@ -9,7 +9,10 @@ use enum_iterator::all;
 // ghost_list unique-combinations
 // ghost_list unique-combinations --min-evidence 2 --max-evidence 3
 
-pub fn handle_unique_combinations_command(min_evidence: Option<usize>, max_evidence: Option<usize>) {
+pub fn handle_unique_combinations_command(
+    min_evidence: Option<usize>,
+    max_evidence: Option<usize>,
+) {
     let min_e = min_evidence.unwrap_or(1); // Default min 1 evidence
     let all_evidence_count = all::<Evidence>().count();
     let max_e = max_evidence.unwrap_or(all_evidence_count); // Default max all evidences a ghost can have
@@ -34,10 +37,15 @@ pub fn handle_unique_combinations_command(min_evidence: Option<usize>, max_evide
     let mut combination_to_ghosts_map: HashMap<Vec<Evidence>, Vec<GhostType>> = HashMap::new();
 
     for k in min_e..=max_e {
-        if k > all_evidence_types.len() { continue; } // Cannot pick k items from less than k items
+        if k > all_evidence_types.len() {
+            continue;
+        } // Cannot pick k items from less than k items
 
         for evidence_combo_indices in (0..all_evidence_types.len()).combinations(k) {
-            let mut current_combo: Vec<Evidence> = evidence_combo_indices.iter().map(|&i| all_evidence_types[i]).collect();
+            let mut current_combo: Vec<Evidence> = evidence_combo_indices
+                .iter()
+                .map(|&i| all_evidence_types[i])
+                .collect();
             current_combo.sort_by_key(|e| e.name()); // Ensure consistent ordering for map key
 
             let mut matching_ghosts_for_this_combo = Vec::new();
@@ -65,7 +73,8 @@ pub fn handle_unique_combinations_command(min_evidence: Option<usize>, max_evide
                 // }
                 // For now, let's store all combinations and the ghosts they map to.
                 // The user can then see which ones are truly "unique" (map to 1 ghost).
-                 combination_to_ghosts_map.insert(current_combo.clone(), matching_ghosts_for_this_combo);
+                combination_to_ghosts_map
+                    .insert(current_combo.clone(), matching_ghosts_for_this_combo);
             }
         }
     }
@@ -92,7 +101,17 @@ pub fn handle_unique_combinations_command(min_evidence: Option<usize>, max_evide
     for (combo, ghosts) in sorted_combinations {
         let combo_str = combo.iter().map(|e| e.name()).join(" + ");
         let ghost_names = ghosts.iter().map(|g| g.name()).join(", ");
-        let note = if ghosts.len() == 1 { "Unique" } else { "Shared" };
-        println!("| {} | {} | {} | {} |", combo_str, ghost_names, ghosts.len(), note);
+        let note = if ghosts.len() == 1 {
+            "Unique"
+        } else {
+            "Shared"
+        };
+        println!(
+            "| {} | {} | {} | {} |",
+            combo_str,
+            ghost_names,
+            ghosts.len(),
+            note
+        );
     }
 }

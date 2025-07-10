@@ -12,20 +12,18 @@
 //!
 //! * Systems for dynamically updating lighting and visibility as the player moves and
 //!   interacts with the environment.
-use bevy::audio::Volume;
 use bevy::{color::palettes::css, prelude::*};
-use bevy_persistent::Persistent;
 use bevy_platform::collections::HashMap;
 use bevy_platform::collections::HashSet;
 use core::f32;
-use ndarray::{Array3, s};
+use ndarray::Array3;
 use rand::Rng;
 use std::collections::VecDeque;
 use uncore::behavior::component::Interactive;
+use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::direction::Direction;
 use uncore::components::board::position::Position;
-use uncore::components::game::{GameSound, MapTileSprite};
-use uncore::components::ghost_breach::GhostBreach;
+use uncore::components::game::MapTileSprite;
 use uncore::components::ghost_influence::{GhostInfluence, InfluenceType};
 use uncore::components::ghost_sprite::GhostSprite;
 use uncore::components::player_sprite::PlayerSprite;
@@ -33,12 +31,9 @@ use uncore::difficulty::CurrentDifficulty;
 use uncore::metric_recorder::SendMetric;
 use uncore::platform::plt::IS_WASM;
 use uncore::resources::board_data::BoardData;
-use uncore::resources::current_evidence_readings::CurrentEvidenceReadings;
 use uncore::resources::roomdb::RoomDB;
 use uncore::resources::visibility_data::VisibilityData;
 use uncore::types::board::fielddata::CollisionFieldData;
-use uncore::types::evidence::Evidence;
-use uncore::types::game::SoundType;
 use uncore::types::gear::equipmentposition::EquipmentPosition;
 use uncore::types::gear_kind::GearKind;
 use uncore::utils::light::{compute_color_exposure, lerp_color};
@@ -47,21 +42,20 @@ use uncore::{
     components::{game_config::GameConfig, sprite_type::SpriteType},
     kelvin_to_celsius,
 };
-use uncore::{components::board::boardposition::BoardPosition, utils::PrintingTimer};
 use unfog::components::MiasmaSprite;
 use unfog::resources::MiasmaConfig;
 use ungear::components::deployedgear::{DeployedGear, DeployedGearData};
 use ungear::components::playergear::PlayerGear;
 use ungearitems::components::salt::UVReactive;
-use unsettings::audio::AudioSettings;
 use unstd::materials::CustomMaterial1;
 
 pub use uncore::components::board::mapcolor::MapColor;
 pub use uncore::types::board::light::{LightData, LightType};
 
-use crate::metrics::{AMBIENT_SOUND_SYSTEM, APPLY_LIGHTING, COMPUTE_VISIBILITY, PLAYER_VISIBILITY};
+use crate::metrics::{APPLY_LIGHTING, COMPUTE_VISIBILITY, PLAYER_VISIBILITY};
 use uncore::components::ghost_orb_particle::GhostOrbParticle;
 use uncore::random_seed;
+use uncore::states::AppState;
 
 /// Computes the player's visibility field, determining which areas of the map are
 /// visible.
@@ -351,6 +345,12 @@ fn apply_lighting(
         if player.id != gc.player_id {
             continue;
         }
+
+        // Check if visibility field is properly initialized
+        if vf.visibility_field.is_empty() {
+            continue;
+        }
+
         let cursor_pos = pos.to_board_position();
         for npos in cursor_pos.iter_xy_neighbors(2, board_dim) {
             let lf = &bf.light_field[npos.ndidx()];
@@ -924,16 +924,11 @@ fn apply_lighting(
                 opacity = opacity * (1.0 - k_hit) + orig_opacity.cbrt() * k_hit;
 
                 dst_color = srgba
-                    .with_red(
-                        r * ld.visible
-                            + e_rl * 1.1
-                            + e_infra / 3.0
-                            + gs.repellent_misses_delta / 2.0,
-                    )
-                    .with_green(
-                        g * ld.visible + e_uv + e_rl + e_infra + gs.repellent_misses_delta / 2.5,
-                    )
+                    .with_red(r * ld.visible + e_rl * 1.1 + gs.repellent_misses_delta / 2.0)
+                    .with_green(g * ld.visible + e_uv + e_rl + gs.repellent_misses_delta / 2.5)
                     .into();
+                dst_color = dst_color
+                    .with_luminance((dst_color.luminance() - e_infra / 2.0).clamp(0.0, 1.0));
             }
             smooth = 1.0;
             dst_color = lerp_color(sprite.color, dst_color, 0.1);
@@ -1062,278 +1057,12 @@ fn apply_lighting(
     measure.end_ms();
 }
 
-/// System to manage ambient sound levels based on visibility.
-fn ambient_sound_system(
-    vf: Res<VisibilityData>,
-    mut qas: Query<(&mut AudioSink, &GameSound)>,
-    roomdb: Res<RoomDB>,
-    gc: Res<GameConfig>,
-    qp: Query<(&PlayerSprite, &Position)>, // Added Position to the query
-    time: Res<Time>,
-    mut timer: Local<PrintingTimer>,
-    audio_settings: Res<Persistent<AudioSettings>>,
-) {
-    let measure = AMBIENT_SOUND_SYSTEM.time_measure();
-
-    timer.tick(time.delta());
-
-    if vf.visibility_field.is_empty() {
-        return;
-    }
-    // Find the active player's position
-    let player_bpos = qp
-        .iter()
-        .find_map(|(player, pos)| {
-            if player.id == gc.player_id {
-                Some(pos.to_board_position())
-            } else {
-                None
-            }
-        })
-        .unwrap_or_default();
-
-    // Define a radius around the player
-    const RADIUS: usize = 32;
-
-    // Calculate bounds for our slice
-    let player_ndidx = player_bpos.ndidx();
-    let (map_width, map_height, map_depth) = vf.visibility_field.dim();
-
-    let min_x = player_ndidx.0.saturating_sub(RADIUS);
-    let max_x = (player_ndidx.0 + RADIUS).min(map_width - 1);
-    let min_y = player_ndidx.1.saturating_sub(RADIUS);
-    let max_y = (player_ndidx.1 + RADIUS).min(map_height - 1);
-    let z = player_ndidx.2.clamp(0, map_depth - 1);
-
-    // Calculate total_vis only for the subslice
-    let total_vis: f32 = vf
-        .visibility_field
-        .slice(s![min_x..=max_x, min_y..=max_y, z..=z])
-        .indexed_iter()
-        .map(|(rel_idx, v)| {
-            // Convert relative indices back to absolute indices
-            let abs_idx = (rel_idx.0 + min_x, rel_idx.1 + min_y, rel_idx.2 + z);
-            let k = BoardPosition::from_ndidx(abs_idx);
-            v * match roomdb.room_tiles.get(&k).is_some() {
-                true => 0.2,
-                false => 1.0,
-            }
-        })
-        .sum();
-
-    let house_volume = (20.0 / total_vis.max(1.0))
-        .powi(3)
-        .tanh()
-        .clamp(0.00001, 0.9999)
-        * 6.0;
-    let street_volume = (total_vis / 20.0).powi(3).tanh().clamp(0.00001, 0.9999) * 6.0;
-
-    // --- Get Player Health and Sanity ---
-    let player = qp.iter().find(|p| p.0.id == gc.player_id).map(|(p, _)| p);
-    let health = player
-        .map(|p| p.health.clamp(0.0, 100.0) / 100.0)
-        .unwrap_or(1.0);
-    let sanity = player.map(|p| p.sanity() / 100.0).unwrap_or(1.0);
-    if timer.just_finished() {
-        // dbg!(health, sanity);
-    }
-    for (mut sink, gamesound) in qas.iter_mut() {
-        const SMOOTH: f32 = 60.0;
-        let volume_factor =
-            2.0 * audio_settings.volume_master.as_f32() * audio_settings.volume_ambient.as_f32();
-        let ln_volume = (sink.volume().to_linear() / (volume_factor + 0.0000001) + 0.000001)
-            .max(0.000001)
-            .ln();
-        let v = match gamesound.class {
-            SoundType::BackgroundHouse => {
-                (ln_volume * SMOOTH + house_volume.ln() * health * sanity) / (SMOOTH + 1.0)
-            }
-            SoundType::BackgroundStreet => {
-                (ln_volume * SMOOTH + street_volume.ln() * health * sanity) / (SMOOTH + 1.0)
-            }
-            SoundType::HeartBeat => {
-                // Handle heartbeat sound Volume based on health
-                let heartbeat_volume = (1.0 - health).powf(0.7) * 0.5 + 0.0000001;
-                (ln_volume * SMOOTH + heartbeat_volume.ln()) / (SMOOTH + 1.0)
-            }
-            SoundType::Insane => {
-                // Handle insanity sound Volume based on sanity
-                let insanity_volume =
-                    (1.0 - sanity).powf(5.0) * 0.7 * house_volume.clamp(0.3, 1.0) + 0.0000001;
-                (ln_volume * SMOOTH + insanity_volume.ln()) / (SMOOTH + 1.0)
-            }
-        };
-        let new_volume = v.exp() * volume_factor;
-        sink.set_volume(Volume::Linear(new_volume.clamp(0.00001, 10.0)));
-    }
-    measure.end_ms();
-}
-
-// Helper function
-fn calculate_clarity_for_visual_evidence(
-    signal_intensity: f32,
-    signal_threshold: f32,
-    visible_intensity: f32,
-    darkness_threshold: f32,
-    player_visibility_to_tile: f32,
-    scaling_factor: f32,
-) -> f32 {
-    if signal_intensity >= signal_threshold && visible_intensity <= darkness_threshold {
-        let base_clarity = signal_intensity / (visible_intensity + 0.05); // Add small epsilon
-        let final_clarity = (base_clarity * player_visibility_to_tile) / scaling_factor;
-        final_clarity.clamp(0.0, 1.0)
-    } else {
-        0.0
-    }
-}
-
-fn report_environmental_visual_evidence_clarity_system(
-    mut current_evidence_readings: ResMut<CurrentEvidenceReadings>,
-    board_data: Res<BoardData>,           // bf
-    visibility_data: Res<VisibilityData>, // vf
-    time: Res<Time>,
-    ghost_query: Query<(Entity, &Position), With<GhostSprite>>, // Entity for source_gear_entity
-    breach_query: Query<(Entity, &Position), With<GhostBreach>>, // Entity for source_gear_entity
-) {
-    let current_game_time_secs = time.elapsed_secs_f64();
-    let delta_time_secs = time.delta_secs();
-
-    // Helper to process an entity (ghost or breach)
-    let mut process_entity = |_entity_id: Entity, entity_pos: &Position, is_ghost: bool| {
-        let bpos = entity_pos.to_board_position_size(board_data.map_size);
-        // Ensure bpos is valid before indexing (though to_board_position_size should handle clamping)
-        if bpos.x >= board_data.map_size.0 as i64
-            || bpos.y >= board_data.map_size.1 as i64
-            || bpos.z >= board_data.map_size.2 as i64
-            || bpos.x < 0
-            || bpos.y < 0
-            || bpos.z < 0
-        {
-            // warn!("Entity {:?} at {:?} resulted in out-of-bounds bpos {:?}", entity_id, entity_pos, bpos);
-            return;
-        }
-
-        let player_visibility_to_tile =
-            visibility_data.visibility_field[bpos.ndidx()].clamp(0.0, 1.0);
-
-        // If player can't see the tile where the entity is, clarity for visual evidence is 0.
-        if player_visibility_to_tile < 0.01 {
-            let evidences_to_clear = if is_ghost {
-                vec![Evidence::UVEctoplasm, Evidence::RLPresence]
-            } else {
-                // Is Breach
-                vec![Evidence::FloatingOrbs]
-            };
-            for ev in evidences_to_clear {
-                current_evidence_readings.report_clarity(
-                    ev,
-                    0.0,
-                    current_game_time_secs,
-                    delta_time_secs,
-                );
-            }
-            return;
-        }
-
-        // Crucial Assumption: board_data.light_field[bpos.ndidx()].additional
-        // correctly sums all light types (Visible, UV, Red, IR) from all sources at this tile.
-        let effective_light_at_entity_pos = board_data.light_field[bpos.ndidx()].additional;
-
-        if is_ghost {
-            // UVEctoplasm Check
-            let uv_clarity = if board_data.evidences.contains(&Evidence::UVEctoplasm) {
-                calculate_clarity_for_visual_evidence(
-                    effective_light_at_entity_pos.ultraviolet,
-                    0.3, // UV signal threshold
-                    effective_light_at_entity_pos.visible,
-                    0.3, // Visible light darkness threshold
-                    player_visibility_to_tile,
-                    3.0, // Scaling factor for UV
-                ) * board_data
-                    .ghost_dynamics
-                    .uv_ectoplasm_clarity
-                    .max(0.0)
-                    .powi(2)
-            } else {
-                0.0
-            };
-            current_evidence_readings.report_clarity(
-                Evidence::UVEctoplasm,
-                uv_clarity,
-                current_game_time_secs,
-                delta_time_secs,
-            );
-
-            // RLPresence Check
-            let rl_clarity = if board_data.evidences.contains(&Evidence::RLPresence) {
-                calculate_clarity_for_visual_evidence(
-                    effective_light_at_entity_pos.red,
-                    0.3, // Red light signal threshold
-                    effective_light_at_entity_pos.visible,
-                    0.3,
-                    player_visibility_to_tile,
-                    3.0, // Scaling factor for Red
-                ) * board_data
-                    .ghost_dynamics
-                    .rl_presence_clarity
-                    .max(0.0)
-                    .powi(2)
-            } else {
-                0.0
-            };
-            current_evidence_readings.report_clarity(
-                Evidence::RLPresence,
-                rl_clarity,
-                current_game_time_secs,
-                delta_time_secs,
-            );
-        } else {
-            // Is Breach
-            // FloatingOrbs Check
-            let orbs_clarity = if board_data.evidences.contains(&Evidence::FloatingOrbs) {
-                calculate_clarity_for_visual_evidence(
-                    effective_light_at_entity_pos.infrared,
-                    0.5, // IR signal threshold
-                    effective_light_at_entity_pos.visible,
-                    0.2, // Visible light darkness threshold
-                    player_visibility_to_tile,
-                    5.0, // Scaling factor for Orbs (IR is usually strong)
-                ) * board_data
-                    .ghost_dynamics
-                    .floating_orbs_clarity
-                    .max(0.0)
-                    .powi(2)
-            } else {
-                0.0
-            };
-            current_evidence_readings.report_clarity(
-                Evidence::FloatingOrbs,
-                orbs_clarity,
-                current_game_time_secs,
-                delta_time_secs,
-            );
-        }
-    };
-
-    // Process ghost(s)
-    for (entity_id, entity_pos) in ghost_query.iter() {
-        process_entity(entity_id, entity_pos, true);
-    }
-    // Process breach(es)
-    for (entity_id, entity_pos) in breach_query.iter() {
-        process_entity(entity_id, entity_pos, false);
-    }
-}
-
 pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(
         Update,
         (
-            player_visibility_system,
-            apply_lighting,
-            report_environmental_visual_evidence_clarity_system.after(apply_lighting),
-        )
-            .chain(),
-    )
-    .add_systems(Update, ambient_sound_system);
+            player_visibility_system.run_if(in_state(AppState::InGame)),
+            apply_lighting.run_if(in_state(AppState::InGame)),
+        ),
+    );
 }
