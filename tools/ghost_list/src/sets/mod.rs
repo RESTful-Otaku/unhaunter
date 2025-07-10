@@ -47,8 +47,9 @@ pub fn test_set(ghost_names: &str) {
     // that would be a separate function.
 
     println!("\n✓ Test set analysis complete.");
-    println!("  Note: 'Conflict detection' and 'Balance scoring' are based on uniqueness and evidence summary.");
-
+    println!(
+        "  Note: 'Conflict detection' and 'Balance scoring' are based on uniqueness and evidence summary."
+    );
 }
 
 pub fn analyze_set(ghost_names: &str) {
@@ -71,7 +72,8 @@ pub fn analyze_set(ghost_names: &str) {
 
     // Gap Analysis
     println!("\n--- Gap Analysis ---");
-    let mut evidence_counts: std::collections::HashMap<uncore::types::evidence::Evidence, usize> = std::collections::HashMap::new();
+    let mut evidence_counts: std::collections::HashMap<uncore::types::evidence::Evidence, usize> =
+        std::collections::HashMap::new();
     for ghost in &ghosts {
         for evidence in ghost.evidences() {
             *evidence_counts.entry(evidence).or_insert(0) += 1;
@@ -92,14 +94,19 @@ pub fn analyze_set(ghost_names: &str) {
     } else {
         println!("Found potentially under-represented evidences:");
         for evidence in &under_represented_evidence {
-            println!("  - {}: present in {} ghost(s) in the set.", evidence.name(), evidence_counts.get(evidence).copied().unwrap_or(0));
+            println!(
+                "  - {}: present in {} ghost(s) in the set.",
+                evidence.name(),
+                evidence_counts.get(evidence).copied().unwrap_or(0)
+            );
         }
 
         // Recommendation Engine (Basic)
         println!("\n--- Recommendations to Fill Gaps ---");
         let mut recommendations_made = 0;
         for needed_evidence in &under_represented_evidence {
-            if recommendations_made >= 3 { // Limit number of recommendations for brevity
+            if recommendations_made >= 3 {
+                // Limit number of recommendations for brevity
                 break;
             }
             // Find up to 1 candidate ghost for this specific missing/rare evidence
@@ -117,7 +124,13 @@ pub fn analyze_set(ghost_names: &str) {
                             "  - Consider adding '{}' (has {} and other evidences: {}) to cover '{}'.",
                             candidate.name(),
                             needed_evidence.name(),
-                            candidate.evidences().iter().map(|e| e.name()).filter(|&n| n != needed_evidence.name()).collect::<Vec<_>>().join(", "),
+                            candidate
+                                .evidences()
+                                .iter()
+                                .map(|e| e.name())
+                                .filter(|&n| n != needed_evidence.name())
+                                .collect::<Vec<_>>()
+                                .join(", "),
                             needed_evidence.name()
                         );
                         recommendations_made += 1;
@@ -126,7 +139,9 @@ pub fn analyze_set(ghost_names: &str) {
             }
         }
         if recommendations_made == 0 {
-            println!("No simple ghost additions found to cover specific gaps with single candidates.");
+            println!(
+                "No simple ghost additions found to cover specific gaps with single candidates."
+            );
         }
     }
 

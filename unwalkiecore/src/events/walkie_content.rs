@@ -1,9 +1,8 @@
-
 use crate::{
+    ConceptTrait,
     events::walkie_types::WalkieEvent,
     generated::{
-        base1::Base1Concept,
-        basic_gear_usage::BasicGearUsageConcept,
+        base1::Base1Concept, basic_gear_usage::BasicGearUsageConcept,
         consumables_and_defense::ConsumablesAndDefenseConcept,
         environmental_awareness::EnvironmentalAwarenessConcept,
         evidence_gathering_and_logic::EvidenceGatheringAndLogicConcept,
@@ -15,7 +14,6 @@ use crate::{
         tutorial_chapter_intros::TutorialChapterIntrosConcept,
         tutorial_gear_explanations::TutorialGearExplanationsConcept,
     },
-    ConceptTrait,
 };
 use bevy::log::warn;
 use uncore::{
@@ -37,9 +35,9 @@ impl WalkieEvent {
         match self {
             WalkieEvent::GearInVan => Box::new(Base1Concept::GearInVan),
             WalkieEvent::GhostNearHunt => Box::new(Base1Concept::GhostNearHunt),
-            WalkieEvent::IncorrectRepellentHint(evidence) => {
-                Box::new(Self::evidence_to_incorrect_repellent_hint_concept(*evidence))
-            }
+            WalkieEvent::IncorrectRepellentHint(evidence) => Box::new(
+                Self::evidence_to_incorrect_repellent_hint_concept(*evidence),
+            ),
             WalkieEvent::ChapterIntro(difficulty) => match difficulty {
                 Difficulty::TutorialChapter1 => {
                     Box::new(TutorialChapterIntrosConcept::TutorialChapter1Intro)
@@ -201,9 +199,9 @@ impl WalkieEvent {
             WalkieEvent::RepellentUsedGhostEnragesPlayerFlees => {
                 Box::new(RepellentAndExpulsionConcept::RepellentUsedGhostEnragesPlayerFlees)
             }
-            WalkieEvent::RepellentExhaustedGhostPresentCorrectType => Box::new(
-                RepellentAndExpulsionConcept::RepellentExhaustedGhostPresentCorrectType,
-            ),
+            WalkieEvent::RepellentExhaustedGhostPresentCorrectType => {
+                Box::new(RepellentAndExpulsionConcept::RepellentExhaustedGhostPresentCorrectType)
+            }
             WalkieEvent::GhostExpelledPlayerMissed => {
                 Box::new(RepellentAndExpulsionConcept::GhostExpelledPlayerMissed)
             }
@@ -241,9 +239,9 @@ impl WalkieEvent {
                 Box::new(EvidenceGatheringAndLogicConcept::CPM500EvidenceConfirmed)
             }
             // --- Proactive Crafting Prompts ---
-            WalkieEvent::PotentialGhostIDWithNewEvidence => Box::new(
-                EvidenceGatheringAndLogicConcept::PotentialGhostIDWithNewEvidencePrompt,
-            ),
+            WalkieEvent::PotentialGhostIDWithNewEvidence => {
+                Box::new(EvidenceGatheringAndLogicConcept::PotentialGhostIDWithNewEvidencePrompt)
+            }
             // --- Mission Progression and Truck Events ---
             WalkieEvent::ClearEvidenceFoundNoActionCKey => {
                 Box::new(EvidenceGatheringAndLogicConcept::ClearEvidenceFoundNoActionCKey)

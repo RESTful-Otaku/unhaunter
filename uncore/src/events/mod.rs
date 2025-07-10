@@ -1,3 +1,4 @@
+pub mod ambient_sound_mute;
 pub mod board_data_rebuild;
 pub mod hint;
 pub mod loadlevel;
