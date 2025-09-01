@@ -118,7 +118,7 @@ pub struct MapLayerGroup {
 }
 
 impl MapLayerGroup {
-    pub fn iter(&self) -> IterMapLayerGroup {
+    pub fn iter<'a>(&'a self) -> IterMapLayerGroup<'a> {
         IterMapLayerGroup {
             iter: vec![self.layers.iter()],
         }

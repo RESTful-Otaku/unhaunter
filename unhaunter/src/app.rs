@@ -40,7 +40,7 @@ pub fn app_run(cli_options: CliOptions) {
         DefaultPlugins
             .set(WindowPlugin {
                 primary_window: Some(Window {
-                    title: format!("Unhaunter {}", plt::VERSION),
+                    title: format!("Unhaunter {} - by J M Harrison", plt::VERSION),
                     resolution: default_resolution(),
                     // Enabling VSync might make it easier in WASM? (It doesn't)
                     present_mode: bevy::window::PresentMode::AutoVsync,
