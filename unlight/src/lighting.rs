@@ -158,7 +158,7 @@ pub fn rebuild_lighting_field(
     // );
 }
 
-// Applies ambient light to walls based on neighboring lit tiles
+// Applies ambient light to walls based on neighbouring lit tiles
 fn apply_ambient_light_to_walls(bf: &BoardData, lfs: &mut Array3<LightFieldData>) {
     let _wall_light_start = Instant::now();
     let mut _walls_lit = 0;
@@ -186,7 +186,7 @@ fn apply_ambient_light_to_walls(bf: &BoardData, lfs: &mut Array3<LightFieldData>
         if collision.player_free {
             continue;
         }
-        // Collect light from neighbors
+        // Collect light from neighbours
         let mut total_lux = 0.0;
         let mut weighted_color_sum = (0.0, 0.0, 0.0);
         let mut weight_sum = 0.0;
@@ -202,10 +202,10 @@ fn apply_ambient_light_to_walls(bf: &BoardData, lfs: &mut Array3<LightFieldData>
             }
 
             let n_pos = (nx as usize, ny as usize, nz as usize);
-            let neighbor_light = &src_lfs[n_pos];
+            let neighbour_light = &src_lfs[n_pos];
 
-            // Skip if neighbor has no light
-            if neighbor_light.lux <= 0.000000001 {
+            // Skip if neighbour has no light
+            if neighbour_light.lux <= 0.000000001 {
                 continue;
             }
 
@@ -230,16 +230,16 @@ fn apply_ambient_light_to_walls(bf: &BoardData, lfs: &mut Array3<LightFieldData>
 
             // Apply ambient factor
             let ambient_factor = 0.3;
-            let contribution = neighbor_light.lux * weight * ambient_factor;
+            let contribution = neighbour_light.lux * weight * ambient_factor;
 
             total_lux += contribution;
-            weighted_color_sum.0 += neighbor_light.color.0 * weight;
-            weighted_color_sum.1 += neighbor_light.color.1 * weight;
-            weighted_color_sum.2 += neighbor_light.color.2 * weight;
+            weighted_color_sum.0 += neighbour_light.color.0 * weight;
+            weighted_color_sum.1 += neighbour_light.color.1 * weight;
+            weighted_color_sum.2 += neighbour_light.color.2 * weight;
             weight_sum += weight;
         }
 
-        // Only update if we found lit neighbors
+        // Only update if we found lit neighbours
         if weight_sum > 0.0 {
             // Calculate average color
             let avg_color = (

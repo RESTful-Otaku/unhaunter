@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathfinding Visualizer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Pathfinding Visualizer</h1>
+    <div class="controls">
+      <button id="generate">Generate Maze</button>
+      <select id="algo">
+        <option value="astar">A*</option>
+        <option value="bfs">BFS</option>
+      </select>
+      <button id="run">Run Pathfinding</button>
+    </div>
+    <canvas id="canvas"></canvas>
+    <p>Click to set start (green) and end (red) points.</p>
+  </div>
+  <script src="dist/app.js"></script>
+</body>
+</html>

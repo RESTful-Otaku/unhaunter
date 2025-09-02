@@ -47,12 +47,12 @@ fn fragment(
     let zero4 = vec4(0.0, 0.0, 0.0, 0.0);
     let one4 = vec4(1.0, 1.0, 1.0, 1.0);
 
-    // Adding a margin to the sprite coordinates to prevent reading from neighboring sprite
+    // Adding a margin to the sprite coordinates to prevent reading from neighbouring sprite
     let margin = 0.5;
     let mx = margin / material.sprite_width ;
     let my = margin / material.sprite_height ;
 
-    // Margin protects the sprites from reading the neighboring sprite
+    // Margin protects the sprites from reading the neighbouring sprite
     let margin_uv = clamp(mesh.uv, vec2<f32>(0.0, my*2.0), vec2<f32>(1.0-mx, 1.0-my));
 
     // Correcting UV coordinates for the sprite
@@ -61,7 +61,7 @@ fn fragment(
         base_v + margin_uv.y * cell_height,
     );
 
-    // -->> (Pixel perfect): This uses a neares neighbor that attempts to mitigate moiré effect by antialiasing sub-pixel movements.
+    // -->> (Pixel perfect): This uses a neares neighbour that attempts to mitigate moiré effect by antialiasing sub-pixel movements.
     // Applying pixel-perfect sampling on the gamma corrected base color
     let uv = sprite_uv; // Using the corrected UV for sprite sheets
     let texel_per_px = abs(dpdx(mesh.uv.x) * material.sprite_width); // 0.1 at 10x zoom. Amount of texels that fit in one screen pixel.

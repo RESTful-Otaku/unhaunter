@@ -2,7 +2,7 @@
 <map version="1.10" tiledversion="1.11.1" class="UnhaunterMap1" orientation="isometric" renderorder="right-down" width="128" height="128" tilewidth="24" tileheight="12" infinite="0" nextlayerid="50" nextobjectid="8">
  <properties>
   <property name="author" value="sl4cer/Francisco"/>
-  <property name="display_name" value="Neighborhood"/>
+  <property name="display_name" value="Neighbourhood"/>
   <property name="draft" type="bool" value="true"/>
   <property name="flavor_text" value="The neighboorhood got hounted"/>
   <property name="location_address" value="34ef Knight Neighbourhood"/>
@@ -3596,7 +3596,7 @@ I need to rest and heal I got injured and I told Harris to continue investigatin
   </layer>
   <layer id="30" name="NPCs" width="128" height="128">
    <properties>
-    <property name="NPC:A:dialog">Good evening, sir. I'm Sergeant Thompson. I've been briefed on your arrival and the nature of your expertise. I need to inform you that this neighborhood has been under military quarantine due to reported paranormal activities. The incidents have escalated to the point where civilian safety is at risk, and we've had to evacuate the area.
+    <property name="NPC:A:dialog">Good evening, sir. I'm Sergeant Thompson. I've been briefed on your arrival and the nature of your expertise. I need to inform you that this neighbourhood has been under military quarantine due to reported paranormal activities. The incidents have escalated to the point where civilian safety is at risk, and we've had to evacuate the area.
 
 The reports range from unexplained noises and apparitions to more disturbing phenomena, such as objects moving on their own and unexplained injuries. We've had several teams investigate, but none have been able to provide a concrete explanation or solution. Our priority is to ensure the safety of the public and to understand what's happening here.</property>
     <property name="NPC:C:dialog">Good evening, sir. I'm Sergeant Harris. I managed to contain the unidentified extranatural activity and secure the perimeter.
@@ -5598,7 +5598,7 @@ We've moved some useful equipment near the house to assist in your investigation
   </layer>
   <layer id="46" name="NPCs" width="128" height="128">
    <properties>
-    <property name="NPC:A:dialog">Good evening, sir. I'm Sergeant Thompson. I've been briefed on your arrival and the nature of your expertise. I need to inform you that this neighborhood has been under military quarantine due to reported paranormal activities. The incidents have escalated to the point where civilian safety is at risk, and we've had to evacuate the area.
+    <property name="NPC:A:dialog">Good evening, sir. I'm Sergeant Thompson. I've been briefed on your arrival and the nature of your expertise. I need to inform you that this neighbourhood has been under military quarantine due to reported paranormal activities. The incidents have escalated to the point where civilian safety is at risk, and we've had to evacuate the area.
 
 The reports range from unexplained noises and apparitions to more disturbing phenomena, such as objects moving on their own and unexplained injuries. We've had several teams investigate, but none have been able to provide a concrete explanation or solution. Our priority is to ensure the safety of the public and to understand what's happening here.</property>
     <property name="NPC:C:dialog">Good evening, sir. I'm Sergeant Harris. I managed to contain the unidentified extranatural activity and secure the perimeter.

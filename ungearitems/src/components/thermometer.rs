@@ -260,7 +260,7 @@ fn temperature_update(
         let power = freezing * 0.5 + 0.5;
         const ENABLE_GHOST_COLD_TEMPS: bool = true;
         if ENABLE_GHOST_COLD_TEMPS {
-            for npos in bpos.iter_xy_neighbors(3, bf.map_size) {
+            for npos in bpos.iter_xy_neighbours(3, bf.map_size) {
                 if ghost_in_room != roomdb.room_tiles.get(&npos)
                     || !bf.collision_field[npos.ndidx()].player_free
                 {
@@ -277,7 +277,7 @@ fn temperature_update(
                 *t = (*t + ghost_target_temp * effective_power) / (1.0 + effective_power);
             }
         }
-        for npos in gs.spawn_point.iter_xy_neighbors(3, bf.map_size) {
+        for npos in gs.spawn_point.iter_xy_neighbours(3, bf.map_size) {
             if breach_in_room != roomdb.room_tiles.get(&npos)
                 || !bf.collision_field[npos.ndidx()].player_free
             {
@@ -341,30 +341,30 @@ fn temperature_update(
             self_k = OUTSIDE_CONDUCTIVITY;
         }
 
-        // Check if this is a stair tile - if so, add vertical neighbor
-        let mut neighbors = vec![bpos.left(), bpos.right(), bpos.top(), bpos.bottom()];
+        // Check if this is a stair tile - if so, add vertical neighbour
+        let mut neighbours = vec![bpos.left(), bpos.right(), bpos.top(), bpos.bottom()];
 
-        // Add stair connection as a neighbor with very high priority
+        // Add stair connection as a neighbour with very high priority
         if cp.stair_offset != 0 {
             let stair_target_z = bpos.z + cp.stair_offset as i64;
             if stair_target_z >= 0 && stair_target_z < bf.map_size.2 as i64 {
-                let stair_neighbor = BoardPosition {
+                let stair_neighbour = BoardPosition {
                     x: bpos.x,
                     y: bpos.y,
                     z: stair_target_z,
                 };
-                // Add stair neighbors - we'll process all neighbors now instead of random selection
-                neighbors.push(stair_neighbor.left());
-                neighbors.push(stair_neighbor.right());
-                neighbors.push(stair_neighbor.top());
-                neighbors.push(stair_neighbor.bottom());
+                // Add stair neighbours - we'll process all neighbours now instead of random selection
+                neighbours.push(stair_neighbour.left());
+                neighbours.push(stair_neighbour.right());
+                neighbours.push(stair_neighbour.top());
+                neighbours.push(stair_neighbour.bottom());
             }
         }
 
-        // Process only 1 neighbor at random
+        // Process only 1 neighbour at random
         // use rand::prelude::IndexedRandom;
-        // if let Some(neigh) = neighbors.choose(&mut rng) {
-        for neigh in &neighbors {
+        // if let Some(neigh) = neighbours.choose(&mut rng) {
+        for neigh in &neighbours {
             let neigh_ndidx = neigh.ndidx();
             let Some(neigh_free) = bf
                 .collision_field

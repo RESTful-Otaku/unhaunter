@@ -230,7 +230,7 @@ fn repellent_update(
             continue;
         }
         let bpos = BoardPosition::from_ndidx(p);
-        for nb in bpos.iter_xy_neighbors(2, bf.map_size) {
+        for nb in bpos.iter_xy_neighbours(2, bf.map_size) {
             let dist2 = nb.distance2(&bpos) * RADIUS;
             let exponent: f32 = -0.5 * dist2;
             let gauss = faster::exp(exponent);
@@ -268,7 +268,7 @@ fn repellent_update(
         let ndidx = bpos.ndidx();
 
         let mut total_force = Direction::zero();
-        for nb in bpos.iter_xy_neighbors(2, bf.map_size) {
+        for nb in bpos.iter_xy_neighbours(2, bf.map_size) {
             let npos = nb.to_position();
             let vector = rr_pos.delta(npos);
             let dist2 = vector.distance2();
@@ -295,7 +295,7 @@ fn repellent_update(
             .add(total_force.mul(PRESSURE_FORCE_SCALE))
             .mul(0.999);
 
-        for nb in bpos.iter_xy_neighbors(1, bf.map_size) {
+        for nb in bpos.iter_xy_neighbours(1, bf.map_size) {
             let coll_tile_data = &bf.collision_field[nb.ndidx()];
             if !coll_tile_data.player_free && !coll_tile_data.see_through {
                 // Collision with walls

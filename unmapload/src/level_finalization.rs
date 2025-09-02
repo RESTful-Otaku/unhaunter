@@ -161,7 +161,7 @@ fn after_level_ready(
                         continue;
                     }
                     let bpos = BoardPosition::from_ndidx(p);
-                    let nbors = bpos.iter_xy_neighbors(1, bf.map_size);
+                    let nbors = bpos.iter_xy_neighbours(1, bf.map_size);
                     let mut t_temp = temp_snap.get(p).copied().unwrap_or(ambient_temp);
                     let mut count = 1.0;
                     if t_temp < celsius_to_kelvin(1.0) {

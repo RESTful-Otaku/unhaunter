@@ -60,7 +60,7 @@ impl CollisionHandler<'_> {
     fn check_floor_collisions(&self, bpos: &BoardPosition, pos: &Position) -> Vec3 {
         let mut delta = Vec3::ZERO;
 
-        for npos in bpos.iter_xy_neighbors_nosize(1) {
+        for npos in bpos.iter_xy_neighbours_nosize(1) {
             let cf = self
                 .bf
                 .collision_field

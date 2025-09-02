@@ -133,7 +133,7 @@ fn load_level_handler(
         }
     }
 
-    // Add margin for neighbor checking
+    // Add margin for neighbour checking
     const MAP_MARGIN: i32 = 3;
     map_min_x -= MAP_MARGIN;
     map_min_y -= MAP_MARGIN;

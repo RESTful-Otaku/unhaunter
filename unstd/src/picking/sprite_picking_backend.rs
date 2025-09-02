@@ -74,27 +74,27 @@ pub struct CustomSpritePickingSettings {
     /// Adjust based on your sprite dimensions and desired click tolerance.
     pub tile_size: Vec2,
 
-    /// When `true`, enables checking neighboring pixels for more forgiving hit detection.
+    /// When `true`, enables checking neighbouring pixels for more forgiving hit detection.
     ///
     /// If the exact pixel under the cursor doesn't meet the alpha threshold,
     /// the system will check nearby pixels. This makes small sprites easier to click
     /// and provides better user experience on touch devices.
     /// Only applies when using `CustomSpritePickingMode::AlphaThreshold`.
-    pub check_neighbors: bool,
+    pub check_neighbours: bool,
 
-    /// When `true`, uses 8-way connectivity (including diagonals) for neighbor checking.
+    /// When `true`, uses 8-way connectivity (including diagonals) for neighbour checking.
     ///
     /// When `false`, uses 4-way connectivity (cardinal directions only).
     /// 8-way provides more forgiving hit detection but checks more pixels.
-    /// Only relevant when `check_neighbors` is `true`.
-    pub use_8_way_neighbors: bool,
+    /// Only relevant when `check_neighbours` is `true`.
+    pub use_8_way_neighbours: bool,
 
-    /// Distance in pixels to check for neighboring pixels.
+    /// Distance in pixels to check for neighbouring pixels.
     ///
-    /// A value of 1 checks immediate neighbors, 2 checks up to 2 pixels away, etc.
+    /// A value of 1 checks immediate neighbours, 2 checks up to 2 pixels away, etc.
     /// Higher values provide more forgiving clicking but may affect precision.
-    /// Only relevant when `check_neighbors` is `true`.
-    pub neighbor_distance: u32,
+    /// Only relevant when `check_neighbours` is `true`.
+    pub neighbour_distance: u32,
 }
 
 impl Default for CustomSpritePickingSettings {
@@ -103,9 +103,9 @@ impl Default for CustomSpritePickingSettings {
             require_markers: false,
             picking_mode: CustomSpritePickingMode::AlphaThreshold(ALPHA_THRESHOLD),
             tile_size: Vec2::new(16.0, 16.0),
-            check_neighbors: true,
-            use_8_way_neighbors: true,
-            neighbor_distance: 1,
+            check_neighbours: true,
+            use_8_way_neighbours: true,
+            neighbour_distance: 1,
         }
     }
 }
@@ -461,14 +461,14 @@ fn pixel_perfect_hit_test(
         return true;
     }
 
-    // If neighbor checking is disabled or we're not in alpha threshold mode, stop here
-    if !settings.check_neighbors {
+    // If neighbour checking is disabled or we're not in alpha threshold mode, stop here
+    if !settings.check_neighbours {
         return false;
     }
 
-    // Generate neighbor offsets based on settings
-    let mut neighbor_offsets = Vec::new();
-    let distance = settings.neighbor_distance as i32;
+    // Generate neighbour offsets based on settings
+    let mut neighbour_offsets = Vec::new();
+    let distance = settings.neighbour_distance as i32;
 
     for dy in -distance..=distance {
         for dx in -distance..=distance {
@@ -478,20 +478,20 @@ fn pixel_perfect_hit_test(
             }
 
             // For 4-way connectivity, skip diagonal pixels
-            if !settings.use_8_way_neighbors && dx != 0 && dy != 0 {
+            if !settings.use_8_way_neighbours && dx != 0 && dy != 0 {
                 continue;
             }
 
-            neighbor_offsets.push((dx, dy));
+            neighbour_offsets.push((dx, dy));
         }
     }
 
-    // Check each neighbor pixel
-    for (dx, dy) in neighbor_offsets {
-        let neighbor_x = center_tex_x + dx;
-        let neighbor_y = center_tex_y + dy;
+    // Check each neighbour pixel
+    for (dx, dy) in neighbour_offsets {
+        let neighbour_x = center_tex_x + dx;
+        let neighbour_y = center_tex_y + dy;
 
-        if check_pixel_alpha(neighbor_x, neighbor_y) {
+        if check_pixel_alpha(neighbour_x, neighbour_y) {
             return true;
         }
     }

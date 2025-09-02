@@ -92,8 +92,8 @@ pub fn compute_visibility(
             continue;
         }
 
-        let neighbors = pos.iter_xy_neighbors(1, map_size);
-        for npos in neighbors {
+        let neighbours = pos.iter_xy_neighbours(1, map_size);
+        for npos in neighbours {
             if npos == pos {
                 continue;
             }
@@ -125,7 +125,7 @@ pub fn compute_visibility(
             // Apply a visibility penalty to collision tiles that are in positive X or Y direction
             let mut visibility_factor = 1.0;
             if !(ncf.player_free || ncf.see_through) {
-                // Check if the neighbor is in positive X or Y direction relative to current tile
+                // Check if the neighbour is in positive X or Y direction relative to current tile
                 if npos.x > pos.x || npos.y < pos.y {
                     if ncf.is_dynamic {
                         visibility_factor = (0.5 / (npds + 1.0)).cbrt(); // Doors have less penalty
@@ -352,7 +352,7 @@ fn apply_lighting(
         }
 
         let cursor_pos = pos.to_board_position();
-        for npos in cursor_pos.iter_xy_neighbors(2, board_dim) {
+        for npos in cursor_pos.iter_xy_neighbours(2, board_dim) {
             let lf = &bf.light_field[npos.ndidx()];
             let vis = vf.visibility_field[npos.ndidx()]
                 * if bf.collision_field[npos.ndidx()].player_free {
@@ -804,7 +804,7 @@ fn apply_lighting(
             infrared: 0.0,
             ultraviolet: 0.0,
         }];
-        for nbpos in bpos.iter_xy_neighbors(1, bf.map_size) {
+        for nbpos in bpos.iter_xy_neighbours(1, bf.map_size) {
             if let Some(ld_abs) = lightdata_map.get(&nbpos) {
                 light_v.push(*ld_abs);
             }
@@ -989,23 +989,23 @@ fn apply_lighting(
 
                 for dx in -1..1 {
                     for dy in -1..1 {
-                        let neighbor_pos = BoardPosition {
+                        let neighbour_pos = BoardPosition {
                             x: bpos.x + dx,
                             y: bpos.y + dy,
                             z: bpos.z,
                         };
 
-                        if let Some(neighbor_pressure) =
-                            bf.miasma.pressure_field.get(neighbor_pos.ndidx())
+                        if let Some(neighbour_pressure) =
+                            bf.miasma.pressure_field.get(neighbour_pos.ndidx())
                         {
                             // Calculate distance from sprite's *actual* position to the
-                            // *center* of the neighbor tile. This is important for smooth
+                            // *center* of the neighbour tile. This is important for smooth
                             // weighting.
-                            let neighbor_center = neighbor_pos.to_position_center();
-                            let distance = pos.distance(&neighbor_center); // Euclidean distance
+                            let neighbour_center = neighbour_pos.to_position_center();
+                            let distance = pos.distance(&neighbour_center); // Euclidean distance
                             let weight = (distance + 0.1).recip(); // Avoid division by zero
 
-                            total_pressure += neighbor_pressure * weight;
+                            total_pressure += neighbour_pressure * weight;
                             total_weight += weight;
                         }
                     }
@@ -1014,7 +1014,7 @@ fn apply_lighting(
                 let average_pressure = if total_weight > 0.0 {
                     total_pressure / total_weight
                 } else {
-                    0.0 // Default to 0 if no neighbors have pressure (shouldn't happen)
+                    0.0 // Default to 0 if no neighbours have pressure (shouldn't happen)
                 };
 
                 let miasma_visibility = average_pressure.max(0.0).sqrt()
