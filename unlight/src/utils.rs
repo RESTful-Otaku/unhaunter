@@ -31,7 +31,7 @@ pub fn has_active_light_nearby(
     j: usize,
     k: usize,
 ) -> bool {
-    // Check immediate neighbors plus the current position
+    // Check immediate neighbours plus the current position
     for dx in -1..=1 {
         for dy in -1..=1 {
             for dz in -1..=1 {
@@ -353,7 +353,7 @@ pub fn propagate_from_wave_edges(
             }
         };
 
-        // Process each neighbor direction
+        // Process each neighbour direction
         for (dir_idx, &(dx, dy, dz)) in directions.iter().enumerate() {
             // Skip if not allowed in this direction
             if !is_stair_edge && !allowed_directions[dir_idx] {
@@ -369,30 +369,30 @@ pub fn propagate_from_wave_edges(
                 continue;
             }
 
-            let neighbor_pos = BoardPosition {
+            let neighbour_pos = BoardPosition {
                 x: nx,
                 y: ny,
                 z: nz,
             };
 
-            let neighbor_idx = neighbor_pos.ndidx();
+            let neighbour_idx = neighbour_pos.ndidx();
 
-            // Stop checking early if this neighbor is already too bright
-            if lfs[neighbor_idx].lux > max_lux_possible * 4.0 {
+            // Stop checking early if this neighbour is already too bright
+            if lfs[neighbour_idx].lux > max_lux_possible * 4.0 {
                 continue;
             }
 
-            // For regular wave edges, skip if neighbor was already in prebaked data
+            // For regular wave edges, skip if neighbour was already in prebaked data
             // For stair wave edges, don't skip
             if !is_stair_edge
                 && Some(edge_data.source_id)
-                    == bf.prebaked_lighting[neighbor_idx].light_info.source_id
+                    == bf.prebaked_lighting[neighbour_idx].light_info.source_id
             {
                 continue;
             }
 
             // Check collision data
-            let collision = &bf.collision_field[neighbor_idx];
+            let collision = &bf.collision_field[neighbour_idx];
 
             // Update wave edge position using IIR filter
             let new_pos_f32 = (nx as f32, ny as f32, nz as f32);
@@ -486,38 +486,38 @@ pub fn propagate_from_wave_edges(
             new_wave_edge.src_light_lux = src_light_lux;
 
             // Skip propagating if the contribution is too small
-            if lfs[neighbor_idx].lux > new_lux * 5.0 {
+            if lfs[neighbour_idx].lux > new_lux * 5.0 {
                 continue;
-            } else if lfs[neighbor_idx].lux > new_lux * 2.0 {
+            } else if lfs[neighbour_idx].lux > new_lux * 2.0 {
                 new_wave_edge.src_light_lux /= 1.1;
             }
 
-            // Update light field for neighbor
-            if lfs[neighbor_idx].lux > 0.0 {
-                lfs[neighbor_idx].color = blend_colors(
-                    lfs[neighbor_idx].color,
-                    lfs[neighbor_idx].lux,
+            // Update light field for neighbour
+            if lfs[neighbour_idx].lux > 0.0 {
+                lfs[neighbour_idx].color = blend_colors(
+                    lfs[neighbour_idx].color,
+                    lfs[neighbour_idx].lux,
                     edge_data.color,
                     new_lux,
                 );
             } else {
-                lfs[neighbor_idx].color = edge_data.color;
+                lfs[neighbour_idx].color = edge_data.color;
             }
 
-            lfs[neighbor_idx].lux += new_lux;
+            lfs[neighbour_idx].lux += new_lux;
 
             // Log when adding light to a cell from a stair wave edge
             if is_stair_edge {
                 // info!(
                 //     "  Stair light propagated to ({}, {}, {}): added lux {} (total now: {})",
-                //     nx, ny, nz, new_lux, lfs[neighbor_idx].lux
+                //     nx, ny, nz, new_lux, lfs[neighbour_idx].lux
                 // );
                 _stair_propagation_count += 1;
             }
 
-            // Add neighbor to queue with updated history
+            // Add neighbour to queue with updated history
             queue.push_back(InternalWaveEdge {
-                position: neighbor_pos,
+                position: neighbour_pos,
                 wave_edge: new_wave_edge,
                 source_id: edge_data.source_id,
                 color: edge_data.color,

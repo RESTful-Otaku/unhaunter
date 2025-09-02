@@ -172,7 +172,7 @@ fn spawn_miasma(
             * MIASMA_TARGET_SPRITE_COUNT as f32) as usize;
 
         let pos9_count = bpos
-            .iter_xy_neighbors(1, board_data.map_size)
+            .iter_xy_neighbours(1, board_data.map_size)
             .map(|bpos| count.get(&bpos).copied().unwrap_or_default())
             .sum::<usize>();
 
@@ -255,7 +255,7 @@ fn animate_miasma_sprites(
         let bpos = pos.to_board_position();
         let mut total_vel = Vec2::ZERO;
         let mut total_w = 0.0001;
-        for bpos in bpos.iter_xy_neighbors(1, board_data.map_size) {
+        for bpos in bpos.iter_xy_neighbours(1, board_data.map_size) {
             if !board_data.collision_field[bpos.ndidx()].player_free {
                 continue;
             }
@@ -387,25 +387,25 @@ fn update_miasma(
             //     continue;
             // }
 
-            // Process each neighbor (up, down, left, right):
-            let mut neighbors = vec![bpos.top(), bpos.bottom(), bpos.left(), bpos.right()];
+            // Process each neighbour (up, down, left, right):
+            let mut neighbours = vec![bpos.top(), bpos.bottom(), bpos.left(), bpos.right()];
 
             // Add stair connections for very strong miasma transmission
             let cp = &board_data.collision_field[p];
             if cp.stair_offset != 0 {
                 let stair_target_z = bpos.z + cp.stair_offset as i64;
                 if stair_target_z >= 0 && stair_target_z < board_data.map_size.2 as i64 {
-                    let stair_neighbor = BoardPosition {
+                    let stair_neighbour = BoardPosition {
                         x: bpos.x,
                         y: bpos.y,
                         z: stair_target_z,
                     };
-                    // Add stair neighbor - we'll handle the extra strength in the exchange calculation
-                    neighbors.push(stair_neighbor);
+                    // Add stair neighbour - we'll handle the extra strength in the exchange calculation
+                    neighbours.push(stair_neighbour);
                 }
             }
 
-            let neighbors = neighbors
+            let neighbours = neighbours
                 .into_iter()
                 .filter(|nb_pos| {
                     let n_idx = nb_pos.ndidx();
@@ -419,18 +419,18 @@ fn update_miasma(
                         .unwrap_or(true)
                 })
                 .collect::<Vec<_>>();
-            let nb_len = neighbors.len() as f32 + 0.01;
+            let nb_len = neighbours.len() as f32 + 0.01;
             let mut total_v = Vec2::ZERO;
-            for neighbor_pos in neighbors {
+            for neighbour_pos in neighbours {
                 if board_data
                     .collision_field
-                    .get(neighbor_pos.ndidx())
+                    .get(neighbour_pos.ndidx())
                     .is_none()
                 {
                     continue;
                 }
-                let np = neighbor_pos.ndidx();
-                // Get the neighbor's pressure (treat out-of-bounds as 0.0)
+                let np = neighbour_pos.ndidx();
+                // Get the neighbour's pressure (treat out-of-bounds as 0.0)
                 let mut p2 = board_data
                     .miasma
                     .pressure_field
@@ -459,7 +459,7 @@ fn update_miasma(
                 let mut exchange = delta_pressure * diffusion_rate * dt / nb_len;
 
                 // Check if this is a stair connection for super strong miasma flow
-                let is_stair_connection = neighbor_pos.z != bpos.z;
+                let is_stair_connection = neighbour_pos.z != bpos.z;
                 if is_stair_connection {
                     // Miasma flows extremely strongly through stairs - like air
                     // Use 100x stronger diffusion for stairs (increased from 50x)
@@ -478,13 +478,13 @@ fn update_miasma(
                 // Skip velocity adjustments for stair connections since they're vertical
                 if !is_stair_connection {
                     // Adjust exchange based on velocity components
-                    if neighbor_pos == bpos.top() {
+                    if neighbour_pos == bpos.top() {
                         exchange -= velocity.y * EXCHANGE_VEL_SCALE;
-                    } else if neighbor_pos == bpos.bottom() {
+                    } else if neighbour_pos == bpos.bottom() {
                         exchange += velocity.y * EXCHANGE_VEL_SCALE;
-                    } else if neighbor_pos == bpos.left() {
+                    } else if neighbour_pos == bpos.left() {
                         exchange -= velocity.x * EXCHANGE_VEL_SCALE;
-                    } else if neighbor_pos == bpos.right() {
+                    } else if neighbour_pos == bpos.right() {
                         exchange += velocity.x * EXCHANGE_VEL_SCALE;
                     }
                 }

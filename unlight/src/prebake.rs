@@ -109,7 +109,7 @@ pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position,
     let mut propagated_tiles = 0;
     let mut wave_edges = 0;
 
-    // Define neighbor directions
+    // Define neighbour directions
     let directions = [
         (0, 1, 0),  // North (+Y)
         (1, 0, 0),  // East (+X)
@@ -121,7 +121,7 @@ pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position,
     while let Some((pos, source_id, src_light_lux, color, distance_travelled, path_history)) =
         propagation_queue.pop_front()
     {
-        // Process each neighbor
+        // Process each neighbour
         for &(dx, dy, dz) in &directions {
             let nx = pos.x + dx;
             let ny = pos.y + dy;
@@ -132,15 +132,15 @@ pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position,
                 continue;
             }
 
-            let neighbor_pos = BoardPosition {
+            let neighbour_pos = BoardPosition {
                 x: nx,
                 y: ny,
                 z: nz,
             };
-            let neighbor_idx = neighbor_pos.ndidx();
+            let neighbour_idx = neighbour_pos.ndidx();
 
-            // Get collision data for the neighbor
-            let collision = &bf.collision_field[neighbor_idx];
+            // Get collision data for the neighbour
+            let collision = &bf.collision_field[neighbour_idx];
 
             // Check if already visited by this source
             let source_visited = visited_by_source.entry(source_id).or_default();
@@ -150,8 +150,8 @@ pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position,
 
             // Check if already visited by another source
             let already_has_different_source =
-                prebaked[neighbor_idx].light_info.source_id.is_some()
-                    && prebaked[neighbor_idx].light_info.source_id != Some(source_id);
+                prebaked[neighbour_idx].light_info.source_id.is_some()
+                    && prebaked[neighbour_idx].light_info.source_id != Some(source_id);
 
             // Check if this is a dynamic object (e.g., door)
             let is_dynamic_object = collision.is_dynamic;
@@ -193,21 +193,21 @@ pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position,
                 continue;
             }
 
-            // Check if we can propagate light through this neighbor
+            // Check if we can propagate light through this neighbour
             if !collision.see_through {
                 continue;
             }
 
-            // Mark this neighbor as visited by this source
+            // Mark this neighbour as visited by this source
             source_visited.insert((nx, ny, nz));
 
             // Calculate light attenuation with distance
             let new_lux = src_light_lux / (distance_travelled * distance_travelled);
 
-            // Apply the light to this neighbor if it doesn't already have a source
-            if prebaked[neighbor_idx].light_info.source_id.is_none() {
+            // Apply the light to this neighbour if it doesn't already have a source
+            if prebaked[neighbour_idx].light_info.source_id.is_none() {
                 // Set the light properties
-                prebaked[neighbor_idx].light_info = LightInfo {
+                prebaked[neighbour_idx].light_info = LightInfo {
                     source_id: Some(source_id),
                     lux: new_lux,
                     color,
@@ -216,13 +216,13 @@ pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position,
                 propagated_tiles += 1;
             }
 
-            // Create updated path history for the neighbor
+            // Create updated path history for the neighbour
             let mut new_history = path_history.clone();
-            new_history.push_back(neighbor_pos.clone());
+            new_history.push_back(neighbour_pos.clone());
 
-            // Continue propagation by adding the neighbor to the queue
+            // Continue propagation by adding the neighbour to the queue
             propagation_queue.push_back((
-                neighbor_pos,
+                neighbour_pos,
                 source_id,
                 src_light_lux,
                 color,
@@ -291,7 +291,7 @@ pub fn prebake_propagation_data(bf: &mut BoardData) {
             let p = pos.ndidx();
             let current_distance = distance_field[p];
 
-            // We iterate the 4 neighbors
+            // We iterate the 4 neighbours
             for (dir_idx, dir) in [
                 (0, -1, 0), // Up (North)
                 (0, 1, 0),  // Down (South)
@@ -301,13 +301,13 @@ pub fn prebake_propagation_data(bf: &mut BoardData) {
             .iter()
             .enumerate()
             {
-                let neighbor_pos = BoardPosition {
+                let neighbour_pos = BoardPosition {
                     x: pos.x + dir.0,
                     y: pos.y + dir.1,
                     z: pos.z + dir.2,
                 };
 
-                let n_idx = match neighbor_pos.ndidx_checked(bf.map_size) {
+                let n_idx = match neighbour_pos.ndidx_checked(bf.map_size) {
                     Some(idx) => idx,
                     None => continue, // Out of bounds, skip
                 };
@@ -328,7 +328,7 @@ pub fn prebake_propagation_data(bf: &mut BoardData) {
                     bf.prebaked_propagation[source_id as usize][(pos.x as usize, pos.y as usize)]
                         [dir_idx] = true;
 
-                    queue.push_front(neighbor_pos.clone()); // Simplified - no need for previous position
+                    queue.push_front(neighbour_pos.clone()); // Simplified - no need for previous position
                 }
             }
         }

@@ -136,7 +136,7 @@ impl BoardPosition {
         }
     }
 
-    pub fn _xy_neighbors_buf(&self, dist: u32, out: &mut Vec<BoardPosition>) {
+    pub fn _xy_neighbours_buf(&self, dist: u32, out: &mut Vec<BoardPosition>) {
         out.clear();
         let dist = dist as i64;
         for x in -dist..=dist {
@@ -151,7 +151,7 @@ impl BoardPosition {
         }
     }
 
-    pub fn _xy_neighbors_buf_clamped(
+    pub fn _xy_neighbours_buf_clamped(
         &self,
         dist: u32,
         out: &mut Vec<BoardPosition>,
@@ -183,16 +183,16 @@ impl BoardPosition {
             && self.z < map_size.2 as i64
     }
 
-    pub fn iter_xy_neighbors_nosize(&self, dist: i64) -> NeighborsIterator {
-        NeighborsIterator::new(self, dist, (0, 0), (2048, 2048))
+    pub fn iter_xy_neighbours_nosize(&self, dist: i64) -> NeighboursIterator {
+        NeighboursIterator::new(self, dist, (0, 0), (2048, 2048))
     }
 
-    pub fn iter_xy_neighbors(
+    pub fn iter_xy_neighbours(
         &self,
         dist: i64,
         map_size: (usize, usize, usize),
-    ) -> NeighborsIterator {
-        NeighborsIterator::new(
+    ) -> NeighboursIterator {
+        NeighboursIterator::new(
             self,
             dist,
             (0, 0),
@@ -202,18 +202,18 @@ impl BoardPosition {
             ),
         )
     }
-    pub fn iter_xy_neighbors_clamped(
+    pub fn iter_xy_neighbours_clamped(
         &self,
         dist: i64,
         from: (i64, i64),
         to: (i64, i64),
-    ) -> NeighborsIterator {
-        NeighborsIterator::new(self, dist, from, to)
+    ) -> NeighboursIterator {
+        NeighboursIterator::new(self, dist, from, to)
     }
 
-    pub fn _xy_neighbors_vec(&self, dist: u32) -> Vec<BoardPosition> {
+    pub fn _xy_neighbours_vec(&self, dist: u32) -> Vec<BoardPosition> {
         let mut ret: Vec<BoardPosition> = Vec::with_capacity((dist * dist * 4 + dist * 8) as usize);
-        self._xy_neighbors_buf(dist, &mut ret);
+        self._xy_neighbours_buf(dist, &mut ret);
         ret
     }
 
@@ -314,7 +314,7 @@ impl BoardPosition {
 pub struct MapEntityFieldBPos(pub BoardPosition);
 
 #[derive(Debug, Clone)]
-pub struct NeighborsIterator {
+pub struct NeighboursIterator {
     current_x: i64,
     current_y: i64,
     min_x: i64,
@@ -323,19 +323,19 @@ pub struct NeighborsIterator {
     z: i64,
 }
 
-impl NeighborsIterator {
+impl NeighboursIterator {
     pub fn new(
         center: &BoardPosition,
         max_distance: i64,
         from: (i64, i64),
         to: (i64, i64),
-    ) -> NeighborsIterator {
+    ) -> NeighboursIterator {
         let min_x = (center.x - max_distance).max(from.0);
         let min_y = (center.y - max_distance).max(from.1);
         let max_x = (center.x + max_distance).min(to.0);
         let max_y = (center.y + max_distance).min(to.1);
 
-        NeighborsIterator {
+        NeighboursIterator {
             current_x: min_x,
             current_y: min_y,
             min_x,
@@ -346,7 +346,7 @@ impl NeighborsIterator {
     }
 }
 
-impl Iterator for NeighborsIterator {
+impl Iterator for NeighboursIterator {
     type Item = BoardPosition;
 
     fn next(&mut self) -> Option<Self::Item> {

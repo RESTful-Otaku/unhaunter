@@ -64,13 +64,13 @@ fn is_visible(
     false // Out of bounds or no visibility data means not visible
 }
 
-/// Gets valid neighboring positions for pathfinding
-fn get_neighbors(
+/// Gets valid neighbouring positions for pathfinding
+fn get_neighbours(
     pos: &BoardPosition,
     board_data: &BoardData,
     visibility_data: &VisibilityData,
 ) -> Vec<BoardPosition> {
-    let mut neighbors = Vec::new();
+    let mut neighbours = Vec::new();
 
     // Check 4-directional movement (up, down, left, right)
     let directions = [
@@ -81,24 +81,24 @@ fn get_neighbors(
     ];
 
     for (dx, dy) in directions {
-        let neighbor = BoardPosition {
+        let neighbour = BoardPosition {
             x: pos.x + dx,
             y: pos.y + dy,
             z: pos.z, // Stay on same floor for now
         };
 
-        // Check if the neighbor is within bounds, walkable, and visible
-        if let Some(idx) = neighbor.ndidx_checked(board_data.map_size) {
+        // Check if the neighbour is within bounds, walkable, and visible
+        if let Some(idx) = neighbour.ndidx_checked(board_data.map_size) {
             if let Some(collision_data) = board_data.collision_field.get(idx) {
-                if collision_data.player_free && is_visible(&neighbor, board_data, visibility_data)
+                if collision_data.player_free && is_visible(&neighbour, board_data, visibility_data)
                 {
-                    neighbors.push(neighbor);
+                    neighbours.push(neighbour);
                 }
             }
         }
     }
 
-    neighbors
+    neighbours
 }
 
 /// Reconstructs the path from the came_from map
@@ -200,23 +200,23 @@ pub fn find_path(
         // Move current to closed set
         closed_set.insert(current_pos.clone());
 
-        // Check all neighbors
-        for neighbor in get_neighbors(&current_pos, board_data, visibility_data) {
-            if closed_set.contains(&neighbor) {
+        // Check all neighbours
+        for neighbour in get_neighbours(&current_pos, board_data, visibility_data) {
+            if closed_set.contains(&neighbour) {
                 continue;
             }
 
             let tentative_g = current_node.g_cost + 1; // Movement cost is always 1
 
-            let neighbor_g = g_costs.get(&neighbor).copied().unwrap_or(i32::MAX);
+            let neighbour_g = g_costs.get(&neighbour).copied().unwrap_or(i32::MAX);
 
-            if tentative_g < neighbor_g {
-                // Found a better path to this neighbor
-                came_from.insert(neighbor.clone(), current_pos.clone());
-                g_costs.insert(neighbor.clone(), tentative_g);
+            if tentative_g < neighbour_g {
+                // Found a better path to this neighbour
+                came_from.insert(neighbour.clone(), current_pos.clone());
+                g_costs.insert(neighbour.clone(), tentative_g);
 
-                let h_cost = heuristic(&neighbor, &goal_board);
-                open_set.push(PathNode::new(neighbor, tentative_g, h_cost));
+                let h_cost = heuristic(&neighbour, &goal_board);
+                open_set.push(PathNode::new(neighbour, tentative_g, h_cost));
             }
         }
     }
@@ -294,25 +294,25 @@ pub fn find_path_to_interactive(
         // Move current to closed set
         closed_set.insert(current_pos.clone());
 
-        // Check all neighbors - use special function that treats goal as walkable
-        for neighbor in
-            get_neighbors_to_interactive(&current_pos, board_data, visibility_data, &goal_board)
+        // Check all neighbours - use special function that treats goal as walkable
+        for neighbour in
+            get_neighbours_to_interactive(&current_pos, board_data, visibility_data, &goal_board)
         {
-            if closed_set.contains(&neighbor) {
+            if closed_set.contains(&neighbour) {
                 continue;
             }
 
             let tentative_g = current_node.g_cost + 1; // Movement cost is always 1
 
-            let neighbor_g = g_costs.get(&neighbor).copied().unwrap_or(i32::MAX);
+            let neighbour_g = g_costs.get(&neighbour).copied().unwrap_or(i32::MAX);
 
-            if tentative_g < neighbor_g {
-                // Found a better path to this neighbor
-                came_from.insert(neighbor.clone(), current_pos.clone());
-                g_costs.insert(neighbor.clone(), tentative_g);
+            if tentative_g < neighbour_g {
+                // Found a better path to this neighbour
+                came_from.insert(neighbour.clone(), current_pos.clone());
+                g_costs.insert(neighbour.clone(), tentative_g);
 
-                let h_cost = heuristic(&neighbor, &goal_board);
-                open_set.push(PathNode::new(neighbor, tentative_g, h_cost));
+                let h_cost = heuristic(&neighbour, &goal_board);
+                open_set.push(PathNode::new(neighbour, tentative_g, h_cost));
             }
         }
     }
@@ -322,15 +322,15 @@ pub fn find_path_to_interactive(
     Vec::new()
 }
 
-/// Gets valid neighboring positions for pathfinding to interactive objects.
+/// Gets valid neighbouring positions for pathfinding to interactive objects.
 /// Treats the goal position as walkable even if it has collision.
-fn get_neighbors_to_interactive(
+fn get_neighbours_to_interactive(
     pos: &BoardPosition,
     board_data: &BoardData,
     visibility_data: &VisibilityData,
     goal: &BoardPosition,
 ) -> Vec<BoardPosition> {
-    let mut neighbors = Vec::new();
+    let mut neighbours = Vec::new();
 
     // Check 4-directional movement (up, down, left, right)
     let directions = [
@@ -341,30 +341,30 @@ fn get_neighbors_to_interactive(
     ];
 
     for (dx, dy) in directions {
-        let neighbor = BoardPosition {
+        let neighbour = BoardPosition {
             x: pos.x + dx,
             y: pos.y + dy,
             z: pos.z, // Stay on same floor for now
         };
 
-        // Check if the neighbor is within bounds
-        if let Some(idx) = neighbor.ndidx_checked(board_data.map_size) {
+        // Check if the neighbour is within bounds
+        if let Some(idx) = neighbour.ndidx_checked(board_data.map_size) {
             // If this is the goal position, always treat it as walkable (but still check visibility)
-            if neighbor == *goal {
-                if is_visible(&neighbor, board_data, visibility_data) {
-                    neighbors.push(neighbor);
+            if neighbour == *goal {
+                if is_visible(&neighbour, board_data, visibility_data) {
+                    neighbours.push(neighbour);
                 }
             } else if let Some(collision_data) = board_data.collision_field.get(idx) {
                 // For non-goal positions, check walkability and visibility normally
-                if collision_data.player_free && is_visible(&neighbor, board_data, visibility_data)
+                if collision_data.player_free && is_visible(&neighbour, board_data, visibility_data)
                 {
-                    neighbors.push(neighbor);
+                    neighbours.push(neighbour);
                 }
             }
         }
     }
 
-    neighbors
+    neighbours
 }
 
 /// Smooths a path by removing unnecessary waypoints using line-of-sight checks.
@@ -419,7 +419,7 @@ fn has_line_of_sight(
     let dx = (to.x - from.x).abs();
     let dy = (to.y - from.y).abs();
     if dx <= 1 && dy <= 1 && dx + dy <= 2 {
-        // Adjacent or diagonal neighbors - check if destination is walkable and visible
+        // Adjacent or diagonal neighbours - check if destination is walkable and visible
         return is_walkable_and_visible(to, board_data, visibility_data);
     }
 

@@ -144,32 +144,32 @@ impl BoardData {
             return config.max_score;
         }
 
-        // Count passable 4-way neighbors
-        let neighbors = [pos.left(), pos.right(), pos.top(), pos.bottom()];
-        let mut passable_neighbors = 0u8;
-        let mut second_degree_neighbors = 0u8;
+        // Count passable 4-way neighbours
+        let neighbours = [pos.left(), pos.right(), pos.top(), pos.bottom()];
+        let mut passable_neighbours = 0u8;
+        let mut second_degree_neighbours = 0u8;
 
-        for neighbor in neighbors.iter() {
-            if self.is_position_passable(neighbor.clone()) {
-                passable_neighbors += 1;
+        for neighbour in neighbours.iter() {
+            if self.is_position_passable(neighbour.clone()) {
+                passable_neighbours += 1;
 
-                // Count second-degree neighbors (neighbors of neighbors)
-                let second_neighbors = [
-                    neighbor.left(),
-                    neighbor.right(),
-                    neighbor.top(),
-                    neighbor.bottom(),
+                // Count second-degree neighbours (neighbours of neighbours)
+                let second_neighbours = [
+                    neighbour.left(),
+                    neighbour.right(),
+                    neighbour.top(),
+                    neighbour.bottom(),
                 ];
-                for second_neighbor in second_neighbors.iter() {
-                    if self.is_position_passable(second_neighbor.clone()) {
-                        second_degree_neighbors += 1;
+                for second_neighbour in second_neighbours.iter() {
+                    if self.is_position_passable(second_neighbour.clone()) {
+                        second_degree_neighbours += 1;
                     }
                 }
             }
         }
 
         // Calculate total connectivity
-        passable_neighbors + second_degree_neighbors
+        passable_neighbours + second_degree_neighbours
     }
 
     /// Check if a position is passable (for connectivity calculations)
