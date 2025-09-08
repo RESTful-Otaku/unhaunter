@@ -103,7 +103,7 @@ pub fn setup_ui(
         &menu_items,
         0,
         Some(format!(
-            "Unhaunter {}    |    [Up]/[Down]: Change    |    [Enter]: Select",
+            "Unhaunter {}    |    [Up]/[Down]: Change    |    [Enter]: Select\nAuthor: Jonathan Harrison aka RESTful_Otaku (c) Copyright 2025",
             VERSION
         )),
         MenuUILayout,
