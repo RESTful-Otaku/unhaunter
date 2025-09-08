@@ -127,6 +127,10 @@ bevy_platform = { workspace = true }
 ordered-float = { workspace = true }
 walkdir = { workspace = true }
 anyhow = { workspace = true }
+time = "0.3"
+chrono = "0.4"
+
+
 
 [[bin]]
 name = "unhaunter_game"

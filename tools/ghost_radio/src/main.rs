@@ -12,14 +12,14 @@ mod data;
 mod ghost_ai;
 
 fn main() {
-    let player_phrases = load_player_phrases("assets/phrasebooks/player.yaml");
-    let mut ghost_responses = load_ghost_responses("assets/phrasebooks/ghost.yaml");
+    let player_phrases = load_player_phrases("../../assets/phrasebooks/player.yaml");
+    let mut ghost_responses = load_ghost_responses("../../assets/phrasebooks/ghost.yaml");
     let ghosts = ["poltergeist", "shade"];
     console_ui::display_ghost_options(&ghosts);
     let ghost_choice = get_user_choice();
     let selected_ghost = ghosts[ghost_choice - 1].to_owned();
     let ghost_metadata =
-        load_ghost_metadata(&format!("assets/sample_ghosts/{selected_ghost}.yaml"));
+        load_ghost_metadata(&format!("../../assets/sample_ghosts/{selected_ghost}.yaml"));
     let mut ghost_mood = ghost_metadata.mood.clone();
     let original_ghost_mood = ghost_mood.clone();
     let phrases = player_phrases.keys().cloned().collect::<Vec<_>>();
