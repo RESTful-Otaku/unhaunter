@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 //! A shader and a material that uses it.
 use bevy::{
     prelude::*,
