@@ -12,8 +12,18 @@ pub struct VideoSettings {
     pub font_scale: Scale,
 }
 
+#[expect(non_camel_case_types)]
+#[derive(Debug, Clone, Copy)]
+pub enum VideoSettingsValue {
+    window_size(WindowSize),
+    aspect_ratio(AspectRatio),
+    ui_scale(Scale),
+    font_scale(Scale),
+}
+
 #[derive(
     Reflect, Component, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Default, Sequence,
+    strum::Display, strum::EnumIter,
 )]
 pub enum WindowSize {
     Small,
@@ -24,6 +34,7 @@ pub enum WindowSize {
 
 #[derive(
     Reflect, Component, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Default, Sequence,
+    strum::Display, strum::EnumIter,
 )]
 pub enum AspectRatio {
     Ar4_3,
@@ -33,6 +44,7 @@ pub enum AspectRatio {
 }
 #[derive(
     Reflect, Component, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Default, Sequence,
+    strum::Display, strum::EnumIter,
 )]
 pub enum Scale {
     Scale080,
