@@ -287,6 +287,13 @@ fn apply_lighting(
         // If we don't have a valid map, skip this
         return;
     }
+
+    // Check if visibility field is properly initalised
+    if vf.visibility_field.is_empty() || vf.visibility_field.dim() != board_dim {
+        // Skip lighting calculation if visibility field is not ready
+        return;
+    }
+
     // Deployed gear
     for (pos, deployed_gear, gear_data) in q_deployed.iter() {
         let p = EquipmentPosition::Deployed;
@@ -472,8 +479,11 @@ fn apply_lighting(
                 if min_threshold * dist / 9 > update_radius.saturating_sub(dist + 2) {
                     continue;
                 }
-                if vf.visibility_field[(x, y, z)] > 0.00001 {
-                    entities.extend_from_slice(&bf.map_entity_field[(x, y, z)]);
+                // Check bounds before accessing visibility field
+                if x < vf.visibility_field.dim().0 && y < vf.visibility_field.dim().1 && z < vf.visibility_field.dim().2 {
+                    if vf.visibility_field[(x, y, z)] > 0.00001 {
+                        entities.extend_from_slice(&bf.map_entity_field[(x, y, z)]);
+                    }
                 }
             }
         }
@@ -634,8 +644,16 @@ fn apply_lighting(
                     lux_bl = lux_c;
                 }
             }
+            // Check bounds before accessing visibility field
+            let visibilty = if bpos.ndidx().0 < vf.visibility_feild.dim().0
+                && bpos.ndidx().1 < vf.visibility_feild.dim().1
+                && bpos.ndidx().2 < vf.visibility_feild.dim().2 {
+                vf.visibility_field[bpos.ndidx()]
+            } else {
+                1.0 // Default visibility is out of bounds
+            }
             opacity = opacity
-                .min(vf.visibility_field[bpos.ndidx()] * 2.0)
+                .min(visibility * 2.0)
                 .clamp(0.0, 1.0);
             let mut new_mat = materials1.get(mat).unwrap().clone();
             let orig_mat = new_mat.clone();
@@ -794,7 +812,14 @@ fn apply_lighting(
         let sprite_type = o_type.clone();
         let bpos = pos.to_board_position_size(bf.map_size);
         let map_color = o_color.map(|x| x.color).unwrap_or_default();
-        let visibility: f32 = vf.visibility_field[bpos.ndidx()].clamp(0.0, 1.0);
+        // Check bounds before accessing visibility field
+        let visibility: f32 = if bpos.ndidx().0 < vf.visibility_field.dim().0 
+            && bpos.ndidx().1 < vf.visibility_field.dim().1 
+            && bpos.ndidx().2 < vf.visibility_field.dim().2 {
+            vf.visibility_field[bpos.ndidx()].clamp(0.0, 1.0)
+        } else {
+            1.0 // Default visibility is out of bounds
+        }
         let mut opacity: f32 = map_color.alpha() * visibility;
         opacity = (opacity.powf(0.5) * 2.0 - 0.1).clamp(0.0001, 1.0);
 
