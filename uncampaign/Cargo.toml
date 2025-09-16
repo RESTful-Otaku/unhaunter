@@ -13,7 +13,7 @@ uncore = { path = "../uncore" }
 uncoremenu = { path = "../uncoremenu" }
 unsettings = { path = "../unsettings" }
 unmenusettings = { path = "../unmenusettings" }
-t puunprofile = { path = "../unprofile" }
+unprofile = { path = "../unprofile" }
 unmaphub = { path = "../unmaphub" }
 
 bevy = { workspace = true }
