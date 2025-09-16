@@ -23,11 +23,11 @@ pub enum MenuID {
 impl std::fmt::Display for MenuID {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let text = match &self {
-            MenuID::Campaign => "Campaign",
-            MenuID::CustomMission => "Custom Mission",
-            MenuID::Manual => "Manual",
-            MenuID::Settings => "Settings",
-            MenuID::Quit => "Quit",
+            MenuID::Campaign => "Story Campaign",
+            MenuID::CustomMission => "Free Play",
+            MenuID::Manual => "User Manual",
+            MenuID::Settings => "GameSettings",
+            MenuID::Quit => "Exit Game",
         };
         f.write_str(text)
     }
@@ -103,7 +103,7 @@ pub fn setup_ui(
         &menu_items,
         0,
         Some(format!(
-            "Unhaunter {}    |    [Up]/[Down]: Change    |    [Enter]: Select\nAuthor: J M Harrison aka RESTful_OTaku (c) 2025",
+            "Unhaunter {}    |    [↑]/[↓]: Navigate    |    [Enter]: Select    |    [Esc]: Back\nAuthor: J M Harrison aka RESTful_OTaku  • © 2025",
             VERSION
         )),
         MenuUILayout,
