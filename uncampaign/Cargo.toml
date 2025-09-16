@@ -12,6 +12,7 @@ homepage.workspace = true
 uncore = { path = "../uncore" }
 uncoremenu = { path = "../uncoremenu" }
 unsettings = { path = "../unsettings" }
+unmenusettings = { path = "../unmenusettings" }
 t puunprofile = { path = "../unprofile" }
 unmaphub = { path = "../unmaphub" }
 
