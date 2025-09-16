@@ -78,7 +78,7 @@ pub fn bevy_load_map(
                 // tile.collision
                 if let Some(image) = &tile.image {
                     let img_src = resolve_tiled_image_path(&image.source);
-                    dbg!(&img_src);
+                    // dbg!(&img_src);
                     let img_handle: Handle<Image> = asset_server.load(img_src);
                     let cmat = CustomMaterial1::from_texture(img_handle.clone());
                     images.push((img_handle, cmat));
