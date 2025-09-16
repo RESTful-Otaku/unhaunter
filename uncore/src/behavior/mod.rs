@@ -112,9 +112,12 @@ impl Behavior {
 
     /// Amount of "watts" of heat poured into the environment
     pub fn temp_heat_output(&self) -> f32 {
-        // FIXME: Precompute this value and store it. This is slow and it's computed every frame by the temperature system.
-        let heat_coeff = faster::exp(self.p.light.heat_coef as f32);
-        self.p.light.emmisivity_lumens() / 10000.0 * heat_coeff
+        self.p.light_cached_heat_output.into()
+    }
+
+    /// Update cached heat output after light properties have been modified
+    pub fn update_light_cache(&mut self) {
+        self.p.light_cached_heat_output();
     }
 
     /// Resistance to change temperature (how many Joules per Kelvin)
@@ -215,7 +218,7 @@ pub struct Display {
     pub light_recv_offset: (i64, i64),
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Partialeq, Eq)]
 pub struct Light {
     pub opaque: bool,
     pub see_through: bool,
@@ -224,6 +227,23 @@ pub struct Light {
     pub emission_power: NotNan<f32>,
     pub heat_coef: i32,
     pub flickering: bool,
+    /// Precomputed heat output to avoid expensive calculations every frame
+    pub cached_heat_output: NotNan<f32>,
+}
+
+impl Default for Light {
+    fn default() -> Self {
+        Self {
+            opaque: false,
+            see_through: false,
+            light_emission_enabled: false,
+            can_emit_light: false,
+            emission_power: NotNan::new(0.0).unwrap(),
+            heat_coef: 0,
+            flickering: false,
+            cached_heat_output: NotNan::new(0.0).unwrap(),
+        }
+    }
 }
 
 impl Light {
@@ -242,6 +262,14 @@ impl Light {
                 false => 0.0,
             }
         }
+    }
+
+    /// Compute and cache the heat output value to avoid expensive calculations every frame
+    pub fn update_cached_heat_output(&mut self) {
+        let heat_coeff = faster::exp(self.heat_coef as f32);
+        let lumens = self.emmisivity_lumens();
+        let heat_output = lumens / 10000.0 * heat_coeff;
+        self.cached_heat_output = NotNan::new(heat_output).unwrap_or(NotNan::new(0.0).unwrap());
     }
 
     pub fn transmissivity_factor(&self) -> f32 {
