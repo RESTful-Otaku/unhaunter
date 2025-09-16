@@ -15,7 +15,8 @@ use bevy::prelude::*;
 use bevy_persistent::Persistent;
 use uncore::resources::summary_data::SummaryData;
 use uncore::states::AppState;
-use unprofile::data::PlayerProfileData; // Added import
+use unprofile::data::PlayerProfileData;
+use unsettings::game::GameplaySettings;
 
 #[derive(Default)]
 struct MeanSound(f32);
@@ -29,6 +30,7 @@ fn lose_sanity(
     roomdb: Res<RoomDB>,
     // Access the difficulty settings
     difficulty: Res<CurrentDifficulty>,
+    gamplay_settings: Res<Persistent<GameplaySettings>>,
 ) {
     timer.tick(time.delta());
     let dt = time.delta_secs();
@@ -63,10 +65,16 @@ fn lose_sanity(
         } else {
             0.0
         };
-        ps.crazyness +=
-            (crazy.clamp(0.000000001, 10000000.0).sqrt() * 0.2 * difficulty.0.sanity_drain_rate
-                - sanity_recover * ps.crazyness / (1.0 + mean_sound.0 * 10.0))
-                * dt;
+        // Only apply sanity loss if Dev God Mode is not enabled
+        if !gameplay_settings.dev_cheat_mode.is_enabled() {
+            ps.crazyness +=
+                (crazy.clamp(0.000000001, 10000000.0).sqrt() * 0.2 * difficulty.0.sanity_drain_rate
+                    - sanity_recover * ps.crazyness / (1.0 + mean_sound.0 * 10.0))
+                    * dt;
+    *   } else {
+            // In Dev God Mode, only allow sanity recovery
+            ps.crazyness -= sanity_recover * ps.crazyness / (1.0 + mean_sound.0 * 10.0) * dt;
+        }
         if ps.crazyness < 0.0 {
             ps.crazyness = 0.0;
         }
@@ -79,7 +87,7 @@ fn lose_sanity(
             ps.health = 100.0;
         }
         if timer.just_finished() && DEBUG_PLAYER {
-            dbg!(ps.sanity(), mean_sound.0, ps.health);
+            // dbg!(ps.sanity(), mean_sound.0, ps.health);
         }
     }
 }
@@ -111,7 +119,7 @@ fn recover_sanity(
                 ps.crazyness /= 1.005_f32.powf(dt);
             }
             if timer.just_finished() {
-                dbg!(ps.sanity());
+                // dbg!(ps.sanity());
             }
         }
     }
