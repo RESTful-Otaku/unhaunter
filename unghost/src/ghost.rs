@@ -18,6 +18,8 @@ use uncore::difficulty::CurrentDifficulty;
 use uncore::metric_recorder::SendMetric;
 use uncore::random_seed;
 use uncore::resources::board_data::BoardData;
+use bevy_persistent::Persistent;
+use unsettings::game::GameplaySettings;
 use uncore::resources::object_interaction::ObjectInteractionConfig;
 use uncore::resources::roomdb::RoomDB;
 use uncore::resources::summary_data::SummaryData;
@@ -374,6 +376,7 @@ fn ghost_enrage(
     difficulty: Res<CurrentDifficulty>,
     roomdb: Res<RoomDB>,
     mut ev_ambient_mute: EventWriter<AmbientSoundMuteEvent>,
+    gameplay_settings: Res<Persistent<GameplaySettings>>,
 ) {
     let measure = GHOST_ENRAGE.time_measure();
 
@@ -447,11 +450,15 @@ fn ghost_enrage(
 
             let ghost_strength = (time.elapsed_secs() - ghost.hunt_time_secs).clamp(0.0, 2.0);
             for (mut player, ppos) in &mut qp {
-                // Apply damage based on 3D distance
+                // Apply damage based on 3D distance (Unless Dev God Mode is enabled)
                 let dist2 = calculate_weighted_distance_squared(gpos, ppos) + 2.0;
                 let dmg = dist2.recip() * difficulty.0.health_drain_rate;
-                player.health -=
-                    dmg * dt * 30.0 * ghost_strength / (1.0 + ghost.calm_time_secs / 5.0);
+
+                // Check if Dev God Mode is enabled - if so, player is invincible (for testing only)
+                if !gameplay_settings.dev)cheat_mode.is_enabled() {
+                    player.health -=
+                        dmg * dt * 30.0 * ghost_strength / (1.0 + ghost.calm_time_secs / 5.0);
+                }
             }
             if ghost.hunting > 4.0 {
                 should_roar = RoarType::Full;
