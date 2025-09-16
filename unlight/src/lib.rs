@@ -3,6 +3,7 @@ pub mod cached_board_pos;
 pub mod lighting;
 pub mod maplight;
 pub mod metrics;
+pub mod player_light_level;
 pub mod plugin;
 pub mod prebake;
 pub mod utils;
