@@ -14,6 +14,8 @@ ungear = { path = "../ungear" }
 ungearitems = { path = "../ungearitems" }
 
 bevy = { workspace = true }
+bevy-persistent = { workspace = true }
 rand = { workspace = true }
 ordered-float = { workspace = true }
 enum-iterator = { workspace = true }
+unsettings = { path = "../unsettings" }

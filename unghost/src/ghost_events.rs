@@ -1,14 +1,14 @@
 use bevy::prelude::*;
 use rand::Rng;
-use uncore::behavior;
+use uncore::behavior::{Behavior, component};
 use uncore::components::board::position::Position;
 use uncore::components::ghost_sprite::GhostSprite;
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::difficulty::CurrentDifficulty;
 use uncore::events::board_data_rebuild::BoardDataToRebuild;
-use uncore::events::roomchanged::InteractionExecutionType;
 use uncore::events::sound::SoundEvent;
 use uncore::random_seed;
+use unstd::board::spritedb::SpriteDB;
 use unstd::systemparam::interactivestuff::InteractiveStuff;
 
 #[derive(Debug, Clone)]
@@ -26,10 +26,10 @@ pub fn trigger_ghost_events(
     q_ghost: Query<(&GhostSprite, &Position)>,
     // Query for doors, excluding lights
     q_doors: Query<
-        (Entity, &Position, &behavior::Behavior),
+        (Entity, &Position, &Behavior),
         (
-            With<behavior::component::Door>,
-            Without<behavior::component::Light>,
+            With<component::Door>,
+            Without<component::Light>,
         ),
     >,
     // Query for lights, excluding doors
@@ -94,33 +94,44 @@ pub fn trigger_ghost_events(
                     if !doors_in_room.is_empty() {
                         let door_to_slam = doors_in_room[rng.random_range(0..doors_in_room.len())];
 
-                        // Retrieve the door's Behavior component
-                        if let Ok((_, door_position, behavior)) = q_doors.get(door_to_slam) {
-                            // FIXME: This is not correct! We're using a player interaction function for a
-                            // ghost event, which leads to awkward workarounds and potential bugs. We should
-                            // create a separate mechanism for handling ghost events.
-                            dbg!(interactive_stuff.execute_interaction(
-                                door_to_slam,
-                                // Pass the door's position
-                                door_position,
-                                // No interactive component needed
-                                None,
-                                behavior,
-                                None,
-                                InteractionExecutionType::ChangeState,
-                            ));
+                                                // Retrieve the door's Behavior component
+                        if let Ok((door_entity, door_position, behavior)) = q_doors.get(door_to_slam) {
+                            // Use proper ghost door interaction instead of player interaction system
+                            if let Some(alternative_behavior) = find_alternative_door_state(&interactive_stuff.bf, behavior) {
+                                let mut door_commands = interactive_stuff.commands.get_entity(door_entity).unwrap();
 
-                            // Play door slam sound effect
-                            interactive_stuff.sound_events.write(SoundEvent {
-                                sound_file: "sounds/door-close.ogg".to_string(),
-                                volume: 1.0,
-                                position: Some(*door_position),
-                            });
+                                // Update the door's behavior to the alternative state (closed)
+                                door_commands.insert(alternative_behavior);
 
-                            ev_bdr.write(BoardDataToRebuild {
-                                lighting: true,
-                                collision: true,
-                            });
+                                // Update the door's visual appearance
+                                let cvo = behavior.key_cvo();
+                                if let Some(other_tuids) = interactive_stuff.bf.cvo_idx.get(&cvo) {
+                                    let tuid = behavior.key_tuid();
+                                    for other_tuid in other_tuids {
+                                        if *other_tuid != tuid {
+                                            if let Some(other_tile) = interactive_stuff.bf.map_tile.get(other_tuid) {
+                                                let b = other_tile.bundle.clone();
+                                                let mat = interactive_stuff.materials1.get(&b.material).unwrap().clone();
+                                                let mat = interactive_stuff.materials1.add(mat);
+                                                door_commands.insert(MeshMaterial2d(mat));
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Play door slam sound effect
+                                interactive_stuff.sound_events.write(SoundEvent {
+                                    sound_file: "sounds/door-close.ogg".to_string(),
+                                    volume: 1.0,
+                                    position: Some(*door_position),
+                                });
+
+                                ev_bdr.write(BoardDataToRebuild {
+                                    lighting: true,
+                                    collision: true,
+                                });
+                            }
                         }
                         // warn!("Slamming door: {:?}", door_to_slam);
                     }
@@ -183,6 +194,28 @@ fn update_flicker_timers(
             });
         }
     }
+}
+
+// Finds an alternative door state (Open -> CLosed or CLosed -> Open) using the SpriteDB
+// Ths is a ghost-specific door interaction that doesn't uuse the player interaction system
+fn find_alternative_door_state(spritedb: &SpriteDB, current_behaviour: &Behaviour) -> Option<Behaviour> {
+    let cvo = current_behaviour.key_cvo();
+
+    // Get all tiles with the same class, variant and orientation
+    if let Some(other_tuids) = spritedb.cvo_idx.get(&cvo) {
+        let current_tuid = current_behaviour.key_tuid();
+
+         for other_tuid in other_tuids {
+            if *other_tuid != current_tuid {
+                let mut alternative_behaviour = other_tile.behaviour.clone();
+                // Preserve the flip state from the original door
+                alternative_behaviour.flip(current_behaviour.p.flip);
+                return Some(alternative_behaviour);
+            }
+        }
+    }
+
+    None
 }
 
 pub fn app_setup(app: &mut App) {
