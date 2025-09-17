@@ -19,7 +19,6 @@ pub fn find_assets_directory() -> Option<PathBuf> {
         let assets_path = executable_dir.join("assets");
         if assets_path.is_dir() {
             return Some(assets_path);
-            }
         }
     }
 

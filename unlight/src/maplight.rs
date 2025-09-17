@@ -287,13 +287,12 @@ fn apply_lighting(
         // If we don't have a valid map, skip this
         return;
     }
-
-    // Check if visibility field is properly initalised
+    
+    // Check if visibility field is properly initialized
     if vf.visibility_field.is_empty() || vf.visibility_field.dim() != board_dim {
         // Skip lighting calculation if visibility field is not ready
         return;
     }
-
     // Deployed gear
     for (pos, deployed_gear, gear_data) in q_deployed.iter() {
         let p = EquipmentPosition::Deployed;
@@ -645,13 +644,13 @@ fn apply_lighting(
                 }
             }
             // Check bounds before accessing visibility field
-            let visibilty = if bpos.ndidx().0 < vf.visibility_feild.dim().0
-                && bpos.ndidx().1 < vf.visibility_feild.dim().1
-                && bpos.ndidx().2 < vf.visibility_feild.dim().2 {
+            let visibility = if bpos.ndidx().0 < vf.visibility_field.dim().0 
+                && bpos.ndidx().1 < vf.visibility_field.dim().1 
+                && bpos.ndidx().2 < vf.visibility_field.dim().2 {
                 vf.visibility_field[bpos.ndidx()]
             } else {
-                1.0 // Default visibility is out of bounds
-            }
+                1.0 // Default visibility if out of bounds
+            };
             opacity = opacity
                 .min(visibility * 2.0)
                 .clamp(0.0, 1.0);
@@ -818,8 +817,8 @@ fn apply_lighting(
             && bpos.ndidx().2 < vf.visibility_field.dim().2 {
             vf.visibility_field[bpos.ndidx()].clamp(0.0, 1.0)
         } else {
-            1.0 // Default visibility is out of bounds
-        }
+            1.0 // Default visibility if out of bounds
+        };
         let mut opacity: f32 = map_color.alpha() * visibility;
         opacity = (opacity.powf(0.5) * 2.0 - 0.1).clamp(0.0001, 1.0);
 

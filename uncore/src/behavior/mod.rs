@@ -112,12 +112,12 @@ impl Behavior {
 
     /// Amount of "watts" of heat poured into the environment
     pub fn temp_heat_output(&self) -> f32 {
-        self.p.light_cached_heat_output.into()
+        self.p.light.cached_heat_output.into()
     }
 
     /// Update cached heat output after light properties have been modified
     pub fn update_light_cache(&mut self) {
-        self.p.light_cached_heat_output();
+        self.p.light.update_cached_heat_output();
     }
 
     /// Resistance to change temperature (how many Joules per Kelvin)
@@ -218,7 +218,7 @@ pub struct Display {
     pub light_recv_offset: (i64, i64),
 }
 
-#[derive(Debug, Clone, Default, Partialeq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Light {
     pub opaque: bool,
     pub see_through: bool,
@@ -723,18 +723,21 @@ impl SpriteConfig {
                 p.light.light_emission_enabled = self.state == TileState::On;
                 p.light.emission_power = (3.0).try_into().unwrap();
                 p.light.heat_coef = -1;
+                p.light.update_cached_heat_output();
             }
             Class::FloorLamp => {
                 p.display.global_z = (0.000050).try_into().unwrap();
                 p.light.can_emit_light = true;
                 p.light.light_emission_enabled = self.state == TileState::On;
                 p.light.emission_power = (2.0).try_into().unwrap();
+                p.light.update_cached_heat_output();
             }
             Class::TableLamp => {
                 p.display.global_z = (0.000050).try_into().unwrap();
                 p.light.can_emit_light = true;
                 p.light.light_emission_enabled = self.state == TileState::On;
                 p.light.emission_power = (1.0).try_into().unwrap();
+                p.light.update_cached_heat_output();
             }
             Class::WallDecor => {
                 p.display.global_z = (-0.00004).try_into().unwrap();
@@ -745,6 +748,7 @@ impl SpriteConfig {
                 p.light.light_emission_enabled = self.state == TileState::On;
                 p.light.emission_power = (3.5).try_into().unwrap();
                 p.light.heat_coef = -2;
+                p.light.update_cached_heat_output();
             }
             Class::StreetLight => {
                 p.display.disable = true;
@@ -752,6 +756,7 @@ impl SpriteConfig {
                 p.light.light_emission_enabled = true;
                 p.light.emission_power = (5.0).try_into().unwrap();
                 p.light.heat_coef = -6;
+                p.light.update_cached_heat_output();
             }
             Class::CandleLight => {
                 p.display.disable = true;
@@ -759,6 +764,7 @@ impl SpriteConfig {
                 p.light.light_emission_enabled = true;
                 p.light.emission_power = (-0.5).try_into().unwrap();
                 p.light.heat_coef = 6;
+                p.light.update_cached_heat_output();
             }
             Class::Appliance => {
                 p.display.global_z = (0.000070).try_into().unwrap();

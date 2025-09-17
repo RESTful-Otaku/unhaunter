@@ -15,7 +15,7 @@ use bevy::prelude::*;
 use bevy_persistent::Persistent;
 use uncore::resources::summary_data::SummaryData;
 use uncore::states::AppState;
-use unprofile::data::PlayerProfileData;
+use unprofile::data::PlayerProfileData; // Added import
 use unsettings::game::GameplaySettings;
 
 #[derive(Default)]
@@ -30,7 +30,7 @@ fn lose_sanity(
     roomdb: Res<RoomDB>,
     // Access the difficulty settings
     difficulty: Res<CurrentDifficulty>,
-    gamplay_settings: Res<Persistent<GameplaySettings>>,
+    gameplay_settings: Res<Persistent<GameplaySettings>>,
 ) {
     timer.tick(time.delta());
     let dt = time.delta_secs();
@@ -71,7 +71,7 @@ fn lose_sanity(
                 (crazy.clamp(0.000000001, 10000000.0).sqrt() * 0.2 * difficulty.0.sanity_drain_rate
                     - sanity_recover * ps.crazyness / (1.0 + mean_sound.0 * 10.0))
                     * dt;
-    *   } else {
+        } else {
             // In Dev God Mode, only allow sanity recovery
             ps.crazyness -= sanity_recover * ps.crazyness / (1.0 + mean_sound.0 * 10.0) * dt;
         }

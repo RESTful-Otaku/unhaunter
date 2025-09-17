@@ -73,7 +73,7 @@ fn sound_playback_system(
         if !player_position.is_finite() {
             warn!("Player position is not finite: {player_position:?}")
         }
-
+        
         // Calculate distance-based volume adjustment
         let dist = sound_event
             .position
@@ -85,16 +85,15 @@ fn sound_playback_system(
         }
 
         // Spawn an AudioBundle with the adjusted volume
-
         let mut sound = commands.spawn(AudioPlayer::<AudioSource>(
             asset_server.load(sound_event.sound_file.clone()),
         ));
-
+        
         // Apply stereo positioning based on audio positioning mode
         let (spatial_enabled, spatial_transform) = if let Some(position) = sound_event.position {
             match audio_settings.audio_positioning {
                 AudioPositioning::ScreenSpace => {
-                    // SIple screen-based positioning (left/right only)
+                    // Simple screen-based positioning (left/right only)
                     let mut spos_vec = position.to_screen_coord();
                     spos_vec.z -= 10.0 / audio_settings.sound_output.to_ear_offset();
                     (audio_settings.sound_output != SoundOutput::Mono, spos_vec)
@@ -103,43 +102,43 @@ fn sound_playback_system(
                     // Isometric positioning - map world position to stereo field
                     let player_screen = player_position.to_screen_coord();
                     let sound_screen = position.to_screen_coord();
-
+                    
                     // Calculate relative position in isometric view
                     let dx = sound_screen.x - player_screen.x;
                     let dy = sound_screen.y - player_screen.y;
-
+                    
                     // Convert to stereo positioning
-                    // In isometric view, we map the diagonal world to stereo
+                    // In isometric view, we map the diagonal world to stereo field
                     // Front-right sounds go to right ear, front-left to left ear
                     let stereo_x = (dx + dy * 0.5) * 0.02; // Scale factor for stereo width
                     let stereo_z = -10.0 / audio_settings.sound_output.to_ear_offset();
-
-                    let spos_vec = Vec3::new(streo_x, sound_screen.y, stereo_z);
-                    (audio_settings.sound_output != SoundOuput::Mono, spos_vec)
+                    
+                    let spos_vec = Vec3::new(stereo_x, sound_screen.y, stereo_z);
+                    (audio_settings.sound_output != SoundOutput::Mono, spos_vec)
                 }
                 AudioPositioning::CharacterRelative => {
-                    FPS-style positioning = player_position.to_screen_coord();
+                    // FPS-style positioning - full 360 degree coverage
+                    let player_screen = player_position.to_screen_coord();
                     let sound_screen = position.to_screen_coord();
-
-                    // Calculate angle relative to the player's facing direction
+                    
+                    // Calculate angle relative to player's facing direction
                     let dx = sound_screen.x - player_screen.x;
                     let dy = sound_screen.y - player_screen.y;
                     let distance = (dx * dx + dy * dy).sqrt();
-
+                    
                     if distance > 0.0 {
                         // Calculate angle (0 = front, PI/2 = right, PI = back, 3PI/2 = left)
                         let angle = dy.atan2(dx);
-
+                        
                         // Convert angle to stereo positioning
-                        // Front (0°) = centre, right (90°) = right ear, back (180°) = center, left
-                        // (270°) = left ear
-                        let stereo_x = angle.sin() * 0.5; // Stereo width
+                        // Front (0°) = center, right (90°) = right ear, back (180°) = center, left (270°) = left ear
+                        let stereo_x = angle.sin() * 5.0; // Stereo width
                         let stereo_z = -10.0 / audio_settings.sound_output.to_ear_offset();
-
+                        
                         let spos_vec = Vec3::new(stereo_x, sound_screen.y, stereo_z);
                         (audio_settings.sound_output != SoundOutput::Mono, spos_vec)
                     } else {
-                        // Soundis at player position - centre it
+                        // Sound is at player position - center it
                         let spos_vec = Vec3::new(0.0, player_screen.y, -10.0 / audio_settings.sound_output.to_ear_offset());
                         (audio_settings.sound_output != SoundOutput::Mono, spos_vec)
                     }
@@ -148,7 +147,7 @@ fn sound_playback_system(
         } else {
             // No position specified - non-spatial sound
             (false, Vec3::ZERO)
-        }
+        };
 
         sound.insert(PlaybackSettings {
             mode: bevy::audio::PlaybackMode::Despawn,
@@ -167,7 +166,6 @@ fn sound_playback_system(
         if spatial_enabled {
             sound.insert(Transform::from_translation(spatial_transform));
         }
-
     }
 }
 
