@@ -434,11 +434,10 @@ fn trigger_did_not_cycle_to_other_gear_system(
        player_gear.left_hand.kind != current_right_tool_kind && // Different tool
        Evidence::try_from(&player_gear.left_hand.kind).is_ok()
     {
-        if let Some(lh_data) = player_gear.left_hand.data.as_ref() {
-            if lh_data.can_enable() {
-                // Check if it *can* be enabled
-                has_other_usable_evidence_tools = true;
-            }
+        if let Some(lh_data) = player_gear.left_hand.data.as_ref()
+            && lh_data.can_enable() {
+            // Check if it *can* be enabled
+            has_other_usable_evidence_tools = true;
         }
     }
     // Check inventory if still no other tool found
@@ -448,11 +447,10 @@ fn trigger_did_not_cycle_to_other_gear_system(
                gear_in_inv.kind != current_right_tool_kind && // Different tool
                Evidence::try_from(&gear_in_inv.kind).is_ok()
             {
-                if let Some(inv_data) = gear_in_inv.data.as_ref() {
-                    if inv_data.can_enable() {
-                        has_other_usable_evidence_tools = true;
-                        break;
-                    }
+                if let Some(inv_data) = gear_in_inv.data.as_ref()
+                    && inv_data.can_enable() {
+                    has_other_usable_evidence_tools = true;
+                    break;
                 }
             }
         }

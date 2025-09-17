@@ -34,10 +34,10 @@ pub fn trigger_ghost_events(
     >,
     // Query for lights, excluding doors
     mut q_lights: Query<
-        (Entity, &Position, &mut behavior::Behavior),
+        (Entity, &Position, &mut Behavior),
         (
-            With<behavior::component::Light>,
-            Without<behavior::component::Interactive>,
+            With<component::Light>,
+            Without<component::Interactive>,
         ),
     >,
     mut interactive_stuff: InteractiveStuff,
@@ -94,15 +94,15 @@ pub fn trigger_ghost_events(
                     if !doors_in_room.is_empty() {
                         let door_to_slam = doors_in_room[rng.random_range(0..doors_in_room.len())];
 
-                                                // Retrieve the door's Behavior component
+                        // Retrieve the door's Behavior component
                         if let Ok((door_entity, door_position, behavior)) = q_doors.get(door_to_slam) {
                             // Use proper ghost door interaction instead of player interaction system
                             if let Some(alternative_behavior) = find_alternative_door_state(&interactive_stuff.bf, behavior) {
                                 let mut door_commands = interactive_stuff.commands.get_entity(door_entity).unwrap();
-
+                                
                                 // Update the door's behavior to the alternative state (closed)
                                 door_commands.insert(alternative_behavior);
-
+                                
                                 // Update the door's visual appearance
                                 let cvo = behavior.key_cvo();
                                 if let Some(other_tuids) = interactive_stuff.bf.cvo_idx.get(&cvo) {
@@ -179,7 +179,7 @@ pub fn trigger_ghost_events(
 fn update_flicker_timers(
     mut commands: Commands,
     time: Res<Time>,
-    mut q_lights: Query<(Entity, &mut FlickerTimer, &mut behavior::Behavior)>,
+    mut q_lights: Query<(Entity, &mut FlickerTimer, &mut Behavior)>,
     mut ev_bdr: EventWriter<BoardDataToRebuild>,
 ) {
     for (entity, mut flicker_timer, mut behavior) in q_lights.iter_mut() {
@@ -196,25 +196,27 @@ fn update_flicker_timers(
     }
 }
 
-// Finds an alternative door state (Open -> CLosed or CLosed -> Open) using the SpriteDB
-// Ths is a ghost-specific door interaction that doesn't uuse the player interaction system
-fn find_alternative_door_state(spritedb: &SpriteDB, current_behaviour: &Behaviour) -> Option<Behaviour> {
-    let cvo = current_behaviour.key_cvo();
-
-    // Get all tiles with the same class, variant and orientation
-    if let Some(other_tuids) = spritedb.cvo_idx.get(&cvo) {
-        let current_tuid = current_behaviour.key_tuid();
-
-         for other_tuid in other_tuids {
+/// Finds an alternative door state (Open -> Closed or Closed -> Open) using the SpriteDB
+/// This is a ghost-specific door interaction that doesn't use the player interaction system
+fn find_alternative_door_state(sprite_db: &SpriteDB, current_behavior: &Behavior) -> Option<Behavior> {
+    let cvo = current_behavior.key_cvo();
+    
+    // Get all tiles with the same class, variant, and orientation
+    if let Some(other_tuids) = sprite_db.cvo_idx.get(&cvo) {
+        let current_tuid = current_behavior.key_tuid();
+        
+        for other_tuid in other_tuids {
             if *other_tuid != current_tuid {
-                let mut alternative_behaviour = other_tile.behaviour.clone();
-                // Preserve the flip state from the original door
-                alternative_behaviour.flip(current_behaviour.p.flip);
-                return Some(alternative_behaviour);
+                if let Some(other_tile) = sprite_db.map_tile.get(other_tuid) {
+                    let mut alternative_behavior = other_tile.behavior.clone();
+                    // Preserve the flip state from the original door
+                    alternative_behavior.flip(current_behavior.p.flip);
+                    return Some(alternative_behavior);
+                }
             }
         }
     }
-
+    
     None
 }
 

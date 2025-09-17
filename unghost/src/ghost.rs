@@ -450,12 +450,12 @@ fn ghost_enrage(
 
             let ghost_strength = (time.elapsed_secs() - ghost.hunt_time_secs).clamp(0.0, 2.0);
             for (mut player, ppos) in &mut qp {
-                // Apply damage based on 3D distance (Unless Dev God Mode is enabled)
+                // Apply damage based on 3D distance (unless Dev God Mode is enabled)
                 let dist2 = calculate_weighted_distance_squared(gpos, ppos) + 2.0;
                 let dmg = dist2.recip() * difficulty.0.health_drain_rate;
-
-                // Check if Dev God Mode is enabled - if so, player is invincible (for testing only)
-                if !gameplay_settings.dev)cheat_mode.is_enabled() {
+                
+                // Check if Dev God Mode is enabled - if so, player is invincible
+                if !gameplay_settings.dev_cheat_mode.is_enabled() {
                     player.health -=
                         dmg * dt * 30.0 * ghost_strength / (1.0 + ghost.calm_time_secs / 5.0);
                 }

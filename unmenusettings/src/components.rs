@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 use bevy_platform::time::Instant;
-use unsettings::{audio::AudioSettingsValue, game::GameplaySettingsValue};
+use unsettings::{audio::AudioSettingsValue, game::GameplaySettingsValue, video::VideoSettingsValue};
 
-use crate::menus::{AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1};
+use crate::menus::ProfileSettingsValue;
+
+use crate::menus::{AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1, VideoSettingsMenu, ProfileSettingsMenu};
 
 #[derive(Component, Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum MenuType {
@@ -21,6 +23,22 @@ pub struct SettingsMenu {
 #[derive(Component)]
 pub struct SCamera;
 
+#[derive(Component)]
+pub struct CustomNameInput {
+    pub current_text: String,
+}
+
+impl Default for CustomNameInput {
+    fn default() -> Self {
+        Self {
+            current_text: String::new(),
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct TextInputField;
+
 #[derive(Component, Debug, Clone, PartialEq, Eq, Hash, States, Default)]
 pub enum SettingsState {
     /// Selects which Setting file/category to edit in the UI (Audio, Video, etc)
@@ -30,6 +48,8 @@ pub enum SettingsState {
     Lv2List,
     /// Allows the user to select a new value for the setting (10% volume, 50% volume, etc)
     Lv3ValueEdit(MenuSettingsLevel1),
+    /// Allows the user to input a custom display name
+    CustomNameInput,
 }
 
 #[derive(Component)]
@@ -49,12 +69,18 @@ impl MenuItem {
     }
 }
 
-#[derive(Event, Debug, Clone, Copy, Default)]
+#[derive(Event, Debug, Clone, Default)]
 pub enum MenuEvent {
     SaveAudioSetting(AudioSettingsValue),
     EditAudioSetting(AudioSettingsMenu),
     SaveGameplaySetting(GameplaySettingsValue),
     EditGameplaySetting(GameplaySettingsMenu),
+    SaveVideoSetting(VideoSettingsValue),
+    EditVideoSetting(VideoSettingsMenu),
+    SaveProfileSetting(ProfileSettingsValue),
+    EditProfileSetting(ProfileSettingsMenu),
+    StartCustomNameInput,
+    DeleteCustomName(String),
     SettingClassSelected(MenuSettingsLevel1),
     Back(MenuEvBack),
     #[default]
@@ -81,6 +107,14 @@ pub struct AudioSettingSelected {
 }
 
 #[derive(Event, Debug, Clone, Copy)]
+pub struct VideoSettingSelected {
+    pub setting: VideoSettingsMenu,
+}
+
+#[derive(Event, Debug, Clone, Copy)]
+pub struct SaveVideoSetting(pub VideoSettingsValue);
+
+#[derive(Event, Debug, Clone, Copy)]
 pub struct SaveAudioSetting {
     pub value: AudioSettingsValue,
 }
@@ -93,4 +127,14 @@ pub struct GameplaySettingSelected {
 #[derive(Event, Debug, Clone, Copy)]
 pub struct SaveGameplaySetting {
     pub value: GameplaySettingsValue,
+}
+
+#[derive(Event, Debug, Clone, Copy)]
+pub struct ProfileSettingSelected {
+    pub setting: ProfileSettingsMenu,
+}
+
+#[derive(Event, Debug, Clone)]
+pub struct SaveProfileSetting {
+    pub value: ProfileSettingsValue,
 }

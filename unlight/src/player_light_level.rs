@@ -1,8 +1,8 @@
 //! Player Light Level System
 //!
 //! This module handles calculating and updating the light level at the player's position.
-//! The LightLevel component is used by various systems to determine lightin conditions
-//! for gameplay mechanics like sanity and walkie-talkie hints.
+//! The LightLevel component is used by various systems to determine lighting conditions
+//! for gameplay mechanics like sanity effects and walkie talkie hints.
 
 use bevy::prelude::*;
 use uncore::{
@@ -15,7 +15,7 @@ use uncore::{
     states::{AppState, GameState},
 };
 
-/// System that calculates and updates the light level at the players position
+/// System that calculates and updates the light level at the player's position
 pub fn update_player_light_level_system(
     mut player_query: Query<(&Position, &mut LightLevel), With<PlayerSprite>>,
     board_data: Res<BoardData>,
@@ -30,11 +30,12 @@ pub fn update_player_light_level_system(
     for (position, mut light_level) in player_query.iter_mut() {
         let board_pos = position.to_board_position();
         let idx = board_pos.ndidx();
-
-        // get the light level from the board's light field
+        
+        // Get the light level from the board's light field
         if let Some(light_field_data) = board_data.light_field.get(idx) {
             light_level.lux = light_field_data.lux;
         } else {
+            // Fallback to 0 if no light data available
             light_level.lux = 0.0;
         }
     }
@@ -43,9 +44,9 @@ pub fn update_player_light_level_system(
 /// System that adds the LightLevel component to player entities that don't have it
 pub fn ensure_player_light_level_system(
     mut commands: Commands,
-    player_query: Qury<Entitym (With<PlayerSprite>, Without<LightLevel>)>,
+    player_query: Query<Entity, (With<PlayerSprite>, Without<LightLevel>)>,
 ) {
-    for entity in player_iter() {
+    for entity in player_query.iter() {
         commands.entity(entity).insert(LightLevel::default());
     }
 }
@@ -58,6 +59,6 @@ pub(crate) fn app_setup(app: &mut App) {
             update_player_light_level_system,
         )
             .chain()
-            .run_if(in_state(AppState::InGame).and(in_state(gameState::None))),
+            .run_if(in_state(AppState::InGame).and(in_state(GameState::None))),
     );
 }

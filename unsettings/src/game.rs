@@ -9,6 +9,7 @@ pub struct GameplaySettings {
     pub movement_style: MovementStyle,
     pub camera_controls: CameraControls,
     pub character_controls: CharacterControls,
+    pub dev_cheat_mode: DevCheatMode,
 }
 
 #[expect(non_camel_case_types)]
@@ -17,7 +18,7 @@ pub enum GameplaySettingsValue {
     movement_style(MovementStyle),
     camera_controls(CameraControls),
     character_controls(CharacterControls),
-    pub dev_cheat_mode: DevCheatMode,
+    dev_cheat_mode(DevCheatMode),
 }
 
 #[derive(

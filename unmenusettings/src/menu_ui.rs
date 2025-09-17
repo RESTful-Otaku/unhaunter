@@ -97,7 +97,7 @@ pub(crate) fn setup_ui_main_cat(
                                     idx == 0, // First item selected by default
                                     handles
                                 )
-                                .insert(MenuItem::new(idx, *event));
+                                .insert(MenuItem::new(idx, event.clone()));
                                 idx += 1;
                             } else {
                                 // Add disabled item with gray color
