@@ -26,7 +26,7 @@ impl std::fmt::Display for MenuID {
             MenuID::Campaign => "Story Campaign",
             MenuID::CustomMission => "Free Play",
             MenuID::Manual => "User Manual",
-            MenuID::Settings => "GameSettings",
+            MenuID::Settings => "Game Settings",
             MenuID::Quit => "Exit Game",
         };
         f.write_str(text)
@@ -103,7 +103,7 @@ pub fn setup_ui(
         &menu_items,
         0,
         Some(format!(
-            "Unhaunter {}    |    [↑]/[↓]: Navigate    |    [Enter]: Select    |    [Esc]: Back\nAuthor: J M Harrison aka RESTful_OTaku  • © 2025",
+            "Unhaunter {}    |    [↑]/[↓]: Navigate    |    [Enter]: Select    |    [Esc]: Back\nDeveloped by J M Harrison (RESTful_OTaku) • © 2025",
             VERSION
         )),
         MenuUILayout,

@@ -660,17 +660,19 @@ pub fn calculate_stair_waypoints(
                     (stair_pos.x - 1.0, stair_pos.x + 1.0)
                 } else {
                     // Going down: start at right, end at left + offset
+                    // dbg!(stair_pos.x - 1.0, stair_pos.x + 3.0)
                     (stair_pos.x - 1.0, stair_pos.x + 3.0)
                 }
             } else {
                 // Stairs go in negative X direction (mirrored)
                 if stair_component.z > 0 {
                     // Going up: start at right, end at left + offset
+                    // dbg!(stair_pos.x + 2.0, stair_pos.x - 2.0)
                     (stair_pos.x + 2.0, stair_pos.x - 2.0)
                 } else {
                     // Going down: start at left, end at right + offset
                     // dbg!(stair_pos.x - 1.0, stair_pos.x + 1.0)
-                    dbg!(stair_pos.x - 1.0, stair_pos.x + 1.0)
+                    (stair_pos.x - 1.0, stair_pos.x + 1.0)
                 }
             };
 

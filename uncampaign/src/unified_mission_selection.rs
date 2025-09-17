@@ -40,6 +40,7 @@ use uncoremenu::{
     templates,
 };
 use unmaphub::badge_utils::BadgeUtils;
+use unmenusettings::components::SaveGameplaySetting;
 
 /// Marker component for the unified Mission Select UI root node
 #[derive(Component)]
@@ -81,6 +82,7 @@ pub(crate) fn app_setup(app: &mut App) {
                 update_mission_selection,
                 handle_selection_input,
                 trigger_initial_scroll_if_needed,
+                refresh_ui_on_dev_mode_change,
             )
                 .chain()
                 .run_if(in_state(AppState::MissionSelect)),
@@ -117,6 +119,7 @@ fn handle_selection_input(
     mut next_map_hub_state: ResMut<NextState<MapHubState>>,
     mut player_profile: ResMut<Persistent<unprofile::data::PlayerProfileData>>,
     mut q_desc_text: Query<&mut Text, With<MissionDescriptionText>>,
+    gameplay_settings: Res<bevy_persistent::Persistent<unsettings::game::GameplaySettings>>,
 ) {
     let mut selected_identifier: Option<usize> = None;
 
@@ -173,34 +176,40 @@ fn handle_selection_input(
 
                 let desired_total_deposit = mission_data.required_deposit;
 
-                let current_held_deposit = player_profile.progression.insurance_deposit;
-                let additional_bank_needed = desired_total_deposit - current_held_deposit;
+                // Skip deposit requirements if Dev God Mode is enabled
+                if !gameplay_settings.dev_cheat_mode.is_enabled() {
+                    let current_held_deposit = player_profile.progression.insurance_deposit;
+                    let additional_bank_needed = desired_total_deposit - current_held_deposit;
 
-                match additional_bank_needed.cmp(&0) {
-                    std::cmp::Ordering::Greater => {
-                        if player_profile.progression.bank >= additional_bank_needed {
-                            player_profile.progression.bank -= additional_bank_needed;
-                            player_profile.progression.insurance_deposit += additional_bank_needed;
-                        } else {
-                            warn!(
-                                "Insufficient money in bank for deposit. Required: ${}, Available: ${}",
-                                desired_total_deposit, player_profile.progression.bank
-                            );
-                            if let Ok(mut text) = q_desc_text.single_mut() {
-                                text.0 = format!(
-                                    "Insufficient Money in Bank for deposit. Required: ${}, Available: ${}",
+                    match additional_bank_needed.cmp(&0) {
+                        std::cmp::Ordering::Greater => {
+                            if player_profile.progression.bank >= additional_bank_needed {
+                                player_profile.progression.bank -= additional_bank_needed;
+                                player_profile.progression.insurance_deposit += additional_bank_needed;
+                            } else {
+                                warn!(
+                                    "Insufficient money in bank for deposit. Required: ${}, Available: ${}",
                                     desired_total_deposit, player_profile.progression.bank
                                 );
+                                if let Ok(mut text) = q_desc_text.single_mut() {
+                                    text.0 = format!(
+                                        "Insufficient Money in Bank for deposit. Required: ${}, Available: ${}",
+                                        desired_total_deposit, player_profile.progression.bank
+                                    );
+                                }
+                                return;
                             }
-                            return;
                         }
+                        std::cmp::Ordering::Less => {
+                            let refund_to_bank = -additional_bank_needed;
+                            player_profile.progression.bank += refund_to_bank;
+                            player_profile.progression.insurance_deposit -= refund_to_bank;
+                        }
+                        std::cmp::Ordering::Equal => {}
                     }
-                    std::cmp::Ordering::Less => {
-                        let refund_to_bank = -additional_bank_needed;
-                        player_profile.progression.bank += refund_to_bank;
-                        player_profile.progression.insurance_deposit -= refund_to_bank;
-                    }
-                    std::cmp::Ordering::Equal => {}
+                } else {
+                    // In Dev God Mode, bypass deposit requirements entirely
+                    info!("Dev God Mode: Bypassing deposit requirement of ${}", desired_total_deposit);
                 }
 
                 if let Err(e) = player_profile.persist() {
@@ -321,6 +330,7 @@ pub fn setup_ui(
     difficulty_resource: Res<CurrentDifficulty>,
     mut ui_mapping: ResMut<UIMissionMapping>,
     mut initial_scroll_target: ResMut<InitialScrollTarget>,
+    gameplay_settings: Res<bevy_persistent::Persistent<unsettings::game::GameplaySettings>>,
 ) {
     info!(
         "Setting up MissionSelectUI for mode: {:?}",
@@ -343,7 +353,14 @@ pub fn setup_ui(
 
     let (available_maps, locked_maps): (Vec<_>, Vec<_>) = filtered_maps
         .into_iter()
-        .partition(|(_, map)| player_level >= map.mission_data.min_player_level);
+        .partition(|(_, map)| {
+            // Check if dev cheat mode is enabled
+            if gameplay_settings.dev_cheat_mode.is_enabled() {
+                return true; // Unlock all missions in cheat mode
+            }
+            // Normal level-based unlocking
+            player_level >= map.mission_data.min_player_level
+        });
 
     ui_mapping.ui_to_map_index.clear();
 
@@ -908,6 +925,29 @@ fn create_locked_mission_item(
                     ..default()
                 });
         });
+}
+
+/// System to refresh the mission selection UI when Dev God Mode is toggled
+fn refresh_ui_on_dev_mode_change(
+    mut commands: Commands,
+    mut ev_save_gameplay_setting: EventReader<SaveGameplaySetting>,
+    ui_query: Query<Entity, With<MissionSelectUI>>,
+    _camera_query: Query<Entity, With<MissionSelectCamera>>,
+) {
+    for ev in ev_save_gameplay_setting.read() {
+        // Check if this is a Dev God Mode change
+        if matches!(ev.value, unsettings::game::GameplaySettingsValue::dev_cheat_mode(_)) {
+            info!("Dev God Mode setting changed - refreshing mission selection UI");
+            
+            // Clean up existing UI
+            for entity in ui_query.iter() {
+                commands.entity(entity).despawn();
+            }
+            
+            // The setup_ui system will be called automatically on the next frame
+            // because we're still in the MissionSelect state
+        }
+    }
 }
 
 fn trigger_initial_scroll_if_needed(

@@ -108,7 +108,7 @@ impl InteractiveStuff<'_, '_> {
             let other = self.bf.map_tile.get(other_tuid).unwrap();
             let mut beh = other.behavior.clone();
             beh.flip(behavior.p.flip);
-            // Update cached float output after flipping (which might afect light properties)
+            // Update cached heat output after flipping (which might affect light properties)
             beh.update_light_cache();
 
             // In case it is connected to a room, we need to change room state.
