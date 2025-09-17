@@ -5,7 +5,7 @@
 use bevy::diagnostic::{Diagnostic, DiagnosticPath, RegisterDiagnostic};
 use bevy::prelude::*;
 
-use uncore::behavior::{Behavior, Orientation};
+use uncore::behaviour::{Behavior, Orientation};
 use uncore::components::board::position::Position;
 use uncore::metric_recorder::SendMetric;
 use uncore::resources::roomdb::RoomDB;
@@ -33,11 +33,11 @@ pub fn apply_perspective(mut q: Query<(&Position, &mut Transform), Changed<Posit
     measure.end_ms();
 }
 
-/// Plugin for initializing board-related resources and systems.
+/// Plugin for initialising board-related resources and systems.
 pub struct UnhaunterBoardPlugin;
 
 impl Plugin for UnhaunterBoardPlugin {
-    /// Builds the plugin by initializing resources and adding systems and events.
+    /// Builds the plugin by initialising resources and adding systems and events.
     ///
     /// # Arguments
     ///

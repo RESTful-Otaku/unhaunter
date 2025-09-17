@@ -7,7 +7,7 @@ use crate::ConceptTrait;
 
 /// Defines the different voice line concepts available in this module.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum ConsumablesAndDefenseConcept {
+pub enum ConsumablesAndDefenceConcept {
     QuartzCrackedFeedback,
     QuartzShatteredFeedback,
     QuartzUnusedInRelevantSituation,
@@ -16,7 +16,7 @@ pub enum ConsumablesAndDefenseConcept {
     SageUnusedInRelevantSituation,
 }
 
-impl ConsumablesAndDefenseConcept {
+impl ConsumablesAndDefenceConcept {
     /// Retrieves a vector of `VoiceLineData` for this concept variant.
     pub fn get_lines(&self) -> Vec<VoiceLineData> {
         match self {
@@ -397,7 +397,7 @@ impl ConsumablesAndDefenseConcept {
 }
 
 // Auto-generated implementation of ConceptTrait
-impl ConceptTrait for ConsumablesAndDefenseConcept {
+impl ConceptTrait for ConsumablesAndDefenceConcept {
     fn get_lines(&self) -> Vec<VoiceLineData> {
         // Delegate to the generated get_lines method
         self.get_lines()

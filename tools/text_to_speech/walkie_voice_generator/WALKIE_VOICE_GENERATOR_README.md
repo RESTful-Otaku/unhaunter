@@ -13,7 +13,7 @@ The `walkie_voice_generator` streamlines the process of adding and managing voic
     *   **Audio Processing:** The same script then uses FFmpeg to apply walkie-talkie audio effects (filtering, noise, reverb), convert to mono, resample (11025Hz), and encode to a low-bitrate OGG Vorbis format (`-ab 32k`).
     *   **Metadata Extraction:** Invokes another script (`get_audio_duration.sh`) using `ffprobe` to determine the length in seconds of each generated OGG file.
     *   **Manifest Management:** Creates or updates a `manifest.ron` file. This manifest tracks all generated OGG files, their source definitions, audio duration, content signatures (for change detection), and associated metadata like tags and subtitles.
-    *   **Rust Code Generation:** Generates `.rs` source files within the `unwalkie` game crate. This code provides type-safe enums and functions for the game to easily access and utilize the voice lines and their metadata (subtitles, tags, duration).
+    *   **Rust Code Generation:** Generates `.rs` source files within the `unwalkie` game crate. This code provides type-safe enums and functions for the game to easily access and utilise the voice lines and their metadata (subtitles, tags, duration).
 
 ## Prerequisites
 

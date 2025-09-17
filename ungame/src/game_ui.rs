@@ -1,7 +1,7 @@
 use super::gear_ui::{setup_ui_gear_inv_left, setup_ui_gear_inv_right};
 use bevy::{color::palettes::css, prelude::*};
 use bevy_persistent::Persistent;
-use uncore::behavior::Behavior;
+use uncore::behaviour::Behavior;
 use uncore::colors;
 use uncore::components::game_ui::{
     DamageBackground, ElementObjectUI, EvidenceUI, GameUI, RightSideGearUI, WalkieText,

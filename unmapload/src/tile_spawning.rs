@@ -4,7 +4,7 @@
 //! It converts tile data from Tiled into game entities with appropriate components and behaviors.
 
 use bevy::prelude::*;
-use uncore::behavior::{TileState, Util};
+use uncore::behaviour::{TileState, Util};
 use uncore::components::board::boardposition::MapEntityFieldBPos;
 use uncore::components::board::position::Position;
 use uncore::components::game::{GameSprite, MapTileSprite};

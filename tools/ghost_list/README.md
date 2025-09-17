@@ -21,7 +21,7 @@ cargo build --release
 
 # Set analysis and optimization
 ./target/release/ghost_list test-set "Bean Sidhe,Dullahan,Leprechaun"
-./target/release/ghost_list optimize-set --size 4 --balance-factor 0.7
+./target/release/ghost_list optimise-set --size 4 --balance-factor 0.7
 ./target/release/ghost_list diverse-set --size 3           # Maximize diversity
 ./target/release/ghost_list tutorial-set --size 2          # Beginner sets
 
@@ -93,7 +93,7 @@ ghost_list complete-set "Ghost1,Ghost2"             # Find completing ghosts
 ### Set Generation & Optimization
 ```bash
 ghost_list find-sets --target-evidence "Evidence" --size N  # Find optimal sets
-ghost_list optimize-set --size N [--balance-factor 0.0-1.0] [--max-overlap N]
+ghost_list optimise-set --size N [--balance-factor 0.0-1.0] [--max-overlap N]
 ghost_list diverse-set --size N [--min-evidence-coverage N] # Maximize diversity
 ghost_list tutorial-set --size N [--beginner-friendly]      # Beginner sets
 ```
@@ -103,7 +103,7 @@ ghost_list tutorial-set --size N [--beginner-friendly]      # Beginner sets
 ghost_list compare-sets "Set1:Ghost1,Ghost2" "Set2:Ghost3,Ghost4" # Compare sets
 ghost_list overlap-analysis --sets "Set1:..." "Set2:..." "Set3:..." # Multi-set analysis
 ghost_list diff-sets "Old:Ghost1,Ghost2" "New:Ghost3,Ghost4"       # Show differences
-ghost_list merge-sets --sets "Set1:..." "Set2:..." [--optimize]    # Combine sets
+ghost_list merge-sets --sets "Set1:..." "Set2:..." [--optimise]    # Combine sets
 ```
 
 ## 📈 Use Cases
@@ -123,12 +123,12 @@ ghost_list correlate --evidence "Spirit Box"
 ### 🏗️ **Mission Design**
 ```bash
 # Generate balanced ghost sets for missions
-ghost_list optimize-set --size 4 --balance-factor 0.8
+ghost_list optimise-set --size 4 --balance-factor 0.8
 
 # Create beginner-friendly encounters
 ghost_list tutorial-set --size 2 --beginner-friendly
 
-# Find sets maximizing evidence variety
+# Find sets maximising evidence variety
 ghost_list diverse-set --size 3 --min-evidence-coverage 6
 ```
 

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use uncore::behavior::Behavior;
+use uncore::behaviour::Behavior;
 use uncore::components::board::position::Position;
 use uncore::events::board_data_rebuild::BoardDataToRebuild;
 use uncore::resources::board_data::BoardData;

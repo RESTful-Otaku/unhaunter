@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_platform::collections::HashMap;
 
-use crate::{behavior::TileState, components::board::boardposition::BoardPosition};
+use crate::{behaviour::TileState, components::board::boardposition::BoardPosition};
 
 /// The `RoomDB` resource manages room-related data, including room boundaries and
 /// states.

@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use uncore::{
-    behavior::{Behavior, component::Interactive, component::Stairs},
+    behaviour::{Behavior, component::Interactive, component::Stairs},
     components::{
         board::{PERSPECTIVE_X, PERSPECTIVE_Y, PERSPECTIVE_Z, position::Position},
         game::{GCameraArena, GameSprite},
@@ -32,7 +32,7 @@ pub fn waypoint_creation_system(
         &Position,
         &Interactive,
         &Behavior,
-        Option<&uncore::behavior::component::RoomState>,
+        Option<&uncore::behaviour::component::RoomState>,
     )>,
     q_stairs: Query<(Entity, &Position, &Stairs, &Behavior)>,
     mut click_events: EventReader<bevy::picking::events::Pointer<bevy::picking::events::Click>>,
@@ -195,7 +195,7 @@ pub fn waypoint_following_system(
         &Position,
         &Interactive,
         &Behavior,
-        Option<&uncore::behavior::component::RoomState>,
+        Option<&uncore::behaviour::component::RoomState>,
     )>,
     mut player_input: ResMut<PlayerInput>,
     mut interactive_stuff: InteractiveStuff,

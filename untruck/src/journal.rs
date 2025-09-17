@@ -215,7 +215,7 @@ fn button_system(
     }
 
     // --- 3. UPDATE UI FROM STATE ---
-    // Second pass: Update visuals and disabled states of all buttons based on the now-finalized GhostGuess.
+    // Second pass: Update visuals and disabled states of all buttons based on the now-finalised GhostGuess.
     for (interaction_ref, mut bgcolor, mut border_color, children, mut tui_button) in
         &mut interaction_query
     {

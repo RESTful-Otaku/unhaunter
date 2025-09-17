@@ -60,7 +60,7 @@ There are 8 types of evidence. Each ghost exhibits 5 of these 8.
 
 ### Ghost Identification
 
-Your first task is to locate the ghost and determine its preferred area.  Look for subtle visual clues like a semi-transparent dust cloud, which indicates the ghost's spawn point (breach). This is often easiest to see with the location's lights (not your flashlight). You can also use your equipment, like the Thermometer, to detect temperature changes, or the EMF meter to find fluctuations in the electromagnetic field. Carefully test your equipment, and record your findings in your trusty van. Once you have enough evidence, synthesize a specialized "Unhaunter Ghost Repellent" to expel the ghost.
+Your first task is to locate the ghost and determine its preferred area.  Look for subtle visual clues like a semi-transparent dust cloud, which indicates the ghost's spawn point (breach). This is often easiest to see with the location's lights (not your flashlight). You can also use your equipment, like the Thermometer, to detect temperature changes, or the EMF meter to find fluctuations in the electromagnetic field. Carefully test your equipment, and record your findings in your trusty van. Once you have enough evidence, synthesize a specialised "Unhaunter Ghost Repellent" to expel the ghost.
 
 Once you're done, you can click "End Mission" on the van and you'll get the mission score.
 
@@ -202,7 +202,7 @@ To run a profiling session:
 
 1.  **Compress the trace:** The JSON trace file can be compressed significantly. Use 7-Zip or a tool like ZSTD for efficient compression.
 2.  **Open the trace:** You can inspect the trace using [https://ui.perfetto.dev](https://ui.perfetto.dev). If the file is too large for the browser's WASM limit, follow the instructions at: [https://perfetto.dev/docs/quickstart/trace-analysis#trace-processor](https://perfetto.dev/docs/quickstart/trace-analysis#trace-processor)
-3.  **Analyze the trace:** Zoom in on the timeframe you want to analyze (typically the later portion) and look for the `bevy_app -> winit event_handler -> update -> main_app -> schedule: name=Main -> schedule: name=Update` section. This will reveal the main contributors to frame time.
+3.  **Analyse the trace:** Zoom in on the timeframe you want to analyse (typically the later portion) and look for the `bevy_app -> winit event_handler -> update -> main_app -> schedule: name=Main -> schedule: name=Update` section. This will reveal the main contributors to frame time.
 
 **Note:** `bevy_framepace::framerate_limiter` will likely take up most of the time, as its purpose is to introduce delays to maintain a consistent FPS.
 
@@ -241,7 +241,7 @@ cargo run --features bevy/dynamic_linking
 
 This is mainly beneficial for debug builds. For fresh builds, the difference is negligible. This only works on Linux.
 
-You can profile the build process to identify further optimizations using:
+You can profile the build process to identify further optimisations using:
 
 ```bash
 RUSTFLAGS="-Zself-profile" cargo +nightly run --features bevy/dynamic_linking

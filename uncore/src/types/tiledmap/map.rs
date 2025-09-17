@@ -3,7 +3,7 @@ use std::{fmt::Debug, slice::Iter};
 
 /// A simple 2D position with X and Y components that it is generic.
 ///
-/// This is mainly used to customize the Debug output so it is shorter.
+/// This is mainly used to customise the Debug output so it is shorter.
 #[derive(Clone, Copy)]
 pub struct Pos<T: Clone + Copy + Debug> {
     pub x: T,
@@ -37,7 +37,7 @@ impl Debug for MapTile {
     }
 }
 
-/// Mainly used to customize the Debug, this is the list of tiles inside a layer.
+/// Mainly used to customise the Debug, this is the list of tiles inside a layer.
 ///
 /// The debug skips most of the data and ensures it is written in a single compact
 /// line.

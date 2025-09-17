@@ -6,7 +6,7 @@ use uncore::types::root::game_assets::GameAssets;
 pub fn draw(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
     let title = "Expanding Your Arsenal";
     let subtitle = "
-        Delve deeper into the paranormal, utilizing advanced techniques and specialized gear to uncover the unseen.
+        Delve deeper into the paranormal, utilising advanced techniques and specialised gear to uncover the unseen.
     ".trim();
     let grid = vec![
         (

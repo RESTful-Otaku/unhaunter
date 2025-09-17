@@ -7,14 +7,14 @@ use crate::ConceptTrait;
 
 /// Defines the different voice line concepts available in this module.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum GhostBehaviorAndHuntingConcept {
+pub enum GhostBehaviourAndHuntingConcept {
     EMFMinorFluctuationsIgnored,
     HuntActiveNearHidingSpotNoHide,
     HuntWarningNoPlayerEvasion,
     PlayerStaysHiddenTooLong,
 }
 
-impl GhostBehaviorAndHuntingConcept {
+impl GhostBehaviourAndHuntingConcept {
     /// Retrieves a vector of `VoiceLineData` for this concept variant.
     pub fn get_lines(&self) -> Vec<VoiceLineData> {
         match self {
@@ -271,7 +271,7 @@ impl GhostBehaviorAndHuntingConcept {
 }
 
 // Auto-generated implementation of ConceptTrait
-impl ConceptTrait for GhostBehaviorAndHuntingConcept {
+impl ConceptTrait for GhostBehaviourAndHuntingConcept {
     fn get_lines(&self) -> Vec<VoiceLineData> {
         // Delegate to the generated get_lines method
         self.get_lines()

@@ -117,7 +117,7 @@ fn fragment(
     var dp: vec2<f32> = vec2(35.0/128.0/z, 18.0/128.0*2.0/z);
     var dpx: vec2<f32> = vec2(-35.0/128.0/z, 18.0/128.0*2.0/z);
 
-    // center of UV -> Anchors::calc(63, 95, 128, 128),
+    // centre of UV -> Anchors::calc(63, 95, 128, 128),
     var cnt: vec2<f32> = vec2(63.0/128.0, 95.0/128.0);
     var pttl: vec2<f32> = cnt - dp;
     var pttr: vec2<f32> = cnt - dpx;

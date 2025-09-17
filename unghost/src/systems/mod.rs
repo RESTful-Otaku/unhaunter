@@ -1,1 +1,1 @@
-pub mod dynamic_behavior_update;
+pub mod dynamic_behaviour_update;

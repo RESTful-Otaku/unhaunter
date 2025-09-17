@@ -3,10 +3,10 @@ use crate::{
     events::walkie_types::WalkieEvent,
     generated::{
         base1::Base1Concept, basic_gear_usage::BasicGearUsageConcept,
-        consumables_and_defense::ConsumablesAndDefenseConcept,
+        consumables_and_defence::ConsumablesAndDefenceConcept,
         environmental_awareness::EnvironmentalAwarenessConcept,
         evidence_gathering_and_logic::EvidenceGatheringAndLogicConcept,
-        ghost_behavior_and_hunting::GhostBehaviorAndHuntingConcept,
+        ghost_behaviour_and_hunting::GhostBehaviourAndHuntingConcept,
         incorrect_repellent_hint::IncorrectRepellentHintConcept,
         locomotion_and_interaction::LocomotionAndInteractionConcept,
         player_wellbeing::PlayerWellbeingConcept,
@@ -123,7 +123,7 @@ impl WalkieEvent {
                 Box::new(LocomotionAndInteractionConcept::StrugglingWithHideUnhide)
             }
             WalkieEvent::HuntActiveNearHidingSpotNoHide => {
-                Box::new(GhostBehaviorAndHuntingConcept::HuntActiveNearHidingSpotNoHide)
+                Box::new(GhostBehaviourAndHuntingConcept::HuntActiveNearHidingSpotNoHide)
             }
             // --- Environmental Awareness ---
             WalkieEvent::DarkRoomNoLightUsed => {
@@ -165,26 +165,26 @@ impl WalkieEvent {
             }
             // --- Consumables and Defense ---
             WalkieEvent::QuartzCrackedFeedback => {
-                Box::new(ConsumablesAndDefenseConcept::QuartzCrackedFeedback)
+                Box::new(ConsumablesAndDefenceConcept::QuartzCrackedFeedback)
             }
             WalkieEvent::QuartzShatteredFeedback => {
-                Box::new(ConsumablesAndDefenseConcept::QuartzShatteredFeedback)
+                Box::new(ConsumablesAndDefenceConcept::QuartzShatteredFeedback)
             }
             WalkieEvent::QuartzUnusedInRelevantSituation => {
-                Box::new(ConsumablesAndDefenseConcept::QuartzUnusedInRelevantSituation)
+                Box::new(ConsumablesAndDefenceConcept::QuartzUnusedInRelevantSituation)
             }
             WalkieEvent::SageUnusedInRelevantSituation => {
-                Box::new(ConsumablesAndDefenseConcept::SageUnusedInRelevantSituation)
+                Box::new(ConsumablesAndDefenceConcept::SageUnusedInRelevantSituation)
             }
             WalkieEvent::SageActivatedIneffectively => {
-                Box::new(ConsumablesAndDefenseConcept::SageActivatedIneffectively)
+                Box::new(ConsumablesAndDefenceConcept::SageActivatedIneffectively)
             }
             WalkieEvent::SageUnusedDefensivelyDuringHunt => {
-                Box::new(ConsumablesAndDefenseConcept::SageUnusedDefensivelyDuringHunt)
+                Box::new(ConsumablesAndDefenceConcept::SageUnusedDefensivelyDuringHunt)
             }
             // --- Ghost Behavior and Hunting ---
             WalkieEvent::PlayerStaysHiddenTooLong => {
-                Box::new(GhostBehaviorAndHuntingConcept::PlayerStaysHiddenTooLong)
+                Box::new(GhostBehaviourAndHuntingConcept::PlayerStaysHiddenTooLong)
             }
             // --- Repellent and Expulsion ---
             WalkieEvent::GhostExpelledPlayerLingers => {
@@ -253,7 +253,7 @@ impl WalkieEvent {
                 Box::new(EvidenceGatheringAndLogicConcept::InTruckWithEvidenceNoJournal)
             }
             WalkieEvent::HuntWarningNoPlayerEvasion => {
-                Box::new(GhostBehaviorAndHuntingConcept::HuntWarningNoPlayerEvasion)
+                Box::new(GhostBehaviourAndHuntingConcept::HuntWarningNoPlayerEvasion)
             }
             WalkieEvent::AllObjectivesMetReminderToEndMission => {
                 Box::new(Base1Concept::AllObjectivesMetReminderToEndMission)
@@ -373,7 +373,7 @@ impl WalkieEvent {
             }
             WalkieEvent::PlayerStaysHiddenTooLong => "Hunt over. Press [E] to stop hiding.",
             WalkieEvent::QuartzUnusedInRelevantSituation => {
-                "Ghost is aggressive! Consider grabbing a Quartz Stone from the truck for defense."
+                "Ghost is aggressive! Consider grabbing a Quartz Stone from the truck for defence."
             }
             WalkieEvent::SageUnusedInRelevantSituation => {
                 "Ghost is agitated! Sage from the truck can help calm it or aid escape."

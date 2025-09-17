@@ -239,8 +239,8 @@
           tags: [FirstTimeHint, Encouraging, MediumLength]
         ),
         (
-          tts_text: "The Red Torch is for specialized observation. Not all ghosts will react to it, but for those that do, an orange glow confirms R. L. Presence.",
-          subtitle_text: "The Red Torch is for specialized observation. Not all ghosts will react to it, but for those that do, an orange glow confirms 'RL Presence'.",
+          tts_text: "The Red Torch is for specialised observation. Not all ghosts will react to it, but for those that do, an orange glow confirms R. L. Presence.",
+          subtitle_text: "The Red Torch is for specialised observation. Not all ghosts will react to it, but for those that do, an orange glow confirms 'RL Presence'.",
           tags: [FirstTimeHint, Encouraging, MediumLength]
         ),
         (

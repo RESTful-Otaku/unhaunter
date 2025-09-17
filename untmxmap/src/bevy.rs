@@ -87,7 +87,7 @@ pub fn bevy_load_map(
             AtlasData::Tiles(images)
         };
 
-        // NOTE: tile.offset_x/y is used when drawing, instead we want the center point.
+        // NOTE: tile.offset_x/y is used when drawing, instead we want the centre point.
         let anchor_bottom_px = tileset.properties.get("Anchor::bottom_px").and_then(|x| {
             if let tiled::PropertyValue::IntValue(n) = x {
                 Some(n)
@@ -99,7 +99,7 @@ pub fn bevy_load_map(
             // find the fraction from the total image:
             let f = *n as f32 / (tileset.tile_height + tileset.spacing) as f32;
 
-            // from the center:
+            // from the centre:
             f - 0.5
         } else {
             -0.25

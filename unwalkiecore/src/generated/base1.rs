@@ -345,7 +345,7 @@ impl Base1Concept {
             Self::PlayerLeavesTruckWithoutChangingLoadout => vec![
                 VoiceLineData {
                     ogg_path: "walkie/generated/base1/playerleavestruckwithoutchangingloadout_01.ogg".to_string(),
-                    subtitle_text: "Hold on, did you check your gear setup? You might want to customize your loadout before heading out.".to_string(),
+                    subtitle_text: "Hold on, did you check your gear setup? You might want to customise your loadout before heading out.".to_string(),
                     tags: vec![WalkieTag::LongDetailed, WalkieTag::Questioning, WalkieTag::ReminderMedium],
                     length_seconds: 6,
                 },
@@ -363,7 +363,7 @@ impl Base1Concept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/base1/playerleavestruckwithoutchangingloadout_04.ogg".to_string(),
-                    subtitle_text: "Did you customize your loadout? Different missions might need different tools, you know.".to_string(),
+                    subtitle_text: "Did you customise your loadout? Different missions might need different tools, you know.".to_string(),
                     tags: vec![WalkieTag::MediumLength, WalkieTag::Questioning, WalkieTag::ReminderMedium],
                     length_seconds: 5,
                 },
@@ -387,7 +387,7 @@ impl Base1Concept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/base1/playerleavestruckwithoutchangingloadout_08.ogg".to_string(),
-                    subtitle_text: "You could optimize your equipment selection. The van has specialized tools that might be more effective.".to_string(),
+                    subtitle_text: "You could optimise your equipment selection. The van has specialised tools that might be more effective.".to_string(),
                     tags: vec![WalkieTag::DirectHint, WalkieTag::LongDetailed, WalkieTag::ReminderLow],
                     length_seconds: 7,
                 },

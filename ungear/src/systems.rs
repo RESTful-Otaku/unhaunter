@@ -131,14 +131,14 @@ fn sound_playback_system(
                         let angle = dy.atan2(dx);
                         
                         // Convert angle to stereo positioning
-                        // Front (0°) = center, right (90°) = right ear, back (180°) = center, left (270°) = left ear
+                        // Front (0°) = centre, right (90°) = right ear, back (180°) = centre, left (270°) = left ear
                         let stereo_x = angle.sin() * 5.0; // Stereo width
                         let stereo_z = -10.0 / audio_settings.sound_output.to_ear_offset();
                         
                         let spos_vec = Vec3::new(stereo_x, sound_screen.y, stereo_z);
                         (audio_settings.sound_output != SoundOutput::Mono, spos_vec)
                     } else {
-                        // Sound is at player position - center it
+                        // Sound is at player position - centre it
                         let spos_vec = Vec3::new(0.0, player_screen.y, -10.0 / audio_settings.sound_output.to_ear_offset());
                         (audio_settings.sound_output != SoundOutput::Mono, spos_vec)
                     }

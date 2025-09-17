@@ -44,7 +44,7 @@ pub fn app_setup(app: &mut App) {
         );
 }
 
-/// Sets up the difficulty selection screen UI and initializes the difficulty state
+/// Sets up the difficulty selection screen UI and initialises the difficulty state
 pub fn setup_systems(
     mut commands: Commands,
     handles: Res<GameAssets>,

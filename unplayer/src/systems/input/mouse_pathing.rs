@@ -258,7 +258,7 @@ pub fn click_to_move_pathing_system(
 
 /// System that updates player movement based on click-to-move target position.
 ///
-/// This system is now deprecated in favor of the waypoint system.
+/// This system is now deprecated in favour of the waypoint system.
 /// Kept for compatibility but does nothing as waypoint systems handle movement.
 pub fn click_to_move_update_system() {
     // This system is deprecated - waypoint systems now handle movement

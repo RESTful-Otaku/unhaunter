@@ -7,7 +7,7 @@ use bevy_platform::collections::HashSet;
 use bevy_platform::time::Instant;
 use ndarray::{Array2, Array3};
 use uncore::{
-    behavior::{Behavior, Class},
+    behaviour::{Behavior, Class},
     components::board::{boardposition::BoardPosition, position::Position},
     resources::board_data::BoardData,
     types::board::prebaked_lighting_data::{LightInfo, PrebakedLightingData, WaveEdge},
@@ -95,7 +95,7 @@ pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position,
                 source_id,
                 data.light_info.lux,
                 data.light_info.color,
-                2.0, // Distance travelled by light (in tiles, initialized with the light height)
+                2.0, // Distance travelled by light (in tiles, initialised with the light height)
                 initial_history,
             ));
 
@@ -261,7 +261,7 @@ pub fn prebake_propagation_data(bf: &mut BoardData) {
 
     let map_size = bf.map_size;
 
-    // Create and initialize the vector of Array2
+    // Create and initialise the vector of Array2
     bf.prebaked_propagation = vec![
         Array2::from_elem((map_size.0, map_size.1), [false; 4]);
         bf.prebaked_metadata.light_sources.len() + 1

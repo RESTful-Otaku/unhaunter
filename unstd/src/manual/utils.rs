@@ -3,7 +3,7 @@
 //! UI components such as headers, grids, text sections, buttons, and other elements.
 //! These functions are designed to be shared between different manual modes (user-requested
 //! and pre-play tutorial) to promote code reuse and maintain consistency across the
-//! manual's interface.  The functions utilize Bevy's UI system to create the
+//! manual's interface.  The functions utilise Bevy's UI system to create the
 //! visual elements of the manual efficiently.
 use bevy::prelude::*;
 use uncore::colors;

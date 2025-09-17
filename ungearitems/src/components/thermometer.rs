@@ -3,7 +3,7 @@ use crate::metrics;
 use super::{Gear, GearKind, GearSpriteID, GearUsable, on_off};
 use bevy::prelude::*;
 use rand::Rng;
-use uncore::behavior::Behavior;
+use uncore::behaviour::Behavior;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::position::Position;
 use uncore::components::ghost_sprite::GhostSprite;

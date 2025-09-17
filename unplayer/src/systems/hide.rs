@@ -1,7 +1,7 @@
 use bevy::color::palettes::css;
 use bevy::prelude::*;
 use bevy_platform::collections::HashMap;
-use uncore::behavior::Behavior;
+use uncore::behaviour::Behavior;
 use uncore::components::animation::AnimationTimer;
 use uncore::components::board::mapcolor::MapColor;
 use uncore::components::board::position::Position;

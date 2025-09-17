@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use uncore::behavior::component::Stairs;
-use uncore::behavior::{Behavior, Orientation};
+use uncore::behaviour::component::Stairs;
+use uncore::behaviour::{Behavior, Orientation};
 use uncore::components::board::position::Position;
 use uncore::components::game_config::GameConfig;
 use uncore::components::player_sprite::PlayerSprite;

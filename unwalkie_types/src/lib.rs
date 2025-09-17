@@ -1,6 +1,6 @@
 //! This crate defines shared types used by the `walkie_voice_generator` tool
 //! and the main `unwalkie` game crate for managing walkie-talkie voice lines.
-//! It includes the `WalkieTag` enum for categorizing voice lines and the
+//! It includes the `WalkieTag` enum for categorising voice lines and the
 //! `VoiceLineData` struct for holding metadata about each generated audio file.
 
 use serde::{Deserialize, Serialize};

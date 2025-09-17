@@ -24,7 +24,7 @@ All properties listed here should be defined within the main `<map>` tag's `<pro
 
 ## Recommended Properties (Leveraged by Campaign & Custom Mission Modes)
 
-These properties are typically already present for map identification and flavor but are crucial for how missions are presented in the UI.
+These properties are typically already present for map identification and flavour but are crucial for how missions are presented in the UI.
 
 1.  **`display_name`**
     *   **Type:** `string`

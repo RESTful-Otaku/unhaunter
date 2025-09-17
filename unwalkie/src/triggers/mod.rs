@@ -2,10 +2,10 @@ use bevy::app::App;
 
 pub mod base1;
 pub mod basic_gear_usage;
-pub mod consumables_and_defense;
+pub mod consumables_and_defence;
 pub mod environmental_awareness;
 pub mod evidence_gathering_logic;
-pub mod ghost_behavior_and_hunting;
+pub mod ghost_behaviour_and_hunting;
 pub mod locomotion_interaction;
 pub mod mission_progression_and_truck;
 pub mod player_wellbeing;
@@ -26,13 +26,13 @@ pub(crate) fn app_setup(app: &mut App) {
     basic_gear_usage::app_setup(app);
     environmental_awareness::app_setup(app);
     evidence_gathering_logic::app_setup(app);
-    ghost_behavior_and_hunting::app_setup(app);
+    ghost_behaviour_and_hunting::app_setup(app);
     locomotion_interaction::app_setup(app);
     mission_progression_and_truck::app_setup(app);
     player_wellbeing::app_setup(app);
     repellent_expulsion::app_setup(app);
     tutorial_specific::app_setup(app);
-    consumables_and_defense::app_setup(app);
+    consumables_and_defence::app_setup(app);
     potential_id_prompt::app_setup(app);
     truck_craft_prompt::app_setup(app);
     repellent_feedback::app_setup(app);

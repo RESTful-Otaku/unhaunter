@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use uncore::behavior::Behavior;
-use uncore::behavior::component::RoomState;
+use uncore::behaviour::Behavior;
+use uncore::behaviour::component::RoomState;
 use uncore::components::board::position::Position;
 use uncore::components::game::GCameraArena;
 use uncore::components::game_config::GameConfig;
@@ -53,7 +53,7 @@ fn roomchanged_event(
     if ev.open_van {
         interactive_stuff.game_next_state.set(GameState::Truck);
     }
-    if ev.initialize {
+    if ev.initialise {
         for (player, p_transform) in pc.iter() {
             if player.id != gc.player_id {
                 continue;

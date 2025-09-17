@@ -3,7 +3,7 @@ use bevy::sprite::Anchor;
 use bevy_platform::collections::HashMap;
 use ndarray::{Array3, s};
 use rand::Rng;
-use uncore::behavior::Behavior;
+use uncore::behaviour::Behavior;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::chunk::{CellIterator, ChunkIterator};
 use uncore::components::board::position::Position;
@@ -26,7 +26,7 @@ use crate::components::MiasmaSprite;
 use crate::metrics;
 use crate::resources::MiasmaConfig;
 
-fn initialize_miasma(
+fn initialise_miasma(
     mut board_data: ResMut<BoardData>,
     roomdb: Res<RoomDB>,
     config: Res<MiasmaConfig>,
@@ -104,7 +104,7 @@ fn spawn_miasma(
 
     if vf.visibility_field.dim() != board_data.collision_field.dim() {
         // If the visibility field hasn't updated to the same size, skip processing.
-        // This happens on map load and takes 1-2 frames to stabilize.
+        // This happens on map load and takes 1-2 frames to stabilise.
         return;
     }
 
@@ -251,7 +251,7 @@ fn animate_miasma_sprites(
         pos.y = miasma_sprite.base_position.y + (circular_y + noise_y * 0.6) * MOVEMENT_FACTOR;
 
         // We do *not* modify pos.z or pos.global_z here.  The Z position is set
-        // during initialization and should remain constant.
+        // during initialisation and should remain constant.
         let bpos = pos.to_board_position();
         let mut total_vel = Vec2::ZERO;
         let mut total_w = 0.0001;
@@ -648,7 +648,7 @@ fn update_miasma(
 pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(
         Update,
-        initialize_miasma.run_if(on_event::<LevelReadyEvent>),
+        initialise_miasma.run_if(on_event::<LevelReadyEvent>),
     );
     app.add_systems(Update, spawn_miasma);
     app.add_systems(

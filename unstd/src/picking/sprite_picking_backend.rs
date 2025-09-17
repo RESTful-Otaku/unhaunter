@@ -456,7 +456,7 @@ fn pixel_perfect_hit_test(
         }
     };
 
-    // Check the center pixel first
+    // Check the centre pixel first
     if check_pixel_alpha(center_tex_x, center_tex_y) {
         return true;
     }
@@ -472,7 +472,7 @@ fn pixel_perfect_hit_test(
 
     for dy in -distance..=distance {
         for dx in -distance..=distance {
-            // Skip the center pixel (already checked)
+            // Skip the centre pixel (already checked)
             if dx == 0 && dy == 0 {
                 continue;
             }

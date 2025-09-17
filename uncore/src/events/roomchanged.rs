@@ -13,21 +13,21 @@ pub enum InteractionExecutionType {
 /// state of interactive objects based on the room's current state.
 #[derive(Clone, Debug, Default, Event)]
 pub struct RoomChangedEvent {
-    /// Set to `true` if the event is triggered during level initialization.
-    pub initialize: bool,
+    /// Set to `true` if the event is triggered during level initialisation.
+    pub initialise: bool,
     /// Set to `true` if the van UI should be opened automatically (e.g., when the
     /// player returns to the starting area).
     pub open_van: bool,
 }
 
 impl RoomChangedEvent {
-    /// Creates a new `RoomChangedEvent` specifically for level initialization.
+    /// Creates a new `RoomChangedEvent` specifically for level initialisation.
     ///
-    /// The `initialize` flag is set to `true`, and the `open_van` flag is set based on
+    /// The `initialise` flag is set to `true`, and the `open_van` flag is set based on
     /// the given value.
     pub fn init(open_van: bool) -> Self {
         Self {
-            initialize: true,
+            initialise: true,
             open_van,
         }
     }

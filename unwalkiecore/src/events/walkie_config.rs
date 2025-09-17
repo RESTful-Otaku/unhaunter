@@ -209,7 +209,7 @@ impl WalkieEvent {
     /// Returns the repeat behavior configuration for this event
     pub fn repeat_behavior(&self) -> WalkieRepeatBehavior {
         match self {
-            // Introduction - this one is flavor text, which is nice to hear.
+            // Introduction - this one is flavour text, which is nice to hear.
             WalkieEvent::ChapterIntro(_) => WalkieRepeatBehavior::NormalRepeat,
 
             // One-time introductions and explanations - should rarely repeat

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use uncore::{
-    components::{ghost_behavior_dynamics::GhostBehaviorDynamics, ghost_sprite::GhostSprite},
+    components::{ghost_behaviour_dynamics::GhostBehaviourDynamics, ghost_sprite::GhostSprite},
     difficulty::CurrentDifficulty,
     resources::board_data::BoardData,
     types::evidence::Evidence,
@@ -33,11 +33,11 @@ fn calculate_noise_multiplier(
     combined_noise.powf(power_scale) * 2.0 - 1.0 // Scale to [-1, 1]
 }
 
-pub(crate) fn update_ghost_behavior_dynamics_system(
+pub(crate) fn update_ghost_behaviour_dynamics_system(
     time: Res<Time>,
     difficulty: Res<CurrentDifficulty>,
     noise_table: Res<uncore::noise::PerlinNoise>,
-    mut query: Query<(&GhostSprite, &mut GhostBehaviorDynamics)>,
+    mut query: Query<(&GhostSprite, &mut GhostBehaviourDynamics)>,
     mut board_data: ResMut<BoardData>,
     mut report_time: Local<f32>,
 ) {

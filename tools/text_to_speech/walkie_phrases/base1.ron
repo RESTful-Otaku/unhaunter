@@ -284,8 +284,8 @@
       name: "PlayerLeavesTruckWithoutChangingLoadout",
       lines: [
         (
-          tts_text: "Hold on, did you check your gear setup? You might want to customize your loadout before heading out.",
-          subtitle_text: "Hold on, did you check your gear setup? You might want to customize your loadout before heading out.",
+          tts_text: "Hold on, did you check your gear setup? You might want to customise your loadout before heading out.",
+          subtitle_text: "Hold on, did you check your gear setup? You might want to customise your loadout before heading out.",
           tags: [ReminderMedium, Questioning, LongDetailed],
         ),
         (
@@ -299,8 +299,8 @@
           tags: [ReminderLow, DirectHint, LongDetailed],
         ),
         (
-          tts_text: "Did you customize your loadout? Different missions might need different tools, you know.",
-          subtitle_text: "Did you customize your loadout? Different missions might need different tools, you know.",
+          tts_text: "Did you customise your loadout? Different missions might need different tools, you know.",
+          subtitle_text: "Did you customise your loadout? Different missions might need different tools, you know.",
           tags: [ReminderMedium, Questioning, MediumLength],
         ),
         (
@@ -319,8 +319,8 @@
           tags: [ReminderMedium, SnarkyHumor, MediumLength],
         ),
         (
-          tts_text: "You could optimize your equipment selection. The van has specialized tools that might be more effective.",
-          subtitle_text: "You could optimize your equipment selection. The van has specialized tools that might be more effective.",
+          tts_text: "You could optimise your equipment selection. The van has specialised tools that might be more effective.",
+          subtitle_text: "You could optimise your equipment selection. The van has specialised tools that might be more effective.",
           tags: [ReminderLow, DirectHint, LongDetailed],
         ),
         (

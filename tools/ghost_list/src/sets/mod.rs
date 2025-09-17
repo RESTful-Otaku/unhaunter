@@ -1,6 +1,6 @@
 pub mod comparison;
 pub mod completion;
-pub mod optimization;
+pub mod optimisation;
 pub mod validation;
 
 use crate::utils::parse_ghost_list;

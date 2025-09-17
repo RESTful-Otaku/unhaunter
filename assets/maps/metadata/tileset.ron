@@ -54,8 +54,8 @@ TileSet(
     tile_size: Rect(x: 9, y: 9, z: 11),
     // gimp file where to read the sprites from.
     xcf_file: "base-tiles.xcf",
-    // reads a layer in gimp to detect where the center point of the sprites is.
-    center_layer: "center",
+    // reads a layer in gimp to detect where the centre point of the sprites is.
+    centre_layer: "centre",
     // map of different entities that we can have in a map.
     // the key is used as the ID in the editor.
     entities: {
@@ -82,7 +82,7 @@ TileSet(
             // when drawing, place it beneath others. Also when computing properties of the map, put this one first and
             // then overlap information with the tiles above.
             z_index: -1,
-            // represents a categorization for the purpose of sorting in the editor.
+            // represents a categorisation for the purpose of sorting in the editor.
             category: "base/floor/standard",
         ),
         "wall-left": MapEntity(

@@ -76,7 +76,7 @@ impl NoiseOffsets {
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq)]
-pub struct GhostBehaviorDynamics {
+pub struct GhostBehaviourDynamics {
     pub freezing_temp_clarity: f32,
     pub floating_orbs_clarity: f32,
     pub uv_ectoplasm_clarity: f32,
@@ -90,7 +90,7 @@ pub struct GhostBehaviorDynamics {
     pub noise_offsets: NoiseOffsets,
 }
 
-impl Default for GhostBehaviorDynamics {
+impl Default for GhostBehaviourDynamics {
     fn default() -> Self {
         Self {
             freezing_temp_clarity: 1.0,
@@ -108,7 +108,7 @@ impl Default for GhostBehaviorDynamics {
     }
 }
 
-impl GhostBehaviorDynamics {
+impl GhostBehaviourDynamics {
     pub fn get_clarity(&self, evidence: Evidence) -> f32 {
         match evidence {
             Evidence::FreezingTemp => self.freezing_temp_clarity,

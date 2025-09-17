@@ -94,7 +94,7 @@ impl BoardPosition {
         }
     }
 
-    /// DEPRECATED: This is wrong. The center of the tile is BoardPosition::to_position(). This actually gives you the bottom right edge.
+    /// DEPRECATED: This is wrong. The centre of the tile is BoardPosition::to_position(). This actually gives you the bottom right edge.
     pub fn to_position_center(&self) -> Position {
         Position {
             x: self.x as f32 + 0.5,
@@ -325,15 +325,15 @@ pub struct NeighboursIterator {
 
 impl NeighboursIterator {
     pub fn new(
-        center: &BoardPosition,
+        centre: &BoardPosition,
         max_distance: i64,
         from: (i64, i64),
         to: (i64, i64),
     ) -> NeighboursIterator {
-        let min_x = (center.x - max_distance).max(from.0);
-        let min_y = (center.y - max_distance).max(from.1);
-        let max_x = (center.x + max_distance).min(to.0);
-        let max_y = (center.y + max_distance).min(to.1);
+        let min_x = (centre.x - max_distance).max(from.0);
+        let min_y = (centre.y - max_distance).max(from.1);
+        let max_x = (centre.x + max_distance).min(to.0);
+        let max_y = (centre.y + max_distance).min(to.1);
 
         NeighboursIterator {
             current_x: min_x,
@@ -341,7 +341,7 @@ impl NeighboursIterator {
             min_x,
             max_x,
             max_y,
-            z: center.z,
+            z: centre.z,
         }
     }
 }

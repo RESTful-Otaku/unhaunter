@@ -47,7 +47,7 @@ GHOST_NEAR_HUNT_2="The energy levels are surging... it's getting angry... I don'
 GHOST_NEAR_HUNT_3="Static's spiking on my end... that's never good... you might want to leave before it's too late."
 GHOST_NEAR_HUNT_4="Uh... you're not alone in there. And whatever it is, it's not happy. I'd look for an exit path if I were you."
 
-# Mission start - flavor text to welcome the player to the mission and set the scene.
+# Mission start - flavour text to welcome the player to the mission and set the scene.
 
 # .. easy variant - these are for easy missions which we need to tell the player to enter the location somehow.
 MISSION_START_EASY_1="Alright, you're on site. Reports indicate significant paranormal activity. Standard procedure: locate, identify, and neutralize the entity."

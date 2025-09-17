@@ -292,7 +292,7 @@ pub fn update_mission_selection(
                     mission_data.display_name,
                     mission_data.location_name,
                     mission_data.location_address,
-                    mission_data.flavor_text,
+                    mission_data.flavour_text,
                     difficulty_info,
                     required_deposit,
                     base_reward,
@@ -460,7 +460,7 @@ pub fn setup_ui(
 
     let (initial_desc, initial_preview_image_path) = if !sorted_available_maps.is_empty() {
         // Ensure this is inside the 'if !sorted_available_maps.is_empty() { ... }' block
-        // and after 'default_selected_idx_in_sorted_list' has been initialized (e.g., to 0).
+        // and after 'default_selected_idx_in_sorted_list' has been initialised (e.g., to 0).
 
         if mission_select_mode.0 == MissionSelectMode::Campaign {
             // Iterate available maps from most advanced (last in the 'sorted_available_maps' list, due to .rev())
@@ -539,7 +539,7 @@ pub fn setup_ui(
             initial_mission.display_name,
             initial_mission.location_name,
             initial_mission.location_address,
-            initial_mission.flavor_text,
+            initial_mission.flavour_text,
             difficulty_info,
             initial_mission.required_deposit,
             base_reward,

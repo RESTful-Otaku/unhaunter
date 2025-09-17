@@ -1,7 +1,7 @@
 //! ## Difficulty Module
 //!
 //! This module defines the difficulty system for the Unhaunter game, enabling
-//! customization of various gameplay parameters to provide a range of challenges
+//! customisation of various gameplay parameters to provide a range of challenges
 //! for players.
 //!
 //! The `Difficulty` enum represents the different difficulty levels, each with a

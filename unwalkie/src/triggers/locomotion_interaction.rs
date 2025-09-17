@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use bevy::time::Stopwatch;
 use bevy_persistent::Persistent;
 
-use uncore::behavior::component::Door;
-use uncore::behavior::{Behavior, TileState};
+use uncore::behaviour::component::Door;
+use uncore::behaviour::{Behavior, TileState};
 use uncore::components::board::position::Position;
 use uncore::components::player::Hiding;
 use uncore::components::player_sprite::PlayerSprite;

@@ -5,10 +5,10 @@ pub use unwalkie_types::WalkieTag;
 
 pub mod base1;
 pub mod basic_gear_usage;
-pub mod consumables_and_defense;
+pub mod consumables_and_defence;
 pub mod environmental_awareness;
 pub mod evidence_gathering_and_logic;
-pub mod ghost_behavior_and_hunting;
+pub mod ghost_behaviour_and_hunting;
 pub mod incorrect_repellent_hint;
 pub mod locomotion_and_interaction;
 pub mod mission_progression_and_truck;

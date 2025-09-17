@@ -11,7 +11,7 @@
 //!
 //! * Buttons for crafting ghost repellents, exiting the truck, and ending the mission.
 //!
-//! The truck UI provides a centralized interface for players to interact with the
+//! The truck UI provides a centralised interface for players to interact with the
 //! game's mechanics, track their progress, and make strategic decisions outside of
 //! the main exploration and investigation gameplay.
 pub mod activity;

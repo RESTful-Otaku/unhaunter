@@ -1,8 +1,8 @@
 # AI README: Understanding Unhaunter Map Data (TMX/TSX)
 
-**Purpose:** This document explains how Unhaunter utilizes Tiled map editor files (`.tmx` and `.tsx`) to define game levels, focusing on the information encoded within the Tileset (`.tsx`) files that AI assistants need to understand for code analysis and generation.
+**Purpose:** This document explains how Unhaunter utilises Tiled map editor files (`.tmx` and `.tsx`) to define game levels, focusing on the information encoded within the Tileset (`.tsx`) files that AI assistants need to understand for code analysis and generation.
 
-**Core Concept:** The `.tsx` files act as a crucial bridge between visual tiles in the spritesheets (`assets/img/*.png`) and the game's logic implemented in Bevy. Information stored in the TSX determines the behavior and properties of objects placed in `.tmx` map files.
+**Core Concept:** The `.tsx` files act as a crucial bridge between visual tiles in the spritesheets (`assets/img/*.png`) and the game's logic implemented in Bevy. Information stored in the TSX determines the behaviour and properties of objects placed in `.tmx` map files.
 
 ## 1. Tiled `type` -> Bevy `Class` Mapping
 
@@ -14,21 +14,21 @@ The most important piece of information for any tile defined in a TSX file is it
 <tile id="48" type="Decor"> ... </tile>
 ```
 
-*   **Mapping:** The value of the `type` attribute directly corresponds to the `uncore::behavior::Class` enum variant in the codebase.
-*   **Significance:** This `Class` determines the fundamental *category* of the tile and dictates which core Bevy components (`Ground`, `Collision`, `Opaque`, `Interactive`, `Light`, `Door`, `Stairs`, `NpcHelpDialog`, etc., found in `uncore::behavior::component`) are initially added to the entity when it's spawned during level loading (`ungame/src/level.rs`). It's the primary driver of how the game treats the tile.
+*   **Mapping:** The value of the `type` attribute directly corresponds to the `uncore::behaviour::Class` enum variant in the codebase.
+*   **Significance:** This `Class` determines the fundamental *category* of the tile and dictates which core Bevy components (`Ground`, `Collision`, `Opaque`, `Interactive`, `Light`, `Door`, `Stairs`, `NpcHelpDialog`, etc., found in `uncore::behaviour::component`) are initially added to the entity when it's spawned during level loading (`ungame/src/level.rs`). It's the primary driver of how the game treats the tile.
 
 ## 2. Key Tile Properties (`<properties>`)
 
-Within a `<tile>` definition, specific `<property>` tags encode further details that populate the `uncore::behavior::Behavior` component, primarily within its `cfg: SpriteConfig` and `p: Properties` fields.
+Within a `<tile>` definition, specific `<property>` tags encode further details that populate the `uncore::behaviour::Behavior` component, primarily within its `cfg: SpriteConfig` and `p: Properties` fields.
 
 *   **`sprite:variant` (String)**
     *   **Maps to:** `Behavior.cfg.variant`
     *   **Purpose:** Differentiates tiles *within the same Class*. For `Floor`, it defines the texture (e.g., "StonePath", "Grass"). For `Wall` or `Door`, it might define material ("FlatBlue", "OakWood", "Metal"). For `Decor` or `Item`, it often identifies the specific object ("GreenChair", "RedBook", "Vase1"). This is used for visual distinction and potentially specific logic variations. If absent, a default based on tileset/ID might be used.
 *   **`sprite:orientation` (String -> Enum)**
-    *   **Maps to:** `uncore::behavior::Orientation` (`XAxis`, `YAxis`, `Both`, `None`)
+    *   **Maps to:** `uncore::behaviour::Orientation` (`XAxis`, `YAxis`, `Both`, `None`)
     *   **Purpose:** Defines the facing direction for sprites like walls, doors, and some switches. Affects visual appearance (which sprite variant might be chosen implicitly by `SpriteDB` lookup) and gameplay logic (e.g., collision shape, light occlusion).
 *   **`sprite:state` (String -> Enum)**
-    *   **Maps to:** `uncore::behavior::TileState` (`On`/`Off`, `Open`/`Closed`, `Full`/`Partial`/`Minimum`, `None`)
+    *   **Maps to:** `uncore::behaviour::TileState` (`On`/`Off`, `Open`/`Closed`, `Full`/`Partial`/`Minimum`, `None`)
     *   **Purpose:** Represents the *initial* state of an interactive or multi-state object (like lamps, switches, doors, potentially complex walls).
     *   **Convention:** See Section 5.
 *   **`object:*` Properties (Boolean/Float/String)**
@@ -79,7 +79,7 @@ For easier understanding, the tile `Class` types can be grouped:
 *   **Default State:** When placing interactive tiles (like `Door`, `Switch`, `*Lamp`) in a `.tmx` map file, **always use the tile representing the default, inactive state.**
     *   Doors should be placed using their **`Closed`** state tile.
     *   Switches and Lamps should be placed using their **`Off`** state tile.
-    *   The game's logic (`InteractiveStuff`, room state changes) will handle swapping the entity's components/material to the `Open` or `On` state variant during gameplay. Placing them initially open/on in Tiled will likely lead to incorrect behavior.
+    *   The game's logic (`InteractiveStuff`, room state changes) will handle swapping the entity's components/material to the `Open` or `On` state variant during gameplay. Placing them initially open/on in Tiled will likely lead to incorrect behaviour.
 *   **`type` is King:** The `type` attribute is the primary determinant of how the game logic treats a tile. Ensure it accurately reflects the intended function.
 *   **`sprite:variant` for Identity:** Use variants consistently for objects that should be treated as the same logical item (e.g., all "OakTable" variants belong to the Oak Table type).
 

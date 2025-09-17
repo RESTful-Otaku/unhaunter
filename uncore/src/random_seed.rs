@@ -52,7 +52,7 @@ pub struct FastRngSeeder {
 }
 
 impl FastRngSeeder {
-    /// Returns the thread's random number generator, initializing it if necessary.
+    /// Returns the thread's random number generator, initialising it if necessary.
     ///
     /// # Returns
     ///

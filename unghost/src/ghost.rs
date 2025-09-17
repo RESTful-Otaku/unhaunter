@@ -8,7 +8,7 @@ use uncore::components::board::direction::Direction;
 use uncore::components::board::mapcolor::MapColor;
 use uncore::components::board::position::Position;
 use uncore::components::game::GameSprite;
-use uncore::components::ghost_behavior_dynamics::GhostBehaviorDynamics;
+use uncore::components::ghost_behaviour_dynamics::GhostBehaviourDynamics;
 use uncore::components::ghost_influence::{GhostInfluence, InfluenceType};
 use uncore::components::ghost_sprite::GhostSprite;
 use uncore::components::player::Hiding;
@@ -104,7 +104,7 @@ fn ghost_movement(
             delta.dx *= ghost.warp + 1.0;
             delta.dy *= ghost.warp + 1.0;
             delta.dz *= ghost.warp + 1.0;
-            let mut finalize = false;
+            let mut finalise = false;
             if ghost.hunt_target {
                 if time.elapsed_secs() - ghost.hunt_time_secs > 1.0 {
                     if dlen < 4.0 {
@@ -125,7 +125,7 @@ fn ghost_movement(
                     }
                     ghost.hunting = 0.0;
                     ghost.hunt_target = false;
-                    finalize = true;
+                    finalise = true;
                     warn!("Hunt finished");
                 }
             } else {
@@ -135,9 +135,9 @@ fn ghost_movement(
             }
             pos.z = pos.z.clamp(0.0, (bf.map_size.2 - 1) as f32);
             if dlen < 0.5 {
-                finalize = true;
+                finalise = true;
             }
-            if finalize {
+            if finalise {
                 ghost.target_point = None;
             }
         }
@@ -369,7 +369,7 @@ fn ghost_enrage(
     time: Res<Time>,
     mut timer: Local<PrintingTimer>,
     mut avg_angry: Local<MeanValue>,
-    mut qg: Query<(&mut GhostSprite, &Position, &GhostBehaviorDynamics), Without<FadeOut>>,
+    mut qg: Query<(&mut GhostSprite, &Position, &GhostBehaviourDynamics), Without<FadeOut>>,
     mut qp: Query<(&mut PlayerSprite, &Position)>,
     mut gs: GearStuff,
     mut last_roar: Local<f32>,
@@ -903,7 +903,7 @@ pub(crate) fn app_setup(app: &mut App) {
             ghost_fade_out_system,
             update_ghost_warning_field,
             ghost_scale_glitch_system,
-            crate::systems::dynamic_behavior_update::update_ghost_behavior_dynamics_system,
+            crate::systems::dynamic_behaviour_update::update_ghost_behaviour_dynamics_system,
         ),
     );
 }

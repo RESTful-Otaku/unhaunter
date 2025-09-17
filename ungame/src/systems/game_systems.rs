@@ -85,7 +85,7 @@ fn keyboard(
             }
             // Camera movement
             let mut ref_point = p_transform.translation;
-            // Move the reference point a bit up since we have the UI on the bottom, so the player is better centered on the remaining available space.
+            // Move the reference point a bit up since we have the UI on the bottom, so the player is better centred on the remaining available space.
             ref_point.y -= 10.0;
             // let sc_dir = p_dir.to_screen_coord();
             let sc_dir = player.movement.to_screen_coord();

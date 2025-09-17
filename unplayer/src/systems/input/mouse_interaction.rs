@@ -4,7 +4,7 @@ use bevy::{
     prelude::*,
 };
 use uncore::{
-    behavior::{Behavior, component::Interactive},
+    behaviour::{Behavior, component::Interactive},
     components::{board::position::Position, game_config::GameConfig, player_sprite::PlayerSprite},
     resources::{looking_gear::LookingGear, visibility_data::VisibilityData},
 };

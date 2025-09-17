@@ -7,7 +7,7 @@ use bevy_platform::collections::HashSet;
 use bevy_platform::time::Instant;
 use ndarray::Array3;
 use uncore::{
-    behavior::{Behavior, Orientation},
+    behaviour::{Behavior, Orientation},
     components::board::position::Position,
     resources::board_data::BoardData,
     types::board::fielddata::LightFieldData,

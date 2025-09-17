@@ -2,7 +2,7 @@ use crate::{
     celsius_to_kelvin,
     components::{
         board::{boardposition::BoardPosition, position::Position},
-        ghost_behavior_dynamics::GhostBehaviorDynamics,
+        ghost_behaviour_dynamics::GhostBehaviourDynamics,
     },
     types::{
         board::{
@@ -72,7 +72,7 @@ pub struct BoardData {
 
     /// Evidences of the current ghost
     pub evidences: HashSet<Evidence>,
-    pub ghost_dynamics: GhostBehaviorDynamics,
+    pub ghost_dynamics: GhostBehaviourDynamics,
 
     // New prebaked lighting field.
     pub prebaked_lighting: Array3<PrebakedLightingData>,
@@ -231,7 +231,7 @@ impl BoardData {
 
 impl FromWorld for BoardData {
     fn from_world(_world: &mut World) -> Self {
-        // Using from_world to initialize is not needed but just in case we need it later.
+        // Using from_world to initialise is not needed but just in case we need it later.
         let map_size = (0, 0, 0);
         Self {
             map_size,
@@ -269,7 +269,7 @@ impl FromWorld for BoardData {
             },
             map_path: String::new(), // Initialize map_path with an empty string
             level_ready_time: 0.0,   // Initialize level_ready_time
-            ghost_dynamics: GhostBehaviorDynamics::default(),
+            ghost_dynamics: GhostBehaviourDynamics::default(),
         }
     }
 }

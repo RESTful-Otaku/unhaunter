@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use uncore::behavior::Behavior;
-use uncore::behavior::component::{Interactive, RoomState};
+use uncore::behaviour::Behavior;
+use uncore::behaviour::component::{Interactive, RoomState};
 use uncore::components::animation::{AnimationTimer, CharacterAnimation};
 use uncore::components::board::direction::Direction;
 use uncore::components::board::position::Position;

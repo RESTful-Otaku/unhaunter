@@ -8,12 +8,12 @@
 //! * Managing room-related events and states (lighting conditions, interactive behavior)
 //! * Handling post-load processing like prebaked lighting and ghost influence assignment
 //!
-//! The module is organized into several submodules with specialized responsibilities:
+//! The module is organised into several submodules with specialised responsibilities:
 //!
 //! * `sprite_db` - Handles population of sprite database with tile data
 //! * `tile_spawning` - Manages individual tile entity spawning and configuration
 //! * `entity_spawning` - Handles player, ghost and ambient entity creation
-//! * `level_setup` - Core level initialization and field setup
+//! * `level_setup` - Core level initialisation and field setup
 //! * `level_finalization` - Post-load processing and environment preparation
 //! * `influence_system` - Ghost influence assignment to objects
 

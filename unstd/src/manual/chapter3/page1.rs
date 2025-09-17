@@ -6,7 +6,7 @@ use uncore::types::root::game_assets::GameAssets;
 pub fn draw(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
     let title = "Mastering Advanced Investigation";
     let subtitle = "
-        Delve deeper into the paranormal, utilizing advanced techniques and specialized gear to uncover the unseen.
+        Delve deeper into the paranormal, utilising advanced techniques and specialised gear to uncover the unseen.
         "
     .trim();
     let grid = vec![
@@ -53,7 +53,7 @@ pub fn draw(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
 pub fn create_manual_page() -> ManualPageData {
     ManualPageData {
         title: "Mastering Advanced Investigation".into(),
-        subtitle: "Delve deeper into the paranormal, utilizing advanced techniques and specialized gear to uncover the unseen.".into(),
+        subtitle: "Delve deeper into the paranormal, utilising advanced techniques and specialised gear to uncover the unseen.".into(),
         draw_fn: draw,
     }
 }

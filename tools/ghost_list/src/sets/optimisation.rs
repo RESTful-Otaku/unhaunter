@@ -362,15 +362,15 @@ pub fn handle_find_sets_command(target_evidence_str: &str, size: usize, max_resu
     );
 }
 
-// TODO: Implement logic for other optimization commands:
-// `optimize-set --size X --balance-factor Y --max-overlap Z`
+// TODO: Implement logic for other optimisation commands:
+// `optimise-set --size X --balance-factor Y --max-overlap Z`
 // `diverse-set --size X --min-evidence-coverage Y`
 // `tutorial-set --beginner-friendly --size X`
 // These will require new functions or significant modifications to `find_scored_ghost_sets`
 // and potentially new scoring functions.
-// - `optimize-set` might adjust scoring weights or add new scoring components.
+// - `optimise-set` might adjust scoring weights or add new scoring components.
 // - `diverse-set` would primarily score based on the count of unique evidences present in the set.
-// - `tutorial-set` might filter for ghosts with "easy" or "common" evidences and prioritize simpler sets.Tool output for `overwrite_file_with_block`:
+// - `tutorial-set` might filter for ghosts with "easy" or "common" evidences and prioritise simpler sets.Tool output for `overwrite_file_with_block`:
 
 pub fn handle_optimize_set_command(
     size: usize,
@@ -821,7 +821,7 @@ fn calculate_tutorial_score(
     score.max(0.0)
 }
 
-// Helper functions for optimize-set command
+// Helper functions for optimise-set command
 
 fn violates_overlap_constraint(ghost_set: &HashSet<GhostType>, max_overlap: usize) -> bool {
     let ghosts: Vec<&GhostType> = ghost_set.iter().collect();

@@ -8,7 +8,7 @@ use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
 use uncore::states::GameState;
 use uncore::types::root::game_assets::GameAssets;
 use uncore::{
-    behavior::{
+    behaviour::{
         Behavior,
         component::{Interactive, NpcHelpDialog},
     },

@@ -148,7 +148,7 @@ pub enum Commands {
         )]
         max_overlap: Option<usize>, // Optional, can use default in handler
     },
-    /// Find sets that maximize evidence diversity
+    /// Find sets that maximise evidence diversity
     DiverseSet {
         #[arg(long, help = "Desired number of ghosts in the set")]
         size: usize,
@@ -180,8 +180,8 @@ pub enum Commands {
     MergeSets {
         #[arg(long, help = "Two or more named ghost sets to merge (e.g., \"Set1:GA,GB\")", value_name = "SET_SPEC", num_args = 2..)]
         sets: Vec<String>,
-        #[arg(long, help = "Optimize the merged set after creation")]
-        optimize: bool,
+        #[arg(long, help = "Optimise the merged set after creation")]
+        optimise: bool,
     },
     /// Show differences between two specific ghost sets
     DiffSets {
@@ -277,8 +277,8 @@ impl Cli {
             Some(Commands::OverlapAnalysis { sets }) => {
                 handle_overlap_analysis_command(sets.clone());
             }
-            Some(Commands::MergeSets { sets, optimize }) => {
-                handle_merge_sets_command(sets.clone(), *optimize);
+            Some(Commands::MergeSets { sets, optimise }) => {
+                handle_merge_sets_command(sets.clone(), *optimise);
             }
             Some(Commands::DiffSets { old_set, new_set }) => {
                 handle_diff_sets_command(old_set.clone(), new_set.clone());

@@ -156,7 +156,7 @@ fn main() {
             original_manifest_size_before_pruning - new_manifest_size_after_pruning
         );
     } else {
-        println!("Manifest is already synchronized with current RON definitions.");
+        println!("Manifest is already synchronised with current RON definitions.");
     }
 
     // The `if cli.delete_unused` block that previously handled manifest cleaning

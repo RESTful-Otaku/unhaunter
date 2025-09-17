@@ -1,6 +1,6 @@
 //! # Level Setup Module
 //!
-//! This module handles the core level initialization and setup process.
+//! This module handles the core level initialisation and setup process.
 //! It contains the main level loading handler and defines the primary system parameters needed for level loading.
 
 use bevy::ecs::system::SystemParam;

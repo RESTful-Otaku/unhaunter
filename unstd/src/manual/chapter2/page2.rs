@@ -25,7 +25,7 @@ pub fn draw(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
         ),
         (
             &handles.images.manual_inventory_all,
-            "*5. Be organized!*: The spots in your inventory are for the Left Hand *[TAB]*, Right Hand *[R]*, and two extra backpack slots *[Q]*.",
+            "*5. Be organised!*: The spots in your inventory are for the Left Hand *[TAB]*, Right Hand *[R]*, and two extra backpack slots *[Q]*.",
         ),
         (
             &handles.images.manual_truck_endmission,

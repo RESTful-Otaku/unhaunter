@@ -1,14 +1,14 @@
 use bevy::{asset::RenderAssetUsages, prelude::*};
 
-/// A rectangle on the `XY` plane with custom center.
+/// A rectangle on the `XY` plane with custom centre.
 #[derive(Debug, Copy, Clone)]
 pub struct QuadCC {
     /// Full width and height of the rectangle.
     pub size: Vec2,
     /// Horizontally-flip the texture coordinates of the resulting mesh.
     pub flip: bool,
-    /// Center point of the quad
-    pub center: Vec2,
+    /// Centre point of the quad
+    pub centre: Vec2,
 }
 
 impl Default for QuadCC {
@@ -18,21 +18,21 @@ impl Default for QuadCC {
 }
 
 impl QuadCC {
-    pub fn new(size: Vec2, center: Vec2) -> Self {
+    pub fn new(size: Vec2, centre: Vec2) -> Self {
         Self {
             size,
             flip: false,
-            center,
+            centre,
         }
     }
 }
 
 impl From<QuadCC> for Mesh {
     fn from(quad: QuadCC) -> Self {
-        let left_x = -quad.center.x;
-        let right_x = quad.size.x - quad.center.x;
-        let bottom_y = quad.center.y - quad.size.y;
-        let top_y = quad.center.y;
+        let left_x = -quad.centre.x;
+        let right_x = quad.size.x - quad.centre.x;
+        let bottom_y = quad.centre.y - quad.size.y;
+        let top_y = quad.centre.y;
         let (u_left, u_right) = if quad.flip { (1.0, 0.0) } else { (0.0, 1.0) };
         let vertices = [
             ([left_x, bottom_y, 0.0], [0.0, 0.0, 1.0], [u_left, 1.0]),

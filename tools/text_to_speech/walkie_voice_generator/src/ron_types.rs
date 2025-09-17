@@ -13,7 +13,7 @@ pub struct WalkieLineEntry {
     pub tts_text: String,
     /// The subtitle text to be displayed in-game for this voice line.
     pub subtitle_text: String,
-    /// A set of tags associated with this voice line, used for categorization or game logic.
+    /// A set of tags associated with this voice line, used for categorisation or game logic.
     pub tags: HashSet<WalkieTag>,
 }
 

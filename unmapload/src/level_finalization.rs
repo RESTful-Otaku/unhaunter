@@ -1,7 +1,7 @@
 //! # Level Finalization Module
 //!
 //! This module handles post-load processing for levels, including:
-//! - Temperature field initialization and smoothing
+//! - Temperature field initialisation and smoothing
 //! - Processing mesh placeholders into actual mesh instances
 //! - Adding prebaked lighting to the level
 //! - Computing usable area statistics for the level
@@ -9,7 +9,7 @@
 use bevy::prelude::*;
 use bevy_platform::collections::HashMap;
 use rand::Rng;
-use uncore::behavior::Behavior;
+use uncore::behaviour::Behavior;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::position::Position;
 use uncore::events::loadlevel::LevelReadyEvent;
@@ -95,7 +95,7 @@ fn after_level_ready(
                 let floor_area = area_per_floor.entry(bpos.z).or_insert(0.0);
                 *floor_area += tile_area;
 
-                // Add to room area calculation, organized by floor
+                // Add to room area calculation, organised by floor
                 if let Some(room_name) = roomdb.room_tiles.get(bpos) {
                     let floor_rooms = rooms_per_floor.entry(bpos.z).or_default();
                     let room_area = floor_rooms.entry(room_name.clone()).or_insert(0.0);

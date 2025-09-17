@@ -1,6 +1,6 @@
 //! Provides an asset loader (`TmxMapLoader`) for Tiled Map Editor's `.tmx` files.
 //! It includes a naive parser (`naive_tmx_loader`) to quickly extract top-level
-//! map properties without full XML DOM parsing, optimizing initial load times when
+//! map properties without full XML DOM parsing, optimising initial load times when
 //! inspecting multiple map files. The loaded asset (`TmxMap`) stores both the raw
 //! TMX bytes for full parsing later and the naively extracted properties.
 use bevy::{asset::AssetLoader, prelude::*};
@@ -16,8 +16,8 @@ pub struct NaivelyParsedProps {
     pub is_campaign_mission: bool,
     /// The human-readable display name of the map. Parsed from the 'display_name' TMX property. Defaults to empty string.
     pub display_name: String,
-    /// Descriptive or flavor text for the map/mission. Parsed from the 'flavor_text' TMX property.
-    pub flavor_text: String,
+    /// Descriptive or flavour text for the map/mission. Parsed from the 'flavor_text' TMX property.
+    pub flavour_text: String,
     /// String defining the mission's order in a campaign sequence. Parsed from the 'campaign_order' TMX property.
     pub campaign_order: String,
     /// String representation of the difficulty for a campaign mission. Parsed from the 'campaign_difficulty' TMX property.
@@ -97,7 +97,7 @@ impl TmxMap {
         let mut parsed_props = NaivelyParsedProps {
             is_campaign_mission,
             display_name: display_name_from_map,
-            flavor_text: props_map.get("flavor_text").cloned().unwrap_or_default(),
+            flavour_text: props_map.get("flavor_text").cloned().unwrap_or_default(),
             campaign_order: props_map.get("campaign_order").cloned().unwrap_or_default(),
             campaign_difficulty_str: props_map
                 .get("campaign_difficulty")
@@ -115,7 +115,7 @@ impl TmxMap {
             mission_reward_base: parse_i64("mission_reward_base", 0),
             required_deposit: parse_i64("required_deposit", 0),
             // FIXME: The default values for these properties should be computed by `calculate_grade_thresholds`.
-            // This is a temporary fix to ensure they are initialized.
+            // This is a temporary fix to ensure they are initialised.
             grade_a_score_threshold: parse_i64("grade_a_score_threshold", 1000),
             grade_b_score_threshold: parse_i64("grade_b_score_threshold", 500),
             grade_c_score_threshold: parse_i64("grade_c_score_threshold", 250),
@@ -124,7 +124,7 @@ impl TmxMap {
             draft,                                              // Added this line
         };
 
-        // Ensure grade thresholds are fully initialized
+        // Ensure grade thresholds are fully initialised
         let (grade_a, grade_b, grade_c, grade_d) = Self::calculate_grade_thresholds(&parsed_props);
         parsed_props.grade_a_score_threshold = grade_a;
         parsed_props.grade_b_score_threshold = grade_b;

@@ -112,10 +112,10 @@ pub fn handle_overlap_analysis_command(set_strs: Vec<String>) {
     }
 }
 
-pub fn handle_merge_sets_command(set_strs: Vec<String>, optimize: bool) {
+pub fn handle_merge_sets_command(set_strs: Vec<String>, optimise: bool) {
     println!(
-        "Merging ghost sets: {:?} (optimize: {})",
-        set_strs, optimize
+        "Merging ghost sets: {:?} (optimise: {})",
+        set_strs, optimise
     );
     match parse_multiple_named_sets(&set_strs) {
         Ok(sets) => {
@@ -132,9 +132,9 @@ pub fn handle_merge_sets_command(set_strs: Vec<String>, optimize: bool) {
             for ghost in sorted_merged_ghosts {
                 println!("  - {}", ghost.name());
             }
-            if optimize {
-                eprintln!("Optimization of merged set not yet implemented.");
-                // TODO: If optimize is true, could run some logic from `optimization.rs`
+            if optimise {
+                eprintln!("Optimisation of merged set not yet implemented.");
+                // TODO: If optimise is true, could run some logic from `optimisation.rs`
                 // or a new balancing/uniqueness check on the merged_ghosts.
             }
         }

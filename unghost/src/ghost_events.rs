@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use rand::Rng;
-use uncore::behavior::{Behavior, component};
+use uncore::behaviour::{Behavior, component};
 use uncore::components::board::position::Position;
 use uncore::components::ghost_sprite::GhostSprite;
 use uncore::components::player_sprite::PlayerSprite;

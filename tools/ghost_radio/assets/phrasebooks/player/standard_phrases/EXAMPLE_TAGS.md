@@ -356,8 +356,8 @@ contextual_tags:
 phrase: "We approach you with respect and curiosity."
 semantic_tags: 
   - Statement: Approach # The player is describing their manner of interaction. 
-  - Attitude: Respectful  # The player is emphasizing their respectful approach.
-  - Attitude: Curious  #  The player is emphasizing their curious approach.
+  - Attitude: Respectful  # The player is emphasising their respectful approach.
+  - Attitude: Curious  #  The player is emphasising their curious approach.
 speech_act: Assertive  #  The player is declaring their intentions. 
 phrase_vector:
   informal_formal: 0.6 #  Moderately formal, indicating a professional approach.

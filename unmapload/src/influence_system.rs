@@ -35,7 +35,7 @@ fn assign_ghost_influence_system(
     board_data: Res<BoardData>,
 ) {
     for (marker_entity, marker) in marker_query.iter() {
-        // Get all objects that are in valid rooms, organized by floor with positions
+        // Get all objects that are in valid rooms, organised by floor with positions
         let mut objects_by_floor_with_positions: HashMap<i64, Vec<(Entity, Position)>> =
             HashMap::new();
 

@@ -29,7 +29,7 @@ fn calculate_ambient_sound_volumes(
     roomdb: &RoomDB,
     player_bpos: &BoardPosition,
 ) -> (f32, f32) {
-    // Check if visibility field is properly initialized
+    // Check if visibility field is properly initialised
     let (map_width, map_height, map_depth) = vf.visibility_field.dim();
     if map_width == 0 || map_height == 0 || map_depth == 0 {
         // Return default volumes if visibility field is not ready

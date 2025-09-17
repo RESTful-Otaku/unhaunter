@@ -5,7 +5,7 @@
 
 use bevy::prelude::*;
 use bevy_platform::collections::HashMap;
-use uncore::behavior::{Behavior, SpriteConfig};
+use uncore::behaviour::{Behavior, SpriteConfig};
 use uncore::types::quadcc::QuadCC;
 use unstd::board::tiledata::{MapTileComponents, PreMesh, TileSpriteBundle};
 use unstd::tiledmap::AtlasData;

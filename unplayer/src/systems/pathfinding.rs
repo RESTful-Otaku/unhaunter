@@ -3,8 +3,8 @@ use std::collections::{BinaryHeap, HashMap, HashSet};
 
 use bevy::prelude::*;
 use uncore::{
-    behavior::component::Stairs,
-    behavior::{Behavior, Orientation},
+    behaviour::component::Stairs,
+    behaviour::{Behavior, Orientation},
     components::board::{boardposition::BoardPosition, position::Position},
     resources::{board_data::BoardData, visibility_data::VisibilityData},
 };
@@ -539,7 +539,7 @@ pub fn detect_stair_area(
     None
 }
 
-/// Detects the actual direction of stairs by analyzing the paired stair
+/// Detects the actual direction of stairs by analysing the paired stair
 /// Returns true if the stairs go in the "positive" direction (for XAxis: +Y, for YAxis: +X)
 /// Returns false if the stairs go in the "negative" direction (for XAxis: -Y, for YAxis: -X)
 fn detect_stair_direction(

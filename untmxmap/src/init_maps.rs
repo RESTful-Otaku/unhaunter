@@ -208,7 +208,7 @@ fn create_mission_data(tmx: &TmxMap, path: &str) -> MissionData {
         id: path.to_string(),
         map_filepath: path.to_string(),
         display_name: props.display_name.clone(),
-        flavor_text: props.flavor_text.clone(),
+        flavour_text: props.flavour_text.clone(),
         order: props.campaign_order.clone(),
         difficulty: difficulty_enum,
         is_campaign_mission,

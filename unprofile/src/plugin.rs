@@ -22,7 +22,7 @@ impl Plugin for UnhaunterProfilePlugin {
             .build()
             .unwrap_or_else(|e| {
                 panic!(
-                    "CRITICAL: Failed to initialize player profile persistence setup: {:?}",
+                    "CRITICAL: Failed to initialise player profile persistence setup: {:?}",
                     e
                 )
             });

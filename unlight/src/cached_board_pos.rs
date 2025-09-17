@@ -6,17 +6,17 @@ use uncore::components::board::boardposition::BoardPosition;
 
 /// A structure that pre-computes and caches geometric data for lighting and shadow calculations.
 ///
-/// `CachedBoardPos` optimizes lighting performance by pre-computing distances, angles, and angle
+/// `CachedBoardPos` optimises lighting performance by pre-computing distances, angles, and angle
 /// ranges for all possible relative positions within a fixed-size window. This avoids expensive
 /// trigonometric operations during real-time lighting calculations.
 ///
-/// The cache uses a grid of size `SZ × SZ` (default 65×65) centered at position `CENTER` (default 32).
+/// The cache uses a grid of size `SZ × SZ` (default 65×65) centred at position `CENTER` (default 32).
 #[derive(Debug, Clone)]
 pub struct CachedBoardPos {
-    /// Cache of Euclidean distances from center to each position
+    /// Cache of Euclidean distances from centre to each position
     pub dist: [[f32; Self::SZ]; Self::SZ],
 
-    /// Cache of discretized angles from center to each position
+    /// Cache of discretised angles from centre to each position
     pub angle: [[usize; Self::SZ]; Self::SZ],
 
     /// Cache of angle ranges (min, max) for shadow casting from each position
@@ -82,7 +82,7 @@ impl CachedBoardPos {
         cp
     }
 
-    /// Computes the Euclidean distance from the center to each position
+    /// Computes the Euclidean distance from the centre to each position
     ///
     /// Fills the `dist` array with distance values for every possible
     /// relative position in the grid.
@@ -100,7 +100,7 @@ impl CachedBoardPos {
     /// Computes angle and angle range values for each position
     ///
     /// Fills both the `angle` and `angle_range` arrays:
-    /// - `angle`: The discrete angle index from center to the position
+    /// - `angle`: The discrete angle index from centre to the position
     /// - `angle_range`: The minimum and maximum angle deviations when considering
     ///   the cell's four corners, used for shadow casting
     pub fn compute_angle(&mut self) {

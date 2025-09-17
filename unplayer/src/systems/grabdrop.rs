@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use uncore::behavior::Behavior;
-use uncore::behavior::component::FloorItemCollidable;
+use uncore::behaviour::Behavior;
+use uncore::behaviour::component::FloorItemCollidable;
 use uncore::components::board::direction::Direction;
 use uncore::components::board::position::Position;
 use uncore::components::game::GameSprite;

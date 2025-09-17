@@ -4,7 +4,7 @@ use bevy_platform::collections::HashSet;
 use ndarray::Array3;
 use std::collections::VecDeque;
 use uncore::{
-    behavior::{Behavior, TileState},
+    behaviour::{Behavior, TileState},
     components::board::{boardposition::BoardPosition, position::Position},
     resources::board_data::BoardData,
     types::board::{

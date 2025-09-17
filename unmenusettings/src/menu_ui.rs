@@ -130,7 +130,7 @@ pub(crate) fn setup_ui_main_cat(
         })
         .id();
 
-    info!("Settings UI initialized with entity: {:?}", root_entity);
+    info!("Settings UI initialised with entity: {:?}", root_entity);
 }
 
 fn cleanup(

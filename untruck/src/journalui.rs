@@ -138,7 +138,7 @@ pub fn setup_journal_ui(
                     border: UiRect::all(Val::Px(2.0)),
                     justify_content: JustifyContent::Center,
                     padding: UiRect::new(Val::Px(4.0), Val::Px(2.0), Val::Px(0.0), Val::Px(2.0)), // Adjusted padding
-                    display: Display::Flex, // Changed to Flex for better centering
+                    display: Display::Flex, // Changed to Flex for better centring
                     flex_direction: FlexDirection::Column,
                     align_items: AlignItems::Center,
                     ..default()

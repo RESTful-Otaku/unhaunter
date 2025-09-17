@@ -1,13 +1,13 @@
 //! ## Map Lighting and Visibility Module
 //!
-//! This module handles lighting, visibility, and color calculations for the game
+//! This module handles lighting, visibility, and colour calculations for the game
 //! world. It includes:
 //!
 //! * Functions for calculating the player's visibility field based on line-of-sight
 //!   and potentially sanity levels.
 //!
 //! * Functions for applying lighting effects to map tiles and sprites, simulating
-//!   various light sources (ambient, flashlight, ghost effects) and adjusting colors
+//!   various light sources (ambient, flashlight, ghost effects) and adjusting colours
 //!   based on visibility and exposure.
 //!
 //! * Systems for dynamically updating lighting and visibility as the player moves and
@@ -19,7 +19,7 @@ use core::f32;
 use ndarray::Array3;
 use rand::Rng;
 use std::collections::VecDeque;
-use uncore::behavior::component::Interactive;
+use uncore::behaviour::component::Interactive;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::direction::Direction;
 use uncore::components::board::position::Position;
@@ -38,7 +38,7 @@ use uncore::types::gear::equipmentposition::EquipmentPosition;
 use uncore::types::gear_kind::GearKind;
 use uncore::utils::light::{compute_color_exposure, lerp_color};
 use uncore::{
-    behavior::{Behavior, Orientation},
+    behaviour::{Behavior, Orientation},
     components::{game_config::GameConfig, sprite_type::SpriteType},
     kelvin_to_celsius,
 };
@@ -87,7 +87,7 @@ pub fn compute_visibility(
         let src_f = vis_field[p];
         let cf = &collision_field[p];
         if !(cf.player_free || cf.see_through) {
-            // If the current position analyzed is not free (a wall or out of bounds) then
+            // If the current position analysed is not free (a wall or out of bounds) then
             // stop extending.
             continue;
         }
@@ -203,7 +203,7 @@ fn player_visibility_system(
     measure.end_ms();
 }
 
-/// Applies lighting effects to map tiles and sprites, adjusting colors based on
+/// Applies lighting effects to map tiles and sprites, adjusting colours based on
 /// visibility and exposure.
 ///
 /// This function:
@@ -214,7 +214,7 @@ fn player_visibility_system(
 /// * Calculates the relative exposure based on light levels and the player's current
 ///   exposure adaptation.
 ///
-/// * Adjusts tile and sprite colors based on lighting, visibility, and exposure,
+/// * Adjusts tile and sprite colours based on lighting, visibility, and exposure,
 ///   creating a realistic and atmospheric visual experience.
 #[expect(clippy::type_complexity)]
 fn apply_lighting(
@@ -288,7 +288,7 @@ fn apply_lighting(
         return;
     }
     
-    // Check if visibility field is properly initialized
+    // Check if visibility field is properly initialised
     if vf.visibility_field.is_empty() || vf.visibility_field.dim() != board_dim {
         // Skip lighting calculation if visibility field is not ready
         return;
@@ -352,7 +352,7 @@ fn apply_lighting(
             continue;
         }
 
-        // Check if visibility field is properly initialized
+        // Check if visibility field is properly initialised
         if vf.visibility_field.is_empty() {
             continue;
         }
@@ -1023,7 +1023,7 @@ fn apply_lighting(
                             bf.miasma.pressure_field.get(neighbour_pos.ndidx())
                         {
                             // Calculate distance from sprite's *actual* position to the
-                            // *center* of the neighbour tile. This is important for smooth
+                            // *centre* of the neighbour tile. This is important for smooth
                             // weighting.
                             let neighbour_center = neighbour_pos.to_position_center();
                             let distance = pos.distance(&neighbour_center); // Euclidean distance
