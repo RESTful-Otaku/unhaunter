@@ -4,6 +4,26 @@ Dare to enter a world where shadows whisper and every creak could be a ghostly p
 
 This 2D isometric game seamlessly blends exploration, puzzle-solving, and strategic investigation, offering a unique blend of thrills and chills for those brave enough to confront the unknown.
 
+## 🎮 **Latest Updates (v0.3.2)**
+
+### ✨ **New Features**
+- **🎯 Dev God Mode**: Complete developer testing mode with invincibility, free mission access, and instant UI refresh
+- **🏨 Epic Hotel Level**: Massive 5-floor Grand Sedgewick Hotel with bespoke lore and ultimate challenge
+- **📝 Profile Management**: Custom profile display names with full management capabilities
+- **⚙️ Enhanced Settings**: Polished settings menus with working back buttons and intuitive text
+
+### 🚀 **Mission System Enhancements**
+- **Missing Stage Variants**: Added stages 6A-6C, 8B-8C, 9B-9C, 10A-10B for complete progression
+- **Proper Scaling**: Exponential deposit requirements that scale appropriately with difficulty
+- **Unique Previews**: Each level now has distinct preview images for better visual variety
+- **Crash Fixes**: Resolved all level loading issues with proper tile data and XML structure
+
+### 🔧 **Technical Improvements**
+- **Stereo Sound Positioning**: Proper isometric audio positioning as described in development notes
+- **Settings Persistence**: All settings now save and load correctly across sessions
+- **UI Polish**: All menus have functional navigation and clear, intuitive text
+- **Performance**: Optimized compilation and runtime performance with clippy fixes
+
 Join our discord server:
 
 [![Unhaunter Discord Banner 2](https://discord.com/api/guilds/1374650085127749745/widget.png?style=banner2)](https://discord.gg/Ux7CGfvVtV)
@@ -111,6 +131,24 @@ If successful, the ghost will fade out over several seconds while emitting smoke
 
 Once you're certain there are no more ghosts, go back to the van and click "End Mission".
 
+## 🛠️ **Developer Features**
+
+### Dev God Mode
+For developers and testers, Unhaunter includes a comprehensive Dev God Mode:
+
+- **Enable**: Settings → Gameplay & Controls → Dev God Mode → "God Mode"
+- **Features**:
+  - **Invincibility**: No damage from ghosts or sanity loss
+  - **Free Access**: All missions unlocked regardless of player level
+  - **No Deposits**: Bypass all deposit requirements
+  - **Instant UI Refresh**: Mission selection updates immediately when toggled
+
+This mode is perfect for:
+- Testing new levels and features
+- Exploring all content without progression requirements
+- Debugging and development work
+- Quick gameplay testing
+
 ## Building and Installing
 
 Everyone is welcome to try the game from sources or do their own changes. You can just try to play from source code, it's easy.
@@ -142,6 +180,8 @@ You'll need to have Rust and the necessary dependencies for Bevy installed.
     ```
 
     Run this command from the game's source folder.
+
+    **Note**: For development and testing, the debug build (`cargo run`) is recommended. The release build may have issues with bevy dynamic linking on some systems.
 
 
 ## Profiling
