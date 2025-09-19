@@ -11,3 +11,5 @@ flamegraph.svg
 /releases
 /dist
 tools/text_to_speech/walkie_voice_generator/src/codegen.rs
+*.tar.gz
+*_backup_*
