@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use rand::Rng;
-use uncore::behaviour::{Behavior, component};
+use uncore::behaviour::{Behaviour, component};
 use uncore::components::board::position::Position;
 use uncore::components::ghost_sprite::GhostSprite;
 use uncore::components::player_sprite::PlayerSprite;
@@ -26,7 +26,7 @@ pub fn trigger_ghost_events(
     q_ghost: Query<(&GhostSprite, &Position)>,
     // Query for doors, excluding lights
     q_doors: Query<
-        (Entity, &Position, &Behavior),
+        (Entity, &Position, &Behaviour),
         (
             With<component::Door>,
             Without<component::Light>,
@@ -34,7 +34,7 @@ pub fn trigger_ghost_events(
     >,
     // Query for lights, excluding doors
     mut q_lights: Query<
-        (Entity, &Position, &mut Behavior),
+        (Entity, &Position, &mut Behaviour),
         (
             With<component::Light>,
             Without<component::Interactive>,
@@ -79,10 +79,10 @@ pub fn trigger_ghost_events(
                         .cloned();
                     let mut doors_in_room = Vec::new();
                     if let Some(player_room) = player_room {
-                        for (entity, door_pos, behavior) in q_doors.iter() {
+                        for (entity, door_pos, behaviour) in q_doors.iter() {
                             if roomdb.room_tiles.get(&door_pos.to_board_position())
                                 == Some(&player_room)
-                                && !behavior.p.movement.player_collision
+                                && !behaviour.p.movement.player_collision
                             {
                                 // Just put here the open doors as candidates.
                                 doors_in_room.push(entity);
@@ -94,29 +94,28 @@ pub fn trigger_ghost_events(
                     if !doors_in_room.is_empty() {
                         let door_to_slam = doors_in_room[rng.random_range(0..doors_in_room.len())];
 
-                        // Retrieve the door's Behavior component
-                        if let Ok((door_entity, door_position, behavior)) = q_doors.get(door_to_slam) {
+                        // Retrieve the door's Behaviour component
+                        if let Ok((door_entity, door_position, behaviour)) = q_doors.get(door_to_slam) {
                             // Use proper ghost door interaction instead of player interaction system
-                            if let Some(alternative_behavior) = find_alternative_door_state(&interactive_stuff.bf, behavior) {
+                            if let Some(alternative_behaviour) = find_alternative_door_state(&interactive_stuff.bf, behaviour) {
                                 let mut door_commands = interactive_stuff.commands.get_entity(door_entity).unwrap();
                                 
-                                // Update the door's behavior to the alternative state (closed)
-                                door_commands.insert(alternative_behavior);
+                                // Update the door's behaviour to the alternative state (closed)
+                                door_commands.insert(alternative_behaviour);
                                 
                                 // Update the door's visual appearance
-                                let cvo = behavior.key_cvo();
+                                let cvo = behaviour.key_cvo();
                                 if let Some(other_tuids) = interactive_stuff.bf.cvo_idx.get(&cvo) {
-                                    let tuid = behavior.key_tuid();
+                                    let tuid = behaviour.key_tuid();
                                     for other_tuid in other_tuids {
-                                        if *other_tuid != tuid {
-                                            if let Some(other_tile) = interactive_stuff.bf.map_tile.get(other_tuid) {
+                                        if *other_tuid != tuid
+                                            && let Some(other_tile) = interactive_stuff.bf.map_tile.get(other_tuid) {
                                                 let b = other_tile.bundle.clone();
                                                 let mat = interactive_stuff.materials1.get(&b.material).unwrap().clone();
                                                 let mat = interactive_stuff.materials1.add(mat);
                                                 door_commands.insert(MeshMaterial2d(mat));
                                                 break;
                                             }
-                                        }
                                     }
                                 }
 
@@ -144,13 +143,13 @@ pub fn trigger_ghost_events(
                         .cloned();
                     if let Some(player_room) = player_room {
                         let mut flicker = false;
-                        for (entity, light_pos, mut behavior) in q_lights.iter_mut() {
-                            if behavior.can_emit_light()
+                        for (entity, light_pos, mut behaviour) in q_lights.iter_mut() {
+                            if behaviour.can_emit_light()
                                 && roomdb.room_tiles.get(&light_pos.to_board_position())
                                     == Some(&player_room)
                             {
                                 // Toggle the light's state using the public method
-                                behavior.p.light.flickering = true;
+                                behaviour.p.light.flickering = true;
 
                                 // Add a timer to reset the light after a short duration
                                 commands
@@ -179,14 +178,14 @@ pub fn trigger_ghost_events(
 fn update_flicker_timers(
     mut commands: Commands,
     time: Res<Time>,
-    mut q_lights: Query<(Entity, &mut FlickerTimer, &mut Behavior)>,
+    mut q_lights: Query<(Entity, &mut FlickerTimer, &mut Behaviour)>,
     mut ev_bdr: EventWriter<BoardDataToRebuild>,
 ) {
-    for (entity, mut flicker_timer, mut behavior) in q_lights.iter_mut() {
+    for (entity, mut flicker_timer, mut behaviour) in q_lights.iter_mut() {
         flicker_timer.0.tick(time.delta());
         if flicker_timer.0.finished() {
             // Reset the light to its original state using the public method
-            behavior.p.light.flickering = false;
+            behaviour.p.light.flickering = false;
             commands.entity(entity).remove::<FlickerTimer>();
             ev_bdr.write(BoardDataToRebuild {
                 lighting: true,
@@ -198,22 +197,21 @@ fn update_flicker_timers(
 
 /// Finds an alternative door state (Open -> Closed or Closed -> Open) using the SpriteDB
 /// This is a ghost-specific door interaction that doesn't use the player interaction system
-fn find_alternative_door_state(sprite_db: &SpriteDB, current_behavior: &Behavior) -> Option<Behavior> {
-    let cvo = current_behavior.key_cvo();
+fn find_alternative_door_state(sprite_db: &SpriteDB, current_behaviour: &Behaviour) -> Option<Behaviour> {
+    let cvo = current_behaviour.key_cvo();
     
     // Get all tiles with the same class, variant, and orientation
     if let Some(other_tuids) = sprite_db.cvo_idx.get(&cvo) {
-        let current_tuid = current_behavior.key_tuid();
+        let current_tuid = current_behaviour.key_tuid();
         
         for other_tuid in other_tuids {
-            if *other_tuid != current_tuid {
-                if let Some(other_tile) = sprite_db.map_tile.get(other_tuid) {
-                    let mut alternative_behavior = other_tile.behavior.clone();
+            if *other_tuid != current_tuid
+                && let Some(other_tile) = sprite_db.map_tile.get(other_tuid) {
+                    let mut alternative_behaviour = other_tile.behaviour.clone();
                     // Preserve the flip state from the original door
-                    alternative_behavior.flip(current_behavior.p.flip);
-                    return Some(alternative_behavior);
+                    alternative_behaviour.flip(current_behaviour.p.flip);
+                    return Some(alternative_behaviour);
                 }
-            }
         }
     }
     

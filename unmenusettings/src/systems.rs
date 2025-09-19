@@ -8,7 +8,7 @@ use crate::menu_ui::setup_ui_main_cat;
 use crate::menus::{AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1, VideoSettingsMenu, ProfileSettingsMenu, ProfileSettingsValue};
 use bevy::prelude::*;
 use bevy_persistent::Persistent;
-use uncore::colors::{MENU_ITEM_COLOR_OFF, MENU_ITEM_COLOR_ON};
+use uncore::colours::{MENU_ITEM_COLOR_OFF, MENU_ITEM_COLOR_ON};
 use uncore::states::AppState;
 use uncore::types::root::game_assets::GameAssets;
 use uncoremenu::components::{MenuItemInteractive, MenuMouseTracker, MenuRoot};
@@ -66,12 +66,12 @@ fn item_highlight_system(
     }; // Assuming you have only one Menu component
     for (item, mut text_color) in &mut menu_items {
         let is_selected = item.idx == menu.selected_item_idx;
-        let color = if is_selected {
+        let colour = if is_selected {
             MENU_ITEM_COLOR_ON
         } else {
             MENU_ITEM_COLOR_OFF
         };
-        text_color.0 = color;
+        text_color.0 = colour;
     }
 }
 
@@ -713,17 +713,20 @@ fn menu_save_video_setting(
         warn!("Saving video setting: {:?}", ev.0);
         
         match ev.0 {
-            unsettings::video::VideoSettingsValue::window_size(value) => {
-                video_settings.window_size = value;
+            unsettings::video::VideoSettingsValue::resolution(value) => {
+                video_settings.resolution = value;
             }
             unsettings::video::VideoSettingsValue::aspect_ratio(value) => {
                 video_settings.aspect_ratio = value;
             }
-            unsettings::video::VideoSettingsValue::ui_scale(value) => {
-                video_settings.ui_scale = value;
+            unsettings::video::VideoSettingsValue::ui_zoom(value) => {
+                video_settings.ui_zoom = value;
             }
-            unsettings::video::VideoSettingsValue::font_scale(value) => {
-                video_settings.font_scale = value;
+            unsettings::video::VideoSettingsValue::refresh_rate(value) => {
+                video_settings.refresh_rate = value;
+            }
+            unsettings::video::VideoSettingsValue::vsync(value) => {
+                video_settings.vsync = value;
             }
         }
         
@@ -861,7 +864,7 @@ fn menu_save_profile_setting(
             crate::menus::ProfileSettingsValue::display_name(value) => {
                 profile_settings.display_name = value.clone();
             }
-            crate::menus::ProfileSettingsValue::color(value) => {
+            crate::menus::ProfileSettingsValue::colour(value) => {
                 profile_settings.color = *value;
             }
         }
@@ -1019,8 +1022,8 @@ fn custom_name_text_input_system(
     }
 
     // Handle enter key - save the custom name
-    if keyboard_input.just_pressed(KeyCode::Enter) {
-        for custom_input in custom_input_query.iter() {
+    if keyboard_input.just_pressed(KeyCode::Enter)
+        && let Some(custom_input) = custom_input_query.iter().next() {
             if !custom_input.current_text.trim().is_empty() {
                 profile_settings.display_name = custom_input.current_text.trim().to_string();
                 if let Err(e) = profile_settings.persist() {
@@ -1031,9 +1034,7 @@ fn custom_name_text_input_system(
             }
             // Go back to profile settings
             next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Profile));
-            break;
         }
-    }
 
     // Handle escape key - cancel and go back
     if keyboard_input.just_pressed(KeyCode::Escape) {

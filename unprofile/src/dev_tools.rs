@@ -44,7 +44,7 @@ fn snapshot_schema_system(_player_profile: Res<Persistent<PlayerProfileData>>) {
                     }
                 }
                 Err(e) => {
-                    error!("Failed to serialize player profile: {:?}", e);
+                    error!("Failed to Serialize player profile: {:?}", e);
                 }
             }
         } else {

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use uncore::behaviour::Behavior;
+use uncore::behaviour::Behaviour;
 use uncore::behaviour::component::FloorItemCollidable;
 use uncore::components::board::direction::Direction;
 use uncore::components::board::position::Position;
@@ -24,8 +24,8 @@ fn grab_object(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut players: Query<(&mut PlayerGear, &Position, &Direction, &PlayerSprite)>,
     deployables: Query<(Entity, &Position), With<DeployedGear>>,
-    // Query for all entities with Behavior
-    pickables: Query<(Entity, &Position, &Behavior)>,
+    // Query for all entities with Behaviour
+    pickables: Query<(Entity, &Position, &Behaviour)>,
     mut gs: GearStuff,
 ) {
     for (mut player_gear, player_pos, player_dir, player) in players.iter_mut() {
@@ -42,7 +42,7 @@ fn grab_object(
             if let Some((object_entity, _, _)) = pickables
                 .iter()
                 // Filter for pickable objects
-                .filter(|(_, _, behavior)| behavior.p.object.pickable)
+                .filter(|(_, _, behaviour)| behaviour.p.object.pickable)
                 .find(|(_, object_pos, _)| player_pos.distance(object_pos) < 1.0)
             {
                 // Set the held object in the player's gear
@@ -58,11 +58,11 @@ fn grab_object(
             // If no pickable object was found at the player's position,
             // check in the direction the player is facing
 
-            // Normalize the direction vector to length 0.5
-            let normalized_dir = player_dir.normalized() * 0.5;
+            // Normalise the direction vector to length 0.5
+            let normalised_dir = player_dir.normalised() * 0.5;
 
-            // Calculate the reach position by adding the normalized direction to the player's position
-            let reach_pos = player_pos + normalized_dir;
+            // Calculate the reach position by adding the normalised direction to the player's position
+            let reach_pos = player_pos + normalised_dir;
 
             // Convert both positions to board positions
             let player_board_pos = player_pos.to_board_position();
@@ -74,7 +74,7 @@ fn grab_object(
                 if let Some((object_entity, _, _)) = pickables
                     .iter()
                     // Filter for pickable objects
-                    .filter(|(_, _, behavior)| behavior.p.object.pickable)
+                    .filter(|(_, _, behaviour)| behaviour.p.object.pickable)
                     .find(|(_, object_pos, _)| {
                         reach_board_pos.distance(&object_pos.to_board_position()) < 0.5
                     })
@@ -104,7 +104,7 @@ fn grab_object(
 /// dropped.
 fn drop_object(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut players: Query<(&mut PlayerGear, &Position, &PlayerSprite), Without<Behavior>>,
+    mut players: Query<(&mut PlayerGear, &Position, &PlayerSprite), Without<Behaviour>>,
     mut objects: Query<(Entity, &mut Position), (Without<PlayerSprite>, With<FloorItemCollidable>)>,
     mut gs: GearStuff,
 ) {
@@ -164,15 +164,15 @@ fn drop_object(
 /// sound effect when the player moves while holding a movable object, with a
 /// cooldown to prevent the sound from playing too frequently.
 fn update_held_object_position(
-    mut objects: Query<(&mut Position, &Behavior), Without<PlayerSprite>>,
+    mut objects: Query<(&mut Position, &Behaviour), Without<PlayerSprite>>,
     players: Query<(&Position, &PlayerGear, &Direction), With<PlayerSprite>>,
     mut gs: GearStuff,
     mut last_sound_time: Local<f32>,
 ) {
     let current_time = gs.time.elapsed_secs();
     for (player_pos, player_gear, direction) in players.iter() {
-        if let Some(held_object) = &player_gear.held_item {
-            if let Ok((mut object_pos, behavior)) = objects.get_mut(held_object.entity) {
+        if let Some(held_object) = &player_gear.held_item
+            && let Ok((mut object_pos, behaviour)) = objects.get_mut(held_object.entity) {
                 // Match the object's position to the player's position
                 *object_pos = *player_pos;
 
@@ -181,7 +181,7 @@ fn update_held_object_position(
                 object_pos.z += OBJECT_ELEVATION;
 
                 // --- Play Scraping Sound if Object is Movable and Player is Moving ---
-                if behavior.p.object.movable
+                if behaviour.p.object.movable
                 // Player is moving
                 && direction.distance() > 75.0 && current_time - *last_sound_time > 2.0
                 // Sound cooldown
@@ -193,7 +193,6 @@ fn update_held_object_position(
                     *last_sound_time = current_time;
                 }
             }
-        }
     }
 }
 
@@ -287,8 +286,8 @@ fn retrieve_gear(
             }
 
             // Retrieve the closest gear
-            if let Some((closest_gear_entity, _)) = closest_gear {
-                if let Ok((_, _, deployed_gear_data)) = q_deployed.get(closest_gear_entity) {
+            if let Some((closest_gear_entity, _)) = closest_gear
+                && let Ok((_, _, deployed_gear_data)) = q_deployed.get(closest_gear_entity) {
                     // Inventory Shifting Logic:
                     if player_gear.right_hand.kind.is_some() {
                         // Right hand is occupied, try to shift to inventory
@@ -313,7 +312,6 @@ fn retrieve_gear(
                     // Play "Grab Item" sound effect (reused for gear retrieval)
                     gs.play_audio("sounds/item-pickup-whoosh.ogg".into(), 1.0, player_pos);
                 }
-            }
             // --
         }
     }

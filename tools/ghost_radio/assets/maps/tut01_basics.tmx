@@ -1201,7 +1201,7 @@
   </layer>
   <layer id="12" name="NPC" width="128" height="128">
    <properties>
-    <property name="NPC:A:dialog">Hi, and welcome to the P.I. Training Camp. We will be conducting your instruction here. Now move, fast! fast!
+    <property name="NPC:A:dialogue">Hi, and welcome to the P.I. Training Camp. We will be conducting your instruction here. Now move, fast! fast!
 
 Use [WASD] to move around.
 

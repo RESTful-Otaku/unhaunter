@@ -213,13 +213,10 @@ fn trigger_clear_evidence_no_action_ckey_system(
             .right_hand
             .kind
             .is_evidence_tool_for(evidence_type)
-        {
-            if let Some(reading) = evidence_readings.get_reading(evidence_type) {
-                if reading.clarity >= CLEAR_EVIDENCE_THRESHOLD_FOR_HINT {
+            && let Some(reading) = evidence_readings.get_reading(evidence_type)
+                && reading.clarity >= CLEAR_EVIDENCE_THRESHOLD_FOR_HINT {
                     is_evidence_clear_on_active_gear = true;
                 }
-            }
-        }
 
         if is_evidence_clear_on_active_gear {
             let entry = tracked_state
@@ -287,11 +284,10 @@ fn trigger_clear_evidence_no_action_truck_system(
 
     for evidence_type in all::<Evidence>() {
         let mut is_evidence_clear_globally = false;
-        if let Some(reading) = evidence_readings.get_reading(evidence_type) {
-            if reading.clarity >= CLEAR_EVIDENCE_THRESHOLD_FOR_HINT {
+        if let Some(reading) = evidence_readings.get_reading(evidence_type)
+            && reading.clarity >= CLEAR_EVIDENCE_THRESHOLD_FOR_HINT {
                 is_evidence_clear_globally = true;
             }
-        }
 
         let mut player_already_marked_evidence = false;
         for button_data in truck_button_query.iter() {
@@ -365,11 +361,10 @@ fn trigger_in_truck_with_evidence_no_journal_system(
 
         for evidence_type in all::<Evidence>() {
             let mut is_evidence_clear = false;
-            if let Some(reading) = evidence_readings.get_reading(evidence_type) {
-                if reading.clarity >= CLEAR_EVIDENCE_THRESHOLD_FOR_HINT {
+            if let Some(reading) = evidence_readings.get_reading(evidence_type)
+                && reading.clarity >= CLEAR_EVIDENCE_THRESHOLD_FOR_HINT {
                     is_evidence_clear = true;
                 }
-            }
 
             if is_evidence_clear {
                 let mut player_marked_this_evidence = false;
@@ -458,8 +453,8 @@ fn trigger_evidence_confirmed_feedback_system(
 
     for evidence_type in all::<Evidence>() {
         // Iterate through all defined Evidence types
-        if let Some(reading) = evidence_readings.get_reading(evidence_type) {
-            if reading.clarity >= CLEAR_EVIDENCE_CONFIRMATION_THRESHOLD {
+        if let Some(reading) = evidence_readings.get_reading(evidence_type)
+            && reading.clarity >= CLEAR_EVIDENCE_CONFIRMATION_THRESHOLD {
                 // Evidence is currently clearly visible/audible
 
                 // Check if player has already marked this evidence in their journal
@@ -500,7 +495,6 @@ fn trigger_evidence_confirmed_feedback_system(
                     }
                 }
             }
-        }
     }
 }
 

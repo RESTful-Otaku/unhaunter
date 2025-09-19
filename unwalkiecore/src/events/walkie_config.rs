@@ -1,4 +1,4 @@
-use crate::events::walkie_types::{WalkieEvent, WalkieEventPriority, WalkieRepeatBehavior};
+use crate::events::walkie_types::{WalkieEvent, WalkieEventPriority, WalkieRepeatbehaviour};
 
 impl WalkieEventPriority {
     pub fn value(&self) -> f32 {
@@ -26,28 +26,28 @@ impl WalkieEventPriority {
     }
 }
 
-impl WalkieRepeatBehavior {
+impl WalkieRepeatbehaviour {
     /// Returns the dice threshold for cross-mission repeat suppression
     /// Higher threshold = less likely to be suppressed (plays more often)
     /// The dice roll is compared against this threshold: if dice > threshold, message is suppressed
     pub fn dice_threshold(&self) -> u32 {
         match self {
-            WalkieRepeatBehavior::VeryLowRepeat => 1, // Very aggressive suppression (dice > 1)
-            WalkieRepeatBehavior::LowRepeat => 2,     // Aggressive suppression (dice > 2)
-            WalkieRepeatBehavior::NormalRepeat => 3,  // Current default behavior (dice > 3)
-            WalkieRepeatBehavior::HighRepeat => 6,    // Mild suppression (dice > 6)
-            WalkieRepeatBehavior::AlwaysRepeat => 12, // Almost no suppression (dice > 12)
+            WalkieRepeatbehaviour::VeryLowRepeat => 1, // Very aggressive suppression (dice > 1)
+            WalkieRepeatbehaviour::LowRepeat => 2,     // Aggressive suppression (dice > 2)
+            WalkieRepeatbehaviour::NormalRepeat => 3,  // Current default behaviour (dice > 3)
+            WalkieRepeatbehaviour::HighRepeat => 6,    // Mild suppression (dice > 6)
+            WalkieRepeatbehaviour::AlwaysRepeat => 12, // Almost no suppression (dice > 12)
         }
     }
 
     /// Returns the minimum delay multiplier for within-mission timing
     pub fn timing_multiplier(&self) -> f64 {
         match self {
-            WalkieRepeatBehavior::VeryLowRepeat => 0.95,
-            WalkieRepeatBehavior::LowRepeat => 0.98,
-            WalkieRepeatBehavior::NormalRepeat => 1.0,
-            WalkieRepeatBehavior::HighRepeat => 1.1,
-            WalkieRepeatBehavior::AlwaysRepeat => 1.2,
+            WalkieRepeatbehaviour::VeryLowRepeat => 0.95,
+            WalkieRepeatbehaviour::LowRepeat => 0.98,
+            WalkieRepeatbehaviour::NormalRepeat => 1.0,
+            WalkieRepeatbehaviour::HighRepeat => 1.1,
+            WalkieRepeatbehaviour::AlwaysRepeat => 1.2,
         }
     }
 }
@@ -84,7 +84,7 @@ impl WalkieEvent {
             WalkieEvent::SanityDroppedBelowThresholdDarkness => 90.0 * count,
             WalkieEvent::SanityDroppedBelowThresholdGhost => 75.0 * count,
 
-            // --- Consumables and Defense ---
+            // --- Consumables and defence ---
             WalkieEvent::QuartzCrackedFeedback => 60.0 * count,
             WalkieEvent::QuartzShatteredFeedback => 60.0 * count,
             WalkieEvent::QuartzUnusedInRelevantSituation => 180.0 * count, // Every 3 minutes if conditions met
@@ -92,7 +92,7 @@ impl WalkieEvent {
             WalkieEvent::SageActivatedIneffectively => 180.0 * count, // Trigger every 3 minutes if conditions met
             WalkieEvent::SageUnusedDefensivelyDuringHunt => 180.0 * count, // Trigger every 3 minutes if conditions met
 
-            // --- Ghost Behavior and Hunting ---
+            // --- Ghost behaviour and Hunting ---
             WalkieEvent::PlayerStaysHiddenTooLong => 90.0 * count,
 
             // --- Repellent and Expulsion ---
@@ -161,14 +161,14 @@ impl WalkieEvent {
             WalkieEvent::VeryLowSanityNoTruckReturn => WalkieEventPriority::VeryHigh, // Upgraded from High to VeryHigh
             WalkieEvent::SanityDroppedBelowThresholdDarkness => WalkieEventPriority::High, // Upgraded from Medium to High
             WalkieEvent::SanityDroppedBelowThresholdGhost => WalkieEventPriority::VeryHigh, // Upgraded from High to VeryHigh
-            // --- Consumables and Defense ---
+            // --- Consumables and defence ---
             WalkieEvent::QuartzCrackedFeedback => WalkieEventPriority::Medium,
             WalkieEvent::QuartzShatteredFeedback => WalkieEventPriority::High,
             WalkieEvent::QuartzUnusedInRelevantSituation => WalkieEventPriority::Medium,
             WalkieEvent::SageUnusedInRelevantSituation => WalkieEventPriority::Medium,
             WalkieEvent::SageActivatedIneffectively => WalkieEventPriority::Low,
             WalkieEvent::SageUnusedDefensivelyDuringHunt => WalkieEventPriority::Medium,
-            // --- Ghost Behavior and Hunting ---
+            // --- Ghost behaviour and Hunting ---
             WalkieEvent::PlayerStaysHiddenTooLong => WalkieEventPriority::Low,
             // --- Repellent and Expulsion ---
             WalkieEvent::GhostExpelledPlayerLingers => WalkieEventPriority::High,
@@ -206,90 +206,90 @@ impl WalkieEvent {
         }
     }
 
-    /// Returns the repeat behavior configuration for this event
-    pub fn repeat_behavior(&self) -> WalkieRepeatBehavior {
+    /// Returns the repeat behaviour configuration for this event
+    pub fn repeat_behaviour(&self) -> WalkieRepeatbehaviour {
         match self {
             // Introduction - this one is flavour text, which is nice to hear.
-            WalkieEvent::ChapterIntro(_) => WalkieRepeatBehavior::NormalRepeat,
+            WalkieEvent::ChapterIntro(_) => WalkieRepeatbehaviour::NormalRepeat,
 
             // One-time introductions and explanations - should rarely repeat
-            WalkieEvent::GearExplanation(_) => WalkieRepeatBehavior::VeryLowRepeat,
+            WalkieEvent::GearExplanation(_) => WalkieRepeatbehaviour::VeryLowRepeat,
 
             // Basic tutorial messages - very low repeat
-            WalkieEvent::ErraticMovementEarly => WalkieRepeatBehavior::VeryLowRepeat,
-            WalkieEvent::DoorInteractionHesitation => WalkieRepeatBehavior::VeryLowRepeat,
-            WalkieEvent::BreachShowcase => WalkieRepeatBehavior::VeryLowRepeat,
-            WalkieEvent::GhostShowcase => WalkieRepeatBehavior::VeryLowRepeat,
+            WalkieEvent::ErraticMovementEarly => WalkieRepeatbehaviour::VeryLowRepeat,
+            WalkieEvent::DoorInteractionHesitation => WalkieRepeatbehaviour::VeryLowRepeat,
+            WalkieEvent::BreachShowcase => WalkieRepeatbehaviour::VeryLowRepeat,
+            WalkieEvent::GhostShowcase => WalkieRepeatbehaviour::VeryLowRepeat,
             WalkieEvent::PlayerLeavesTruckWithoutChangingLoadout => {
-                WalkieRepeatBehavior::VeryLowRepeat
+                WalkieRepeatbehaviour::VeryLowRepeat
             }
 
             // Critical safety warnings - high repeat because sanity warnings are crucial for player survival
-            WalkieEvent::HuntWarningNoPlayerEvasion => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::VeryLowSanityNoTruckReturn => WalkieRepeatBehavior::HighRepeat, // Upgraded from Normal to High
-            WalkieEvent::LowHealthGeneralWarning => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::HuntActiveNearHidingSpotNoHide => WalkieRepeatBehavior::NormalRepeat,
+            WalkieEvent::HuntWarningNoPlayerEvasion => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::VeryLowSanityNoTruckReturn => WalkieRepeatbehaviour::HighRepeat, // Upgraded from Normal to High
+            WalkieEvent::LowHealthGeneralWarning => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::HuntActiveNearHidingSpotNoHide => WalkieRepeatbehaviour::NormalRepeat,
 
             // Evidence confirmations - should repeat often for feedback
-            WalkieEvent::FreezingTempsEvidenceConfirmed => WalkieRepeatBehavior::HighRepeat,
-            WalkieEvent::FloatingOrbsEvidenceConfirmed => WalkieRepeatBehavior::HighRepeat,
-            WalkieEvent::UVEctoplasmEvidenceConfirmed => WalkieRepeatBehavior::HighRepeat,
-            WalkieEvent::EMFLevel5EvidenceConfirmed => WalkieRepeatBehavior::HighRepeat,
-            WalkieEvent::EVPEvidenceConfirmed => WalkieRepeatBehavior::HighRepeat,
-            WalkieEvent::SpiritBoxEvidenceConfirmed => WalkieRepeatBehavior::HighRepeat,
-            WalkieEvent::RLPresenceEvidenceConfirmed => WalkieRepeatBehavior::HighRepeat,
-            WalkieEvent::CPM500EvidenceConfirmed => WalkieRepeatBehavior::HighRepeat,
+            WalkieEvent::FreezingTempsEvidenceConfirmed => WalkieRepeatbehaviour::HighRepeat,
+            WalkieEvent::FloatingOrbsEvidenceConfirmed => WalkieRepeatbehaviour::HighRepeat,
+            WalkieEvent::UVEctoplasmEvidenceConfirmed => WalkieRepeatbehaviour::HighRepeat,
+            WalkieEvent::EMFLevel5EvidenceConfirmed => WalkieRepeatbehaviour::HighRepeat,
+            WalkieEvent::EVPEvidenceConfirmed => WalkieRepeatbehaviour::HighRepeat,
+            WalkieEvent::SpiritBoxEvidenceConfirmed => WalkieRepeatbehaviour::HighRepeat,
+            WalkieEvent::RLPresenceEvidenceConfirmed => WalkieRepeatbehaviour::HighRepeat,
+            WalkieEvent::CPM500EvidenceConfirmed => WalkieRepeatbehaviour::HighRepeat,
 
             // Incorrect repellent hints are critical for gameplay - always repeat
-            WalkieEvent::IncorrectRepellentHint(_) => WalkieRepeatBehavior::AlwaysRepeat,
+            WalkieEvent::IncorrectRepellentHint(_) => WalkieRepeatbehaviour::AlwaysRepeat,
 
             // Critical feedback messages - normal repeat
-            WalkieEvent::GhostNearHunt => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::QuartzCrackedFeedback => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::QuartzShatteredFeedback => WalkieRepeatBehavior::NormalRepeat,
+            WalkieEvent::GhostNearHunt => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::QuartzCrackedFeedback => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::QuartzShatteredFeedback => WalkieRepeatbehaviour::NormalRepeat,
 
             // Important gameplay hints - should repeat often to help with crafting decisions
-            WalkieEvent::JournalPointsToOneGhostNoCraft => WalkieRepeatBehavior::HighRepeat,
+            WalkieEvent::JournalPointsToOneGhostNoCraft => WalkieRepeatbehaviour::HighRepeat,
 
             // Useful information - should repeat a lot
-            WalkieEvent::AllObjectivesMetReminderToEndMission => WalkieRepeatBehavior::HighRepeat,
-            WalkieEvent::GhostExpelledPlayerLingers => WalkieRepeatBehavior::HighRepeat,
-            WalkieEvent::PotentialGhostIDWithNewEvidence => WalkieRepeatBehavior::AlwaysRepeat,
-            WalkieEvent::GhostExpelledPlayerMissed => WalkieRepeatBehavior::AlwaysRepeat,
+            WalkieEvent::AllObjectivesMetReminderToEndMission => WalkieRepeatbehaviour::HighRepeat,
+            WalkieEvent::GhostExpelledPlayerLingers => WalkieRepeatbehaviour::HighRepeat,
+            WalkieEvent::PotentialGhostIDWithNewEvidence => WalkieRepeatbehaviour::AlwaysRepeat,
+            WalkieEvent::GhostExpelledPlayerMissed => WalkieRepeatbehaviour::AlwaysRepeat,
 
             // Contextual hints and reminders - those that might fire even when the player knows what they're doing should not repeat that much
-            WalkieEvent::StrugglingWithGrabDrop => WalkieRepeatBehavior::LowRepeat,
-            WalkieEvent::StrugglingWithHideUnhide => WalkieRepeatBehavior::LowRepeat,
-            WalkieEvent::DarkRoomNoLightUsed => WalkieRepeatBehavior::LowRepeat,
-            WalkieEvent::ThermometerNonFreezingFixation => WalkieRepeatBehavior::LowRepeat,
-            WalkieEvent::EMFNonEMF5Fixation => WalkieRepeatBehavior::LowRepeat,
-            WalkieEvent::DidNotSwitchStartingGearInHotspot => WalkieRepeatBehavior::LowRepeat,
-            WalkieEvent::DidNotCycleToOtherGear => WalkieRepeatBehavior::LowRepeat,
+            WalkieEvent::StrugglingWithGrabDrop => WalkieRepeatbehaviour::LowRepeat,
+            WalkieEvent::StrugglingWithHideUnhide => WalkieRepeatbehaviour::LowRepeat,
+            WalkieEvent::DarkRoomNoLightUsed => WalkieRepeatbehaviour::LowRepeat,
+            WalkieEvent::ThermometerNonFreezingFixation => WalkieRepeatbehaviour::LowRepeat,
+            WalkieEvent::EMFNonEMF5Fixation => WalkieRepeatbehaviour::LowRepeat,
+            WalkieEvent::DidNotSwitchStartingGearInHotspot => WalkieRepeatbehaviour::LowRepeat,
+            WalkieEvent::DidNotCycleToOtherGear => WalkieRepeatbehaviour::LowRepeat,
 
             // Contextual hints and reminders - high repeat for sanity warnings as they're critical
-            WalkieEvent::PlayerStuckAtStart => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::GearSelectedNotActivated => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::RoomLightsOnGearNeedsDark => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::SanityDroppedBelowThresholdDarkness => WalkieRepeatBehavior::HighRepeat, // Upgraded from Normal to High
-            WalkieEvent::SanityDroppedBelowThresholdGhost => WalkieRepeatBehavior::HighRepeat, // Upgraded from Normal to High
-            WalkieEvent::HasRepellentEntersLocation => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::RepellentUsedTooFar => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::RepellentUsedGhostEnragesPlayerFlees => WalkieRepeatBehavior::NormalRepeat,
+            WalkieEvent::PlayerStuckAtStart => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::GearSelectedNotActivated => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::RoomLightsOnGearNeedsDark => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::SanityDroppedBelowThresholdDarkness => WalkieRepeatbehaviour::HighRepeat, // Upgraded from Normal to High
+            WalkieEvent::SanityDroppedBelowThresholdGhost => WalkieRepeatbehaviour::HighRepeat, // Upgraded from Normal to High
+            WalkieEvent::HasRepellentEntersLocation => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::RepellentUsedTooFar => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::RepellentUsedGhostEnragesPlayerFlees => WalkieRepeatbehaviour::NormalRepeat,
             WalkieEvent::RepellentExhaustedGhostPresentCorrectType => {
-                WalkieRepeatBehavior::NormalRepeat
+                WalkieRepeatbehaviour::NormalRepeat
             }
-            WalkieEvent::JournalConflictingEvidence => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::InTruckWithEvidenceNoJournal => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::QuartzUnusedInRelevantSituation => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::SageUnusedInRelevantSituation => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::SageActivatedIneffectively => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::SageUnusedDefensivelyDuringHunt => WalkieRepeatBehavior::NormalRepeat,
-            WalkieEvent::PlayerStaysHiddenTooLong => WalkieRepeatBehavior::NormalRepeat,
+            WalkieEvent::JournalConflictingEvidence => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::InTruckWithEvidenceNoJournal => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::QuartzUnusedInRelevantSituation => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::SageUnusedInRelevantSituation => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::SageActivatedIneffectively => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::SageUnusedDefensivelyDuringHunt => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::PlayerStaysHiddenTooLong => WalkieRepeatbehaviour::NormalRepeat,
 
             // Low priority hints - can be suppressed more
-            WalkieEvent::GearInVan => WalkieRepeatBehavior::LowRepeat,
-            WalkieEvent::ClearEvidenceFoundNoActionCKey => WalkieRepeatBehavior::LowRepeat,
-            WalkieEvent::ClearEvidenceFoundNoActionTruck => WalkieRepeatBehavior::LowRepeat,
+            WalkieEvent::GearInVan => WalkieRepeatbehaviour::LowRepeat,
+            WalkieEvent::ClearEvidenceFoundNoActionCKey => WalkieRepeatbehaviour::LowRepeat,
+            WalkieEvent::ClearEvidenceFoundNoActionTruck => WalkieRepeatbehaviour::LowRepeat,
         }
     }
 
@@ -298,23 +298,23 @@ impl WalkieEvent {
     /// will have their priority downgraded to give fresh content higher precedence.
     pub fn effective_priority(&self, previous_mission_play_count: u32) -> WalkieEventPriority {
         let base_priority = self.priority();
-        let repeat_behavior = self.repeat_behavior();
+        let repeat_behaviour = self.repeat_behaviour();
 
-        // Events with AlwaysRepeat behavior should not be downgraded
-        if matches!(repeat_behavior, WalkieRepeatBehavior::AlwaysRepeat) {
+        // Events with AlwaysRepeat behaviour should not be downgraded
+        if matches!(repeat_behaviour, WalkieRepeatbehaviour::AlwaysRepeat) {
             return base_priority;
         }
 
-        // Calculate downgrade amount based on play count and repeat behavior
-        let downgrade_factor = match repeat_behavior {
-            WalkieRepeatBehavior::VeryLowRepeat => {
+        // Calculate downgrade amount based on play count and repeat behaviour
+        let downgrade_factor = match repeat_behaviour {
+            WalkieRepeatbehaviour::VeryLowRepeat => {
                 // Aggressive downgrading for one-time events
                 match previous_mission_play_count {
                     0 => 0,
                     _ => 4,
                 }
             }
-            WalkieRepeatBehavior::LowRepeat => {
+            WalkieRepeatbehaviour::LowRepeat => {
                 // Moderate downgrading for tutorial events
                 match previous_mission_play_count {
                     0 => 0,
@@ -323,7 +323,7 @@ impl WalkieEvent {
                     _ => 3,     // Drop 3 priority levels after many plays
                 }
             }
-            WalkieRepeatBehavior::NormalRepeat => {
+            WalkieRepeatbehaviour::NormalRepeat => {
                 // Standard downgrading for normal events
                 match previous_mission_play_count {
                     0..=1 => 0,
@@ -332,7 +332,7 @@ impl WalkieEvent {
                     _ => 3,     // Drop 3 priority levels after excessive plays
                 }
             }
-            WalkieRepeatBehavior::HighRepeat => {
+            WalkieRepeatbehaviour::HighRepeat => {
                 // Minimal downgrading for feedback events
                 match previous_mission_play_count {
                     0..=3 => 0,
@@ -340,7 +340,7 @@ impl WalkieEvent {
                     _ => 2,     // Drop 2 priority levels after excessive plays
                 }
             }
-            WalkieRepeatBehavior::AlwaysRepeat => 0, // Already handled above
+            WalkieRepeatbehaviour::AlwaysRepeat => 0, // Already handled above
         };
 
         // Apply the downgrade

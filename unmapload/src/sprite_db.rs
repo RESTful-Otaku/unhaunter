@@ -1,11 +1,11 @@
 //! # Sprite Database Module
 //!
 //! This module is responsible for populating the SpriteDB resource with tile data from tilesets.
-//! The SpriteDB serves as a comprehensive lookup for tile visuals and behaviors throughout the game.
+//! The SpriteDB serves as a comprehensive lookup for tile visuals and behaviours throughout the game.
 
 use bevy::prelude::*;
 use bevy_platform::collections::HashMap;
-use uncore::behaviour::{Behavior, SpriteConfig};
+use uncore::behaviour::{Behaviour, SpriteConfig};
 use uncore::types::quadcc::QuadCC;
 use unstd::board::tiledata::{MapTileComponents, PreMesh, TileSpriteBundle};
 use unstd::tiledmap::AtlasData;
@@ -14,7 +14,7 @@ use crate::level_setup::LoadLevelSystemParam;
 
 /// Pre-computes and populates the SpriteDB resource with tile data from all available tilesets.
 ///
-/// This function is called during level loading to prepare all tile visual data and behavior properties
+/// This function is called during level loading to prepare all tile visual data and behaviour properties
 /// that will be used when spawning tile entities.
 ///
 /// # Arguments
@@ -30,10 +30,10 @@ pub fn populate_sprite_db(
             // Create sprite configuration from the tile data
             let sprite_config =
                 SpriteConfig::from_tiled_auto(tset_name.clone(), tileuid, &tiled_tile);
-            let behavior = Behavior::from_config(sprite_config);
+            let behaviour = Behaviour::from_config(sprite_config);
 
-            // Set initial visibility based on behavior
-            let visibility = if behavior.p.display.disable {
+            // Set initial visibility based on behaviour
+            let visibility = if behaviour.p.display.disable {
                 Visibility::Hidden
             } else {
                 Visibility::Inherited
@@ -116,13 +116,13 @@ pub fn populate_sprite_db(
             };
 
             // Store the tile data in the sprite database
-            let key_tuid = behavior.key_tuid();
+            let key_tuid = behaviour.key_tuid();
             p.sdb
                 .cvo_idx
-                .entry(behavior.key_cvo())
+                .entry(behaviour.key_cvo())
                 .or_default()
                 .push(key_tuid.clone());
-            let mt = MapTileComponents { bundle, behavior };
+            let mt = MapTileComponents { bundle, behaviour };
             p.sdb.map_tile.insert(key_tuid, mt);
         }
     }

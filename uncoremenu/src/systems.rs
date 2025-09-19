@@ -1,7 +1,7 @@
 use crate::components::{MenuItemInteractive, MenuMouseTracker, MenuRoot, PrincipalMenuText};
 use crate::events::KeyboardNavigate;
 use bevy::{input::mouse::MouseMotion, prelude::*};
-use uncore::colors;
+use uncore::colours;
 use uncore::states::AppState;
 
 /// Event sent when a menu item is clicked
@@ -130,7 +130,7 @@ fn menu_keyboard_system(
 }
 
 /// Updates the visual state of menu items based on selection and hover states.
-/// Sets appropriate colors for both the background and text elements.
+/// Sets appropriate colours for both the background and text elements.
 fn update_menu_item_visuals(
     menu_query: Query<&MenuRoot>,
     mut menu_items: Query<(
@@ -155,7 +155,7 @@ fn update_menu_item_visuals(
         let is_selected = item.identifier == selected_item;
         let is_hovered = *interaction == Interaction::Hovered;
 
-        // Set background color for parent
+        // Set background colour for parent
         let selected_bg = Color::srgba(0.8, 0.3, 0.3, 0.02);
         let target_bg_color = if is_selected {
             selected_bg
@@ -167,12 +167,12 @@ fn update_menu_item_visuals(
             bg_color.0 = target_bg_color;
         }
 
-        // Calculate the target text color based on selection and hover state
+        // Calculate the target text colour based on selection and hover state
         let target_text_color = match (is_selected, is_hovered) {
-            (true, true) => colors::MENU_ITEM_COLOR_ON.with_alpha(1.0), // Selected and hovered
-            (true, false) => colors::MENU_ITEM_COLOR_ON,                // Selected
-            (false, true) => colors::MENU_ITEM_COLOR_OFF.with_alpha(0.8), // Just hovered
-            (false, false) => colors::MENU_ITEM_COLOR_OFF,              // Neither
+            (true, true) => colours::MENU_ITEM_COLOR_ON.with_alpha(1.0), // Selected and hovered
+            (true, false) => colours::MENU_ITEM_COLOR_ON,                // Selected
+            (false, true) => colours::MENU_ITEM_COLOR_OFF.with_alpha(0.8), // Just hovered
+            (false, false) => colours::MENU_ITEM_COLOR_OFF,              // Neither
         };
 
         // First, try to find a child with the PrincipalMenuText marker
@@ -189,17 +189,15 @@ fn update_menu_item_visuals(
             }
         }
 
-        // If we didn't find any PrincipalMenuText, fall back to the old behavior
-        if !updated {
-            if let Some(child) = children.first() {
+        // If we didn't find any PrincipalMenuText, fall back to the old behaviour
+        if !updated
+            && let Some(child) = children.first() {
                 let mut standard_query = text_queries.p0();
-                if let Ok(mut text_color) = standard_query.get_mut(*child) {
-                    if text_color.0 != target_text_color {
+                if let Ok(mut text_color) = standard_query.get_mut(*child)
+                    && text_color.0 != target_text_color {
                         text_color.0 = target_text_color;
                     }
-                }
             }
-        }
     }
 }
 

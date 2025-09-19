@@ -1,0 +1,5 @@
+---
+description: Always use UK spelling in custom code/text that is not in dependencies or external code/text
+globs: */**
+alwaysApply: true
+---

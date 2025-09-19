@@ -1,7 +1,7 @@
 // untruck/src/ui.rs
 use super::{activity, journalui, loadoutui, sanity, sensors};
 use bevy::prelude::*;
-use uncore::colors;
+use uncore::colours;
 use uncore::components::truck::TruckUI;
 use uncore::components::truck_ui::{TabContents, TabState, TruckTab}; // TruckTab is now imported from uncore
 use uncore::difficulty::CurrentDifficulty;
@@ -55,7 +55,7 @@ fn setup_ui(
 
     type Cb<'a, 'b> = &'b mut ChildSpawnerCommands<'a>;
     let panel_material = materials.add(UIPanelMaterial {
-        color: colors::TRUCKUI_PANEL_BGCOLOR.into(),
+        color: colours::TRUCKUI_PANEL_BGCOLOR.into(),
     });
     let sensors = |p: Cb| sensors::setup_sensors_ui(p, &handles);
     let left_column = |p: Cb| {
@@ -161,7 +161,7 @@ fn setup_ui(
             border: UiRect::all(Val::Px(1.50)),
             ..default()
         })
-        .insert(BorderColor(colors::TRUCKUI_ACCENT_COLOR));
+        .insert(BorderColor(colours::TRUCKUI_ACCENT_COLOR));
 
         let base_node = Node {
             justify_content: JustifyContent::FlexStart,
@@ -217,7 +217,7 @@ fn setup_ui(
                 flex_grow: 0.01,
                 ..default()
             },
-            colors::DEBUG_BCOLOR,
+            colours::DEBUG_BCOLOR,
         ))
         .with_children(|buttons| {
             buttons
@@ -246,7 +246,7 @@ fn setup_ui(
                             font_size: 25.0 * FONT_SCALE,
                             ..default()
                         },
-                        TextColor(colors::BUTTON_EXIT_TRUCK_TXTCOLOR),
+                        TextColor(colours::BUTTON_EXIT_TRUCK_TXTCOLOR),
                         TextLayout::default(),
                     ));
                 });
@@ -275,7 +275,7 @@ fn setup_ui(
                             font_size: 25.0 * FONT_SCALE,
                             ..default()
                         },
-                        TextColor(colors::BUTTON_END_MISSION_TXTCOLOR),
+                        TextColor(colours::BUTTON_END_MISSION_TXTCOLOR),
                         TextLayout::default(),
                     ));
                 });
@@ -293,7 +293,7 @@ fn setup_ui(
                 flex_grow: 0.4,
                 ..default()
             },
-            colors::DEBUG_BCOLOR,
+            colours::DEBUG_BCOLOR,
         ))
         .with_children(left_column);
 
@@ -326,7 +326,7 @@ fn setup_ui(
                 flex_grow: 0.4,
                 ..default()
             },
-            colors::DEBUG_BCOLOR,
+            colours::DEBUG_BCOLOR,
         ))
         .with_children(right_column);
     };
@@ -346,7 +346,7 @@ fn setup_ui(
                 ..default()
             },
             init_vis,
-            BackgroundColor(colors::TRUCKUI_BGCOLOR),
+            BackgroundColor(colours::TRUCKUI_BGCOLOR),
         ))
         .insert(TruckUI)
         .with_children(truck_ui);
@@ -397,8 +397,8 @@ fn update_tab_interactions(
         } else {
             tt.update_from_interaction(&int_val);
         }
-        let (mut textcolor, mut textfont) = text_query.get_mut(children[1]).unwrap();
-        textcolor.0 = tt.text_color();
+        let (mut textcolour, mut textfont) = text_query.get_mut(children[1]).unwrap();
+        textcolour.0 = tt.text_color();
         textfont.font_size = tt.font_size();
         if let Some(mat) = materials.get_mut(panmat) {
             mat.color = tt.bg_color().into();

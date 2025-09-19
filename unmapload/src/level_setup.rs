@@ -66,7 +66,7 @@ pub struct GhostSetupSimulationMarker {
 /// This function is the primary handler for level loading in the game. It:
 /// - Cleans up existing game entities
 /// - Processes map data to determine size and floor levels
-/// - Initializes field data (temperature, collision, lighting, etc.)
+/// - initialises field data (temperature, collision, lighting, etc.)
 /// - Spawns all tile entities, special entities, and ambient sounds
 /// - Coordinates cross-entity systems like ghost influence
 ///
@@ -162,7 +162,7 @@ fn load_level_handler(
 
     info!("Map size: ({map_min_x},{map_min_y}) - ({map_max_x},{map_max_y}) - {map_size:?}");
 
-    // Initialize board data fields
+    // Initialise board data fields
     p.bf.map_size = map_size;
     p.bf.origin = (map_min_x, map_min_y, 0);
     p.bf.temperature_field = Array3::from_elem(map_size, p.bf.ambient_temp);
@@ -185,7 +185,7 @@ fn load_level_handler(
     // Spawn ambient sound entities
     entity_spawning::spawn_ambient_sounds(&p, &mut commands);
 
-    // Initialize board data resource
+    // Initialise board data resource
     commands.init_resource::<BoardData>();
     warn!("Level Loaded: {}", &loaded_event.map_filepath);
 

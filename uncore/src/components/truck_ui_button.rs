@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::colors;
+use crate::colours;
 use crate::events::truck::TruckUIEvent;
 use crate::types::evidence::Evidence;
 use crate::types::truck_button::{TruckButtonState, TruckButtonType};
@@ -65,85 +65,85 @@ impl TruckUIButton {
     }
 
     pub fn border_color(&self, interaction: Interaction) -> Color {
-        let color = match self.class {
+        let colour = match self.class {
             TruckButtonType::Evidence(_) => {
-                // Border color for evidence buttons (blinking handled by journal system)
+                // Border colour for evidence buttons (blinking handled by journal system)
                 match interaction {
-                    Interaction::Pressed => colors::TRUCKUI_ACCENT3_COLOR,
-                    Interaction::Hovered => colors::TRUCKUI_TEXT_COLOR,
-                    Interaction::None => colors::TRUCKUI_ACCENT2_COLOR,
+                    Interaction::Pressed => colours::TRUCKUI_ACCENT3_COLOR,
+                    Interaction::Hovered => colours::TRUCKUI_TEXT_COLOR,
+                    Interaction::None => colours::TRUCKUI_ACCENT2_COLOR,
                 }
             }
             TruckButtonType::Ghost(_) => match interaction {
-                Interaction::Pressed => colors::TRUCKUI_ACCENT3_COLOR,
-                Interaction::Hovered => colors::TRUCKUI_ACCENT_COLOR,
+                Interaction::Pressed => colours::TRUCKUI_ACCENT3_COLOR,
+                Interaction::Hovered => colours::TRUCKUI_ACCENT_COLOR,
                 Interaction::None => Color::NONE,
             },
             TruckButtonType::ExitTruck | TruckButtonType::CraftRepellent => match interaction {
-                Interaction::Pressed => colors::BUTTON_EXIT_TRUCK_TXTCOLOR,
-                Interaction::Hovered => colors::BUTTON_EXIT_TRUCK_TXTCOLOR,
-                Interaction::None => colors::BUTTON_EXIT_TRUCK_FGCOLOR,
+                Interaction::Pressed => colours::BUTTON_EXIT_TRUCK_TXTCOLOR,
+                Interaction::Hovered => colours::BUTTON_EXIT_TRUCK_TXTCOLOR,
+                Interaction::None => colours::BUTTON_EXIT_TRUCK_FGCOLOR,
             },
             TruckButtonType::EndMission => match interaction {
-                Interaction::Pressed => colors::BUTTON_END_MISSION_TXTCOLOR,
-                Interaction::Hovered => colors::BUTTON_END_MISSION_TXTCOLOR,
-                Interaction::None => colors::BUTTON_END_MISSION_FGCOLOR,
+                Interaction::Pressed => colours::BUTTON_END_MISSION_TXTCOLOR,
+                Interaction::Hovered => colours::BUTTON_END_MISSION_TXTCOLOR,
+                Interaction::None => colours::BUTTON_END_MISSION_FGCOLOR,
             },
         };
         let alpha_disabled = if self.disabled { 0.05 } else { 1.0 };
-        color.with_alpha(color.alpha() * alpha_disabled)
+        colour.with_alpha(colour.alpha() * alpha_disabled)
     }
 
     pub fn background_color(&self, interaction: Interaction) -> Color {
-        let color = match self.class {
+        let colour = match self.class {
             TruckButtonType::Evidence(_) => match self.status {
-                TruckButtonState::Off => colors::TRUCKUI_BGCOLOR,
-                TruckButtonState::Pressed => Color::srgb(0.2, 0.8, 0.3), // Green color for confirmed evidence
-                TruckButtonState::Discard => colors::BUTTON_END_MISSION_FGCOLOR,
+                TruckButtonState::Off => colours::TRUCKUI_BGCOLOR,
+                TruckButtonState::Pressed => Color::srgb(0.2, 0.8, 0.3), // Green colour for confirmed evidence
+                TruckButtonState::Discard => colours::BUTTON_END_MISSION_FGCOLOR,
             },
             TruckButtonType::Ghost(_) => {
                 match self.status {
-                    TruckButtonState::Off => colors::TRUCKUI_BGCOLOR,
-                    TruckButtonState::Pressed => Color::srgb(0.2, 0.8, 0.3), // Green color for confirmed ghost, same as evidence
-                    TruckButtonState::Discard => colors::BUTTON_END_MISSION_FGCOLOR, // Should not happen for ghosts, but for completeness.
+                    TruckButtonState::Off => colours::TRUCKUI_BGCOLOR,
+                    TruckButtonState::Pressed => Color::srgb(0.2, 0.8, 0.3), // Green colour for confirmed ghost, same as evidence
+                    TruckButtonState::Discard => colours::BUTTON_END_MISSION_FGCOLOR, // Should not happen for ghosts, but for completeness.
                 }
             }
             TruckButtonType::ExitTruck | TruckButtonType::CraftRepellent => match interaction {
-                Interaction::Pressed => colors::BUTTON_EXIT_TRUCK_FGCOLOR,
-                Interaction::Hovered => colors::BUTTON_EXIT_TRUCK_BGCOLOR,
-                Interaction::None => colors::BUTTON_EXIT_TRUCK_BGCOLOR,
+                Interaction::Pressed => colours::BUTTON_EXIT_TRUCK_FGCOLOR,
+                Interaction::Hovered => colours::BUTTON_EXIT_TRUCK_BGCOLOR,
+                Interaction::None => colours::BUTTON_EXIT_TRUCK_BGCOLOR,
             },
             TruckButtonType::EndMission => match interaction {
-                Interaction::Pressed => colors::BUTTON_END_MISSION_FGCOLOR,
-                Interaction::Hovered => colors::BUTTON_END_MISSION_BGCOLOR,
-                Interaction::None => colors::BUTTON_END_MISSION_BGCOLOR,
+                Interaction::Pressed => colours::BUTTON_END_MISSION_FGCOLOR,
+                Interaction::Hovered => colours::BUTTON_END_MISSION_BGCOLOR,
+                Interaction::None => colours::BUTTON_END_MISSION_BGCOLOR,
             },
         };
         if self.disabled {
-            let color = color.with_alpha(color.alpha() * 0.5);
-            color.with_luminance(color.luminance() * 0.5)
+            let colour = colour.with_alpha(colour.alpha() * 0.5);
+            colour.with_luminance(colour.luminance() * 0.5)
         } else {
-            color
+            colour
         }
     }
 
     pub fn text_color(&self, _interaction: Interaction) -> Color {
-        let color = match self.class {
+        let colour = match self.class {
             TruckButtonType::Evidence(_) => match self.status {
                 TruckButtonState::Pressed => Color::BLACK,
-                _ => colors::TRUCKUI_TEXT_COLOR,
+                _ => colours::TRUCKUI_TEXT_COLOR,
             },
             TruckButtonType::Ghost(_) => match self.status {
                 TruckButtonState::Pressed => Color::BLACK,
-                _ => colors::TRUCKUI_TEXT_COLOR.with_alpha(0.5),
+                _ => colours::TRUCKUI_TEXT_COLOR.with_alpha(0.5),
             },
             TruckButtonType::ExitTruck | TruckButtonType::CraftRepellent => {
-                colors::BUTTON_EXIT_TRUCK_TXTCOLOR
+                colours::BUTTON_EXIT_TRUCK_TXTCOLOR
             }
-            TruckButtonType::EndMission => colors::BUTTON_END_MISSION_TXTCOLOR,
+            TruckButtonType::EndMission => colours::BUTTON_END_MISSION_TXTCOLOR,
         };
         let alpha_disabled = if self.disabled { 0.1 } else { 1.0 };
-        color.with_alpha(color.alpha() * alpha_disabled)
+        colour.with_alpha(colour.alpha() * alpha_disabled)
     }
 
     /// Update the frame counter for blinking animation

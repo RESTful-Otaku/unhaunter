@@ -10,13 +10,13 @@
           tags: [FirstTimeHint, Encouraging, MediumLength]
         ),
         (
-          tts_text: "Welcome Unhaunter. The readings here are mild, so it is an ideal place to practice your techniques safely.\nFocus on learning the basic gear provided, we'll give you more later.",
-          subtitle_text: "Welcome, Unhaunter. The readings here are mild, so it is an ideal place to practice your techniques safely. Focus on learning the basic gear provided, we'll give you more later.",
+          tts_text: "Welcome Unhaunter. The readings here are mild, so it is an ideal place to practise your techniques safely.\nFocus on learning the basic gear provided, we'll give you more later.",
+          subtitle_text: "Welcome, Unhaunter. The readings here are mild, so it is an ideal place to practise your techniques safely. Focus on learning the basic gear provided, we'll give you more later.",
           tags: [FirstTimeHint, Encouraging, MediumLength]
         ),
         (
           tts_text: "Alright, seems you arrived. There isn't that much activity here, so do not worry about making mistakes.\nOnly E M F and Thermometer for now, focus on learning how to use them.",
-          subtitle_text: "Alright, you're at the practice facility. Everything here is set up for learning, so don't worry about making mistakes. Only EMF and Thermometer for now, focus on learning how to use them.",
+          subtitle_text: "Alright, you're at the practise facility. Everything here is set up for learning, so don't worry about making mistakes. Only EMF and Thermometer for now, focus on learning how to use them.",
           tags: [FirstTimeHint, Encouraging, MediumLength]
         ),
         (
@@ -306,8 +306,8 @@
           tags: [NeutralObservation, Encouraging, MediumLength]
         ),
         (
-          tts_text: "Welcome to the mission. Standard investigation protocol applies here.\nFull access to equipment. Identify and neutralize the target.",
-          subtitle_text: "Welcome to the mission. Standard investigation protocol applies here. Full access to equipment. Identify and neutralize the target.",
+          tts_text: "Welcome to the mission. Standard investigation protocol applies here.\nFull access to equipment. Identify and neutralise the target.",
+          subtitle_text: "Welcome to the mission. Standard investigation protocol applies here. Full access to equipment. Identify and neutralise the target.",
           tags: [NeutralObservation, DirectHint, MediumLength]
         )
       ]
@@ -461,8 +461,8 @@
           tags: [DirectWarning, SeriousTone, GrimAtmosphere, FatalisticTone, MediumLength]
         ),
         (
-          tts_text: "Base to Unhaunter, I'm getting chills just looking at the readings. All previous attempts to even categorize this entity have ended in disaster.\nYou are walking into a meat grinder.",
-          subtitle_text: "Base to Unhaunter, I'm getting chills just looking at the readings. All previous attempts to even categorize this entity have ended in disaster. You're walking into a meat grinder.",
+          tts_text: "Base to Unhaunter, I'm getting chills just looking at the readings. All previous attempts to even categorise this entity have ended in disaster.\nYou are walking into a meat grinder.",
+          subtitle_text: "Base to Unhaunter, I'm getting chills just looking at the readings. All previous attempts to even categorise this entity have ended in disaster. You're walking into a meat grinder.",
           tags: [DirectWarning, SeriousTone, GrimAtmosphere, FatalisticTone, MediumLength]
         ),
         (

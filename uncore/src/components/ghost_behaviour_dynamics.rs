@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use rand::Rng;
 use std::fmt::Debug;
 
-/// Per-ghost randomized noise offsets for unique behavior patterns
+/// Per-ghost randomized noise offsets for unique behaviour patterns
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct NoiseOffsets {
     // Evidence-specific offsets
@@ -25,7 +25,7 @@ pub struct NoiseOffsets {
     pub cpm500_x: f32,
     pub cpm500_y: f32,
 
-    // Behavioral multiplier offsets
+    // behavioural multiplier offsets
     pub visual_alpha_multiplier_x: f32,
     pub visual_alpha_multiplier_y: f32,
     pub rage_tendency_multiplier_x: f32,

@@ -1,4 +1,4 @@
-use uncore::colors;
+use uncore::colours;
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
 use uncore::types::root::game_assets::GameAssets;
 
@@ -15,7 +15,7 @@ pub fn setup_sensors_ui(p: &mut ChildSpawnerCommands, handles: &GameAssets) {
             font_size: 35.0 * FONT_SCALE,
             ..default()
         },
-        TextColor(colors::TRUCKUI_ACCENT_COLOR),
+        TextColor(colours::TRUCKUI_ACCENT_COLOR),
         Node {
             height: Val::Px(40.0 * UI_SCALE),
 
@@ -30,7 +30,7 @@ pub fn setup_sensors_ui(p: &mut ChildSpawnerCommands, handles: &GameAssets) {
         height: Val::Px(0.0),
         ..default()
     })
-    .insert(BorderColor(colors::TRUCKUI_ACCENT_COLOR));
+    .insert(BorderColor(colours::TRUCKUI_ACCENT_COLOR));
 
     let sensor1 = (
         Text::new("No Sensors"),
@@ -39,7 +39,7 @@ pub fn setup_sensors_ui(p: &mut ChildSpawnerCommands, handles: &GameAssets) {
             font_size: 25.0 * FONT_SCALE,
             ..default()
         },
-        TextColor(colors::TRUCKUI_TEXT_COLOR),
+        TextColor(colours::TRUCKUI_TEXT_COLOR),
         Node {
             margin: TEXT_MARGIN,
             ..default()

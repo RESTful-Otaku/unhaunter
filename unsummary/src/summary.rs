@@ -195,7 +195,7 @@ pub fn setup_ui(
                             font_size: 24.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()))
+                        .insert(TextColor(css::GREY.into()))
                         .insert(SummaryUIType::MapMissionName);
 
                     parent
@@ -205,7 +205,7 @@ pub fn setup_ui(
                             font_size: 24.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()))
+                        .insert(TextColor(css::GREY.into()))
                         .insert(SummaryUIType::DifficultyName);
 
                     // Ghost and mission details
@@ -216,7 +216,7 @@ pub fn setup_ui(
                             font_size: 24.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()))
+                        .insert(TextColor(css::GREY.into()))
                         .insert(SummaryUIType::GhostList);
 
                     parent
@@ -226,7 +226,7 @@ pub fn setup_ui(
                             font_size: 24.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()))
+                        .insert(TextColor(css::GREY.into()))
                         .insert(SummaryUIType::TimeTaken);
 
                     parent
@@ -236,7 +236,7 @@ pub fn setup_ui(
                             font_size: 24.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()))
+                        .insert(TextColor(css::GREY.into()))
                         .insert(SummaryUIType::PlayersAlive);
 
                     // Separator
@@ -253,7 +253,7 @@ pub fn setup_ui(
                             grid_column: GridPlacement::span(3),
                             ..default()
                         })
-                        .insert(BackgroundColor(css::GRAY.into()));
+                        .insert(BackgroundColor(css::GREY.into()));
 
                     // Performance and financial details
                     // Grade and Score
@@ -280,7 +280,7 @@ pub fn setup_ui(
                             font_size: 24.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()))
+                        .insert(TextColor(css::GREY.into()))
                         .insert(SummaryUIType::FinalScore);
 
                     // Separator
@@ -297,7 +297,7 @@ pub fn setup_ui(
                             grid_column: GridPlacement::span(3),
                             ..default()
                         })
-                        .insert(BackgroundColor(css::GRAY.into()));
+                        .insert(BackgroundColor(css::GREY.into()));
 
                     // Financial details
                     parent
@@ -310,7 +310,7 @@ pub fn setup_ui(
                             font_size: 22.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()))
+                        .insert(TextColor(css::GREY.into()))
                         .insert(SummaryUIType::BaseReward);
 
                     parent
@@ -323,7 +323,7 @@ pub fn setup_ui(
                             font_size: 22.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()))
+                        .insert(TextColor(css::GREY.into()))
                         .insert(SummaryUIType::GradeMultiplier);
 
                     parent
@@ -336,7 +336,7 @@ pub fn setup_ui(
                             font_size: 22.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()))
+                        .insert(TextColor(css::GREY.into()))
                         .insert(SummaryUIType::CalculatedEarnings);
 
                     // Separator
@@ -354,7 +354,7 @@ pub fn setup_ui(
 
                             ..default()
                         })
-                        .insert(BackgroundColor(css::DARK_GRAY.into()));
+                        .insert(BackgroundColor(css::DARK_GREY.into()));
 
                     // Insurance details
                     parent
@@ -367,7 +367,7 @@ pub fn setup_ui(
                             font_size: 22.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()));
+                        .insert(TextColor(css::GREY.into()));
 
                     parent
                         .spawn(Text::new(format!(
@@ -379,7 +379,7 @@ pub fn setup_ui(
                             font_size: 22.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()));
+                        .insert(TextColor(css::GREY.into()));
 
                     parent
                         .spawn(Text::new(format!(
@@ -391,7 +391,7 @@ pub fn setup_ui(
                             font_size: 22.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(css::GRAY.into()));
+                        .insert(TextColor(css::GREY.into()));
 
                     // Separator
                     parent
@@ -407,7 +407,7 @@ pub fn setup_ui(
                             grid_column: GridPlacement::span(3),
                             ..default()
                         })
-                        .insert(BackgroundColor(css::GRAY.into()));
+                        .insert(BackgroundColor(css::GREY.into()));
 
                     // Final calculations
                     parent
@@ -587,7 +587,7 @@ pub fn calculate_rewards_and_grades(
         );
     }
 
-    // Initialize grade and base reward assuming failure or N/A case first
+    // Initialise grade and base reward assuming failure or N/A case first
     // sd.mission_reward_base is defaulted to 0 from SummaryData, which is fine for these cases.
     sd.grade_achieved = Grade::NA;
 
@@ -641,12 +641,12 @@ pub fn calculate_rewards_and_grades(
     }
 
     info!(
-        "Finalized grade: {}, multiplier: {:.1}, money_earned: ${}, base_reward_used: ${}",
+        "finalised grade: {}, multiplier: {:.1}, money_earned: ${}, base_reward_used: ${}",
         sd.grade_achieved, sd.grade_multiplier, sd.money_earned, sd.mission_reward_base
     );
 }
 
-pub fn finalize_profile_update(
+pub fn finalise_profile_update(
     sd: Res<SummaryData>,
     mut player_profile: ResMut<Persistent<PlayerProfileData>>,
     app_state: Res<State<AppState>>,
@@ -726,7 +726,7 @@ impl Plugin for UnhaunterSummaryPlugin {
                     store_mission_id,
                     calculate_rewards_and_grades,
                     setup_ui,
-                    finalize_profile_update,
+                    finalise_profile_update,
                 )
                     .chain(),
             )

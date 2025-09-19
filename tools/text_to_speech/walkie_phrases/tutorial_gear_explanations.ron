@@ -269,8 +269,8 @@
           tags: [FirstTimeHint, Encouraging, MediumLength]
         ),
         (
-          tts_text: "The Red Torch's purpose is clear: reveal R. L. Presence. Look for the ghost to change color to orange under its light. Log it as evidence.",
-          subtitle_text: "The Red Torch's purpose is clear: reveal 'RL Presence'. Look for the ghost to change color to orange under its light. Log it as evidence.",
+          tts_text: "The Red Torch's purpose is clear: reveal R. L. Presence. Look for the ghost to change colour to orange under its light. Log it as evidence.",
+          subtitle_text: "The Red Torch's purpose is clear: reveal 'RL Presence'. Look for the ghost to change colour to orange under its light. Log it as evidence.",
           tags: [FirstTimeHint, Encouraging, MediumLength]
         )
       ]

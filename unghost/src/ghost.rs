@@ -5,7 +5,7 @@ use rand::Rng;
 use std::f64::consts::PI;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::direction::Direction;
-use uncore::components::board::mapcolor::MapColor;
+use uncore::components::board::mapcolour::MapColour;
 use uncore::components::board::position::Position;
 use uncore::components::game::GameSprite;
 use uncore::components::ghost_behaviour_dynamics::GhostBehaviourDynamics;
@@ -31,7 +31,7 @@ use ungearitems::components::salt::{SaltyTrace, SaltyTraceTimer, UVReactive};
 use crate::metrics::{GHOST_ENRAGE, GHOST_MOVEMENT};
 use uncore::events::ambient_sound_mute::AmbientSoundMuteEvent;
 
-/// Enables/disables debug logs for hunting behavior.
+/// Enables/disables debug logs for hunting behaviour.
 const DEBUG_HUNTS: bool = true;
 
 // Constants for movement penalties
@@ -298,14 +298,14 @@ fn ghost_movement(
                 commands
                     .entity(breach)
                     .insert(FadeOut::new(5.0))
-                    .insert(MapColor {
+                    .insert(MapColour {
                         color: Color::WHITE.with_alpha(1.0),
                     });
             }
             commands
                 .entity(entity)
                 .insert(FadeOut::new(5.0))
-                .insert(MapColor {
+                .insert(MapColour {
                     color: Color::WHITE.with_alpha(1.0),
                 });
         }
@@ -359,7 +359,7 @@ impl RoarType {
     }
 }
 
-/// Manages the ghost's rage level, hunting behavior, and player interactions
+/// Manages the ghost's rage level, hunting behaviour, and player interactions
 /// during a hunt.
 ///
 /// This system updates the ghost's rage based on player proximity, sanity, and
@@ -598,12 +598,11 @@ fn ghost_enrage(
         if *last_roar > 30.0 && matches!(should_roar, RoarType::None) {
             should_roar = RoarType::Snore;
         }
-        if *last_roar > roar_time {
-            if let Some(roar_sound) = should_roar.get_sound() {
+        if *last_roar > roar_time
+            && let Some(roar_sound) = should_roar.get_sound() {
                 gs.play_audio(roar_sound, should_roar.get_volume(), gpos);
                 *last_roar = 0.0;
             }
-        }
     }
 
     measure.end_ms();
@@ -682,7 +681,7 @@ fn spawn_salty_trace(
     commands
         .spawn(Sprite {
             image: asset_server.load("img/salt_particle.png"),
-            color: css::DARK_GRAY.with_alpha(0.5).into(),
+            color: css::DARK_GREY.with_alpha(0.5).into(),
             custom_size: Some(Vec2::new(8.0, 8.0)),
             ..default()
         })
@@ -693,8 +692,8 @@ fn spawn_salty_trace(
         .insert(SaltyTrace)
         .insert(UVReactive(1.0))
         .insert(SaltyTraceTimer(Timer::from_seconds(600.0, TimerMode::Once)))
-        .insert(MapColor {
-            color: css::DARK_GRAY.with_alpha(0.5).into(),
+        .insert(MapColour {
+            color: css::DARK_GREY.with_alpha(0.5).into(),
         })
         .insert(GameSprite)
         .insert(SpriteType::Other);
@@ -707,7 +706,7 @@ fn ghost_fade_out_system(
     mut query: Query<(
         Entity,
         &mut FadeOut,
-        &mut MapColor,
+        &mut MapColour,
         &Position,
         Option<&GhostSprite>,
     )>,
@@ -742,7 +741,7 @@ fn ghost_fade_out_system(
                     dy: rng.random_range(-0.9..0.9),
                     dz: rng.random_range(-0.5..0.5), // Add Z direction for smoke particles
                 })
-                .insert(MapColor {
+                .insert(MapColour {
                     color: Color::WHITE.with_alpha(0.20),
                 })
                 .insert(SmokeParticleTimer(Timer::from_seconds(

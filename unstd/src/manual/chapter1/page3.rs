@@ -6,7 +6,7 @@ use uncore::types::root::game_assets::GameAssets;
 pub fn draw(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
     let title = "The Truck: Your Ghost Hunting HQ";
     let subtitle = "
-Gather evidence, analyze your findings, and prepare for the unknown.
+Gather evidence, analyse your findings, and prepare for the unknown.
 "
     .trim();
     let grid = vec![
@@ -53,7 +53,7 @@ Gather evidence, analyze your findings, and prepare for the unknown.
 pub fn create_manual_page() -> ManualPageData {
     ManualPageData {
         title: "The Truck: Your Ghost Hunting HQ".into(),
-        subtitle: "Gather evidence, analyze your findings, and prepare for the unknown.".into(),
+        subtitle: "Gather evidence, analyse your findings, and prepare for the unknown.".into(),
         draw_fn: draw,
     }
 }

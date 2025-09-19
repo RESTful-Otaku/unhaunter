@@ -1,6 +1,6 @@
 pub mod entity_spawning;
 pub mod influence_system;
-pub mod level_finalization;
+pub mod level_finalisation;
 pub mod level_setup;
 pub mod module;
 pub mod plugin;

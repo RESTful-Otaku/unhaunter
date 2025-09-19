@@ -130,7 +130,7 @@ fn tmxmap_preload(
 
             if classname != "UnhaunterMap1" {
                 warn!(
-                    "Unrecognized Class {:?} for map {:?} (Should be 'UnhaunterMap1')",
+                    "Unrecognised Class {:?} for map {:?} (Should be 'UnhaunterMap1')",
                     classname, path
                 );
                 continue;

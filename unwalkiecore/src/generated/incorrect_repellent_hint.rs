@@ -171,7 +171,7 @@ impl IncorrectRepellentHintConcept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/incorrect_repellent_hint/incorrectrepellenthintfreezingtemp_04.ogg".to_string(),
-                    subtitle_text: "That's not the right repellent mix. My sensors indicate this ghost doesn't exhibit Freezing Temps behavior. Updating your evidence log.".to_string(),
+                    subtitle_text: "That's not the right repellent mix. My sensors indicate this ghost doesn't exhibit Freezing Temps behaviour. Updating your evidence log.".to_string(),
                     tags: vec![WalkieTag::DirectHint, WalkieTag::DirectWarning, WalkieTag::Guidance, WalkieTag::MediumLength],
                     length_seconds: 9,
                 },

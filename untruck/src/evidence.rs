@@ -33,25 +33,19 @@ pub fn update_evidence_ui(
                 };
                 let status = EvidenceStatus::from_gearkind(o_evidence, ev_state);
                 if let Some((_entity, _depth, mut text, _font, _color)) = writer.get(txt_entity, 1)
-                {
-                    if *text != status.title {
+                    && *text != status.title {
                         *text = status.title;
                     }
-                }
-                if let Some((_entity, _depth, mut text, _font, mut color)) =
+                if let Some((_entity, _depth, mut text, _font, mut colour)) =
                     writer.get(txt_entity, 2)
-                {
-                    if *text != status.status_game {
+                    && *text != status.status_game {
                         *text = status.status_game;
-                        *color = TextColor(status.status_color);
+                        *colour = TextColor(status.status_color);
                     }
-                }
                 if let Some((_entity, _depth, mut text, _font, _color)) = writer.get(txt_entity, 3)
-                {
-                    if *text != status.help_text {
+                    && *text != status.help_text {
                         *text = status.help_text;
                     }
-                }
             }
         }
     }

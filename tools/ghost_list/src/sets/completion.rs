@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use uncore::types::evidence::Evidence;
 use uncore::types::ghost::types::GhostType;
 
-pub fn analyze_evidence_distribution(ghosts: &[GhostType]) {
+pub fn analyse_evidence_distribution(ghosts: &[GhostType]) {
     let mut evidence_count: HashMap<Evidence, usize> = HashMap::new();
 
     for ghost in ghosts {

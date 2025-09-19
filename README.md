@@ -22,7 +22,7 @@ This 2D isometric game seamlessly blends exploration, puzzle-solving, and strate
 - **Stereo Sound Positioning**: Proper isometric audio positioning as described in development notes
 - **Settings Persistence**: All settings now save and load correctly across sessions
 - **UI Polish**: All menus have functional navigation and clear, intuitive text
-- **Performance**: Optimized compilation and runtime performance with clippy fixes
+- **Performance**: optimised compilation and runtime performance with clippy fixes
 
 Join our discord server:
 
@@ -60,7 +60,7 @@ There are 8 types of evidence. Each ghost exhibits 5 of these 8.
 
 ### Ghost Identification
 
-Your first task is to locate the ghost and determine its preferred area.  Look for subtle visual clues like a semi-transparent dust cloud, which indicates the ghost's spawn point (breach). This is often easiest to see with the location's lights (not your flashlight). You can also use your equipment, like the Thermometer, to detect temperature changes, or the EMF meter to find fluctuations in the electromagnetic field. Carefully test your equipment, and record your findings in your trusty van. Once you have enough evidence, synthesize a specialised "Unhaunter Ghost Repellent" to expel the ghost.
+Your first task is to locate the ghost and determine its preferred area.  Look for subtle visual clues like a semi-transparent dust cloud, which indicates the ghost's spawn point (breach). This is often easiest to see with the location's lights (not your flashlight). You can also use your equipment, like the Thermometer, to detect temperature changes, or the EMF metre to find fluctuations in the electromagnetic field. Carefully test your equipment, and record your findings in your trusty van. Once you have enough evidence, synthesize a specialised "Unhaunter Ghost Repellent" to expel the ghost.
 
 Once you're done, you can click "End Mission" on the van and you'll get the mission score.
 
@@ -88,7 +88,7 @@ Beware! Ghosts can enter a hunting phase, becoming more aggressive and directly 
 | Freezing Temps | Thermometer    | The room frequented by the ghost becomes unusually cold. Some ghosts will cause temperatures to drop below 0°C.                                                                           |
 | Floating Orbs  | Video Camera   | The ghost's breach (a spectral dust cloud) might glow brightly when viewed through a Night Vision camera.  Lights must be OFF.                                                            |
 | UV Ectoplasm   | UV Torch       | Some ghosts will emit a greenish glow under UV light. Lights must be OFF.                                                                                                                 |
-| EMF Level 5    | EMF Meter      | The EMF Meter may spike to level 5 in the presence of certain ghosts.  Keep the meter close to the ghost's area of activity.                                                              |
+| EMF Level 5    | EMF Metre      | The EMF Metre may spike to level 5 in the presence of certain ghosts.  Keep the metre close to the ghost's area of activity.                                                              |
 | EVP Recording  | Recorder       | The Recorder might capture ghostly voices (Electronic Voice Phenomena). If a EVP Recording is made, [EVP RECORDED] will appear.                                                           |
 | Spirit Box     | Spirit Box     | Screams, whispers, or other paranormal sounds may be heard through the Spirit Box when close to the breach and in relative darkness.                                                      |
 | RL Presence    | Red Torch      | Some ghosts glow orange under red light.  Lights must be OFF.                                                                                                                             |
@@ -98,7 +98,7 @@ Beware! Ghosts can enter a hunting phase, becoming more aggressive and directly 
 
 ### Quick Tips:
 
-*   **Use your ears:** Pay close attention to audio cues from your equipment (changes in the EMF meter's beeping, the ghost's whispers, etc.).
+*   **Use your ears:** Pay close attention to audio cues from your equipment (changes in the EMF metre's beeping, the ghost's whispers, etc.).
 *   **Control the environment:** Closing doors helps contain cold air for more accurate temperature readings. Lights also heat up the room, so turning them off can create a colder environment.
 *  **Hide:** If a hunt starts, press and hold [E] near tables, beds, and other objects to hide itself.
 *   **Sanity is key:** Manage your sanity by taking breaks in the truck.
@@ -306,7 +306,7 @@ This is only worth it if you plan to compile Unhaunter a lot with different smal
 
 ## Community
 
-Unhaunter has a Matrix room for discussion and collaboration. Access public, anyone can join. We also have a Discord server.
+Unhaunter has a Matrix room for discussion and collabouration. Access public, anyone can join. We also have a Discord server.
 
 * [Matrix Room](https://matrix.to/#/#unhaunter:matrix.org)
 * [Discord Server](https://discord.gg/Ux7CGfvVtV)

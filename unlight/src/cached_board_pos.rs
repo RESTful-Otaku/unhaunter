@@ -10,7 +10,7 @@ use uncore::components::board::boardposition::BoardPosition;
 /// ranges for all possible relative positions within a fixed-size window. This avoids expensive
 /// trigonometric operations during real-time lighting calculations.
 ///
-/// The cache uses a grid of size `SZ × SZ` (default 65×65) centred at position `CENTER` (default 32).
+/// The cache uses a grid of size `SZ × SZ` (default 65×65) centred at position `centre` (default 32).
 #[derive(Debug, Clone)]
 pub struct CachedBoardPos {
     /// Cache of Euclidean distances from centre to each position
@@ -29,11 +29,11 @@ pub struct CachedBoardPos {
 }
 
 impl CachedBoardPos {
-    /// Center index of the cache grid
-    const CENTER: i64 = 32;
+    /// centre index of the cache grid
+    const CENTRE: i64 = 32;
 
-    /// Size of the cache grid (CENTER * 2 + 1)
-    const SZ: usize = (Self::CENTER * 2 + 1) as usize;
+    /// Size of the cache grid (centre * 2 + 1)
+    const SZ: usize = (Self::CENTRE * 2 + 1) as usize;
 
     /// The number of discrete angle steps around a circle
     ///
@@ -43,14 +43,14 @@ impl CachedBoardPos {
 
     /// Creates a new `CachedBoardPos` with pre-computed values
     ///
-    /// Initializes the cache by computing all distances and angles.
+    /// initialises the cache by computing all distances and angles.
     /// This is computationally expensive but only needs to be done once.
     pub fn new() -> Self {
         let mut cp = Self {
             dist: [[0.0; Self::SZ]; Self::SZ],
             angle: [[0; Self::SZ]; Self::SZ],
             angle_range: [[(0, 0); Self::SZ]; Self::SZ],
-            // Initialize with zero arrays; we'll fill them after computing the cache.
+            // Initialise with zero arrays; we'll fill them after computing the cache.
             dist_array: Array2::<f32>::zeros((Self::SZ, Self::SZ)),
             angle_array: Array2::<usize>::zeros((Self::SZ, Self::SZ)),
             angle_range_array: Array2::from_elem((Self::SZ, Self::SZ), (0, 0)),
@@ -89,8 +89,8 @@ impl CachedBoardPos {
     pub fn compute_dist(&mut self) {
         for (x, xv) in self.dist.iter_mut().enumerate() {
             for (y, yv) in xv.iter_mut().enumerate() {
-                let x: f32 = x as f32 - Self::CENTER as f32;
-                let y: f32 = y as f32 - Self::CENTER as f32;
+                let x: f32 = x as f32 - Self::CENTRE as f32;
+                let y: f32 = y as f32 - Self::CENTRE as f32;
                 let dist: f32 = (x * x + y * y).sqrt();
                 *yv = dist;
             }
@@ -106,8 +106,8 @@ impl CachedBoardPos {
     pub fn compute_angle(&mut self) {
         for (x, xv) in self.angle.iter_mut().enumerate() {
             for (y, yv) in xv.iter_mut().enumerate() {
-                let x: f32 = x as f32 - Self::CENTER as f32;
-                let y: f32 = y as f32 - Self::CENTER as f32;
+                let x: f32 = x as f32 - Self::CENTRE as f32;
+                let y: f32 = y as f32 - Self::CENTRE as f32;
                 let dist: f32 = (x * x + y * y).sqrt();
                 let x = x / dist;
                 let y = y / dist;
@@ -116,9 +116,9 @@ impl CachedBoardPos {
                 *yv = angle_i as usize;
             }
         }
-        for y in Self::CENTER - 3..=Self::CENTER + 3 {
+        for y in Self::CENTRE - 3..=Self::CENTRE + 3 {
             let mut v: Vec<usize> = vec![];
-            for x in Self::CENTER - 3..=Self::CENTER + 3 {
+            for x in Self::CENTRE - 3..=Self::CENTRE + 3 {
                 v.push(self.angle[x as usize][y as usize]);
             }
         }
@@ -130,8 +130,8 @@ impl CachedBoardPos {
                 // closer to zero need correction to avoid looking on the wrong place }
                 let mut min_angle: i64 = 0;
                 let mut max_angle: i64 = 0;
-                let x: f32 = x as f32 - Self::CENTER as f32;
-                let y: f32 = y as f32 - Self::CENTER as f32;
+                let x: f32 = x as f32 - Self::CENTRE as f32;
+                let y: f32 = y as f32 - Self::CENTRE as f32;
                 for x1 in [x - 0.5, x + 0.5] {
                     for y1 in [y - 0.5, y + 0.5] {
                         let dist: f32 = (x1 * x1 + y1 * y1).sqrt();
@@ -149,9 +149,9 @@ impl CachedBoardPos {
                 *yv = (min_angle, max_angle);
             }
         }
-        for y in Self::CENTER - 3..=Self::CENTER + 3 {
+        for y in Self::CENTRE - 3..=Self::CENTRE + 3 {
             let mut v: Vec<(i64, i64)> = vec![];
-            for x in Self::CENTER - 3..=Self::CENTER + 3 {
+            for x in Self::CENTRE - 3..=Self::CENTRE + 3 {
                 v.push(self.angle_range[x as usize][y as usize]);
             }
         }
@@ -168,8 +168,8 @@ impl CachedBoardPos {
     ///
     /// The pre-computed Euclidean distance between the positions
     pub fn bpos_dist(&self, s: &BoardPosition, d: &BoardPosition) -> f32 {
-        let x = (d.x - s.x + Self::CENTER) as usize;
-        let y = (d.y - s.y + Self::CENTER) as usize;
+        let x = (d.x - s.x + Self::CENTRE) as usize;
+        let y = (d.y - s.y + Self::CENTRE) as usize;
 
         // self.dist[x][y]
         unsafe { *self.dist.get_unchecked(x).get_unchecked(y) }
@@ -186,8 +186,8 @@ impl CachedBoardPos {
     ///
     /// The pre-computed angle index (0 to TAU_I-1) representing the direction from source to destination
     pub fn bpos_angle(&self, s: &BoardPosition, d: &BoardPosition) -> usize {
-        let x = (d.x - s.x + Self::CENTER) as usize;
-        let y = (d.y - s.y + Self::CENTER) as usize;
+        let x = (d.x - s.x + Self::CENTRE) as usize;
+        let y = (d.y - s.y + Self::CENTRE) as usize;
 
         // self.angle[x][y]
         unsafe { *self.angle.get_unchecked(x).get_unchecked(y) }
@@ -208,8 +208,8 @@ impl CachedBoardPos {
     ///
     /// A tuple of (min_angle_offset, max_angle_offset) representing the angle range
     pub fn bpos_angle_range(&self, s: &BoardPosition, d: &BoardPosition) -> (i64, i64) {
-        let x = (d.x - s.x + Self::CENTER) as usize;
-        let y = (d.y - s.y + Self::CENTER) as usize;
+        let x = (d.x - s.x + Self::CENTRE) as usize;
+        let y = (d.y - s.y + Self::CENTRE) as usize;
 
         // self.angle_range[x][y]
         unsafe { *self.angle_range.get_unchecked(x).get_unchecked(y) }
@@ -218,17 +218,17 @@ impl CachedBoardPos {
     /// Given a root board position and a board region (in board coordinates),
     /// return the relative index ranges into the cache.
     ///
-    /// The cached arrays are indexed by (other.x - root.x + CENTER, other.y - root.y + CENTER).
+    /// The cached arrays are indexed by (other.x - root.x + centre, other.y - root.y + centre).
     pub fn relative_ranges(
         &self,
         root: &BoardPosition,
         board_x: Range<usize>,
         board_y: Range<usize>,
     ) -> (Range<usize>, Range<usize>) {
-        let start_x = board_x.start as i64 - root.x + Self::CENTER;
-        let end_x = board_x.end as i64 - root.x + Self::CENTER;
-        let start_y = board_y.start as i64 - root.y + Self::CENTER;
-        let end_y = board_y.end as i64 - root.y + Self::CENTER;
+        let start_x = board_x.start as i64 - root.x + Self::CENTRE;
+        let end_x = board_x.end as i64 - root.x + Self::CENTRE;
+        let start_y = board_y.start as i64 - root.y + Self::CENTRE;
+        let end_y = board_y.end as i64 - root.y + Self::CENTRE;
         (
             start_x as usize..end_x as usize,
             start_y as usize..end_y as usize,

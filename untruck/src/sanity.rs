@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use uncore::colors;
+use uncore::colours;
 use uncore::components::game_config::GameConfig;
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
@@ -20,7 +20,7 @@ pub fn setup_sanity_ui(p: &mut ChildSpawnerCommands, handles: &GameAssets) {
             font_size: 35.0 * FONT_SCALE,
             ..default()
         },
-        TextColor(colors::TRUCKUI_ACCENT_COLOR),
+        TextColor(colours::TRUCKUI_ACCENT_COLOR),
         Node {
             height: Val::Px(40.0 * UI_SCALE),
             ..default()
@@ -34,7 +34,7 @@ pub fn setup_sanity_ui(p: &mut ChildSpawnerCommands, handles: &GameAssets) {
         height: Val::Px(0.0 * UI_SCALE),
         ..default()
     })
-    .insert(BorderColor(colors::TRUCKUI_ACCENT_COLOR));
+    .insert(BorderColor(colours::TRUCKUI_ACCENT_COLOR));
     let p1_sanity = (
         Text::new("Player 1: 90% Sanity"),
         TextFont {
@@ -42,7 +42,7 @@ pub fn setup_sanity_ui(p: &mut ChildSpawnerCommands, handles: &GameAssets) {
             font_size: 25.0 * FONT_SCALE,
             ..default()
         },
-        TextColor(colors::TRUCKUI_TEXT_COLOR),
+        TextColor(colours::TRUCKUI_TEXT_COLOR),
         Node {
             margin: TEXT_MARGIN,
             ..default()

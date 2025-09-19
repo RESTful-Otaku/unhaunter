@@ -12,15 +12,15 @@ use crate::sets::comparison::{
     handle_compare_sets_command, handle_diff_sets_command, handle_merge_sets_command,
     handle_overlap_analysis_command,
 };
-use crate::sets::optimization::{
-    handle_diverse_set_command, handle_find_sets_command, handle_optimize_set_command,
+use crate::sets::optimisation::{
+    handle_diverse_set_command, handle_find_sets_command, handle_optimise_set_command,
     handle_tutorial_set_command,
 };
-use crate::sets::{analyze_set, complete_set, test_set, validate_set};
+use crate::sets::{analyse_set, complete_set, test_set, validate_set};
 
 #[derive(Parser)]
 #[command(name = "ghost_list")]
-#[command(about = "Unhaunter ghost analysis and set optimization tool")]
+#[command(about = "Unhaunter ghost analysis and set optimisation tool")]
 #[command(version)]
 pub struct Cli {
     #[command(subcommand)]
@@ -65,8 +65,8 @@ pub enum Commands {
         #[arg(help = "Comma-separated list of ghost names")]
         ghosts: String,
     },
-    /// Analyze a ghost set for balance and gaps
-    AnalyzeSet {
+    /// Analyse a ghost set for balance and gaps
+    AnalyseSet {
         #[arg(help = "Comma-separated list of ghost names")]
         ghosts: String,
     },
@@ -115,9 +115,9 @@ pub enum Commands {
         )]
         max_results: usize,
     },
-    /// Analyze evidence conflicts and overlaps
+    /// Analyse evidence conflicts and overlaps
     Conflicts {
-        #[arg(long, help = "Specific evidence subset to analyze (comma-separated)")]
+        #[arg(long, help = "Specific evidence subset to analyse (comma-separated)")]
         evidence: Option<String>,
         #[arg(long, help = "Show all types of conflicts", default_value = "false")]
         show_all: bool,
@@ -129,7 +129,7 @@ pub enum Commands {
         #[arg(long, help = "Maximum number of evidences in a combination")]
         max_evidence: Option<usize>,
     },
-    /// Analyze correlation between evidences
+    /// Analyse correlation between evidences
     Correlate {
         #[arg(long, help = "Primary evidence to correlate (name)")]
         evidence: String,
@@ -137,7 +137,7 @@ pub enum Commands {
         with: Option<String>,
     },
     /// Generate a balanced set of ghosts
-    OptimizeSet {
+    OptimiseSet {
         #[arg(long, help = "Desired number of ghosts in the set")]
         size: usize,
         #[arg(long, help = "How much to weigh evidence balance (e.g., 0.0 to 1.0)")]
@@ -161,7 +161,7 @@ pub enum Commands {
         size: usize,
         #[arg(
             long,
-            help = "Optimize for beginner-friendliness",
+            help = "Optimise for beginner-friendliness",
             default_value = "true"
         )]
         beginner_friendly: bool,
@@ -171,7 +171,7 @@ pub enum Commands {
         #[arg(help = "Two or more named ghost sets to compare")]
         sets: Vec<String>,
     },
-    /// Analyze overlap between multiple ghost sets
+    /// Analyse overlap between multiple ghost sets
     OverlapAnalysis {
         #[arg(long, help = "Two or more named ghost sets (e.g., \"Set1:GA,GB\")", value_name = "SET_SPEC", num_args = 2..)]
         sets: Vec<String>,
@@ -215,9 +215,9 @@ impl Cli {
             Some(Commands::TestSet {
                 ghosts: ghost_names,
             }) => test_set(ghost_names),
-            Some(Commands::AnalyzeSet {
+            Some(Commands::AnalyseSet {
                 ghosts: ghost_names,
-            }) => analyze_set(ghost_names),
+            }) => analyse_set(ghost_names),
             Some(Commands::CompleteSet {
                 ghosts: ghost_names,
                 requires_evidence,
@@ -252,12 +252,12 @@ impl Cli {
             Some(Commands::Correlate { evidence, with }) => {
                 handle_correlation_command(evidence, with.as_deref());
             }
-            Some(Commands::OptimizeSet {
+            Some(Commands::OptimiseSet {
                 size,
                 balance_factor,
                 max_overlap,
             }) => {
-                handle_optimize_set_command(*size, *balance_factor, *max_overlap);
+                handle_optimise_set_command(*size, *balance_factor, *max_overlap);
             }
             Some(Commands::DiverseSet {
                 size,

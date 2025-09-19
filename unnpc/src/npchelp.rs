@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use uncore::colors;
+use uncore::colours;
 use uncore::components::board::direction::Direction;
 use uncore::components::board::position::Position;
 use uncore::components::player_sprite::PlayerSprite;
@@ -9,8 +9,8 @@ use uncore::states::GameState;
 use uncore::types::root::game_assets::GameAssets;
 use uncore::{
     behaviour::{
-        Behavior,
-        component::{Interactive, NpcHelpDialog},
+        Behaviour,
+        component::{Interactive, NpcHelpdialogue},
     },
     components::game_config::GameConfig,
 };
@@ -19,11 +19,11 @@ use unstd::materials::UIPanelMaterial;
 #[derive(Debug, Component)]
 pub struct NpcUI;
 #[derive(Debug, Component)]
-pub struct NpcDialogText;
+pub struct NpcdialogueText;
 
 #[derive(Debug, Resource, Default)]
 pub struct NpcUIData {
-    pub dialog: String,
+    pub dialogueue: String,
 }
 
 pub fn keyboard(
@@ -70,13 +70,13 @@ pub fn setup_ui(
             margin: MARGIN,
             ..default()
         })
-        .insert(BackgroundColor(colors::TRUCKUI_BGCOLOR))
+        .insert(BackgroundColor(colours::TRUCKUI_BGCOLOR))
         .insert(NpcUI)
         .with_children(|parent| {
             // Mid content
             parent
                 .spawn(MaterialNode(materials.add(UIPanelMaterial {
-                    color: colors::TRUCKUI_PANEL_BGCOLOR.into(),
+                    color: colours::TRUCKUI_PANEL_BGCOLOR.into(),
                 })))
                 .insert(Node {
                     border: UiRect::all(Val::Px(1.0)),
@@ -97,7 +97,7 @@ pub fn setup_ui(
                             font_size: 35.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(colors::TRUCKUI_ACCENT_COLOR))
+                        .insert(TextColor(colours::TRUCKUI_ACCENT_COLOR))
                         .insert(Node {
                             height: Val::Px(40.0 * UI_SCALE),
                             ..default()
@@ -108,21 +108,21 @@ pub fn setup_ui(
                             height: Val::Px(0.0),
                             ..default()
                         })
-                        .insert(BorderColor(colors::TRUCKUI_ACCENT_COLOR));
+                        .insert(BorderColor(colours::TRUCKUI_ACCENT_COLOR));
                     mid_blk
-                        .spawn(Text::new(npcdata.dialog.clone()))
+                        .spawn(Text::new(npcdata.dialogueue.clone()))
                         .insert(TextFont {
                             font: handles.fonts.syne.w400_regular.clone(),
                             font_size: 21.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(colors::DIALOG_TEXT_COLOR))
+                        .insert(TextColor(colours::DIALOGUE_TEXT_COLOR))
                         .insert(Node {
                             margin: UiRect::all(Val::Px(8.0 * UI_SCALE)),
                             max_width: Val::Vw(50.0),
                             ..default()
                         })
-                        .insert(NpcDialogText);
+                        .insert(NpcdialogueText);
                     mid_blk.spawn(Node {
                         flex_grow: 1.0,
                         ..default()
@@ -134,7 +134,7 @@ pub fn setup_ui(
                             font_size: 25.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(colors::TRUCKUI_TEXT_COLOR))
+                        .insert(TextColor(colours::TRUCKUI_TEXT_COLOR))
                         .insert(Node {
                             margin: UiRect::all(Val::Px(4.0)),
                             align_content: AlignContent::End,
@@ -161,7 +161,7 @@ pub fn setup_ui(
 
 pub fn npchelp_event(
     mut ev_npc: EventReader<NpcHelpEvent>,
-    mut npc: Query<(Entity, &mut NpcHelpDialog)>,
+    mut npc: Query<(Entity, &mut NpcHelpdialogue)>,
     mut res_npc: ResMut<NpcUIData>,
     mut game_next_state: ResMut<NextState<GameState>>,
 ) {
@@ -177,9 +177,9 @@ pub fn npchelp_event(
         return;
     };
     npcd.seen = true;
-    res_npc.dialog.clone_from(&npcd.dialog);
+    res_npc.dialogueue.clone_from(&npcd.dialogueue);
     game_next_state.set(GameState::NpcHelp);
-    // warn!(npcd.dialog);
+    // warn!(npcd.dialogueue);
 }
 
 /// NPCs will call the player by distance & time if haven't spoken yet.
@@ -191,8 +191,8 @@ pub fn auto_call_npchelp(
         Entity,
         &Position,
         &Interactive,
-        &Behavior,
-        &mut NpcHelpDialog,
+        &Behaviour,
+        &mut NpcHelpdialogue,
     )>,
     mut ev_npc: EventWriter<NpcHelpEvent>,
 ) {

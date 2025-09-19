@@ -264,8 +264,8 @@
           tags: [ReminderLow, Encouraging, MediumLength],
         ),
         (
-          tts_text: "Task completion confirmed. Return to the vehicle to finalize your mission report.",
-          subtitle_text: "Task completion confirmed. Return to the vehicle to finalize your mission report.",
+          tts_text: "Task completion confirmed. Return to the vehicle to finalise your mission report.",
+          subtitle_text: "Task completion confirmed. Return to the vehicle to finalise your mission report.",
           tags: [ReminderMedium, FormalishReminder, MediumLength],
         ),
         (

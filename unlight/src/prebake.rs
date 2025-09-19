@@ -7,7 +7,7 @@ use bevy_platform::collections::HashSet;
 use bevy_platform::time::Instant;
 use ndarray::{Array2, Array3};
 use uncore::{
-    behaviour::{Behavior, Class},
+    behaviour::{Behaviour, Class},
     components::board::{boardposition::BoardPosition, position::Position},
     resources::board_data::BoardData,
     types::board::prebaked_lighting_data::{LightInfo, PrebakedLightingData, WaveEdge},
@@ -20,7 +20,7 @@ pub const WAVE_MAX_HISTORY: usize = 12;
 /// 1. Identifies all light sources
 /// 2. Propagates light using BFS
 /// 3. Marks wave edges where light stops at dynamic objects or other light sources
-pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position, &Behavior)>) {
+pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position, &Behaviour)>) {
     info!("Computing prebaked lighting field...");
     let build_start_time = Instant::now();
 
@@ -36,19 +36,19 @@ pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position,
 
     bf.prebaked_metadata = Default::default();
     // Process all entities to find light sources
-    for (entity, pos, behavior) in qt.iter() {
+    for (entity, pos, behaviour) in qt.iter() {
         let board_pos = pos.to_board_position();
         let idx = board_pos.ndidx();
-        let is_door = behavior.key_cvo().class == Class::Door;
+        let is_door = behaviour.key_cvo().class == Class::Door;
 
         if is_door {
             bf.prebaked_metadata.doors.push(entity);
         }
 
         // Check if this entity emits light
-        if behavior.p.light.can_emit_light {
-            let lux = behavior.p.light.emission_power.exp();
-            let color = behavior.p.light.color();
+        if behaviour.p.light.can_emit_light {
+            let lux = behaviour.p.light.emission_power.exp();
+            let color = behaviour.p.light.color();
 
             light_source_count += 1;
             prebaked[idx].light_info = LightInfo {
@@ -76,7 +76,7 @@ pub fn prebake_lighting_field(bf: &mut BoardData, qt: &Query<(Entity, &Position,
     // BFS queue for light propagation - (position, source_id, current_lux, color, remaining_distance, path_history)
     let mut propagation_queue = VecDeque::new();
 
-    // Initialize queue with all light sources
+    // Initialise queue with all light sources
     for ((i, j, k), data) in prebaked.indexed_iter() {
         if let Some(source_id) = data.light_info.source_id {
             let pos = BoardPosition {
@@ -279,7 +279,7 @@ pub fn prebake_propagation_data(bf: &mut BoardData) {
 
         let source_pos = BoardPosition::from_ndidx(*source_idx);
 
-        // Initialize distance field with f32::INFINITY
+        // Initialise distance field with f32::INFINITY
         let mut distance_field =
             Array3::from_elem((map_size.0, map_size.1, map_size.2), f32::INFINITY);
         distance_field[source_pos.ndidx()] = 0.0;

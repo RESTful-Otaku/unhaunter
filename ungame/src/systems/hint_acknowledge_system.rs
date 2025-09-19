@@ -23,9 +23,9 @@ fn acknowledge_blinking_gear_hint_system(
                 uncore::types::gear::equipmentposition::Hand::Right => &player_gear.right_hand,
             };
 
-            if let Some(gear_data) = &active_gear.data {
-                if gear_data.is_blinking_hint_active() {
-                    if let Ok(evidence_type) = Evidence::try_from(&active_gear.kind) {
+            if let Some(gear_data) = &active_gear.data
+                && gear_data.is_blinking_hint_active()
+                    && let Ok(evidence_type) = Evidence::try_from(&active_gear.kind) {
                         const HINT_ACKNOWLEDGE_THRESHOLD: u32 = 3;
                         let count = profile_data
                             .times_evidence_acknowledged_on_gear
@@ -41,8 +41,6 @@ fn acknowledge_blinking_gear_hint_system(
                             profile_data.set_changed();
                         }
                     }
-                }
-            }
         }
     }
 }

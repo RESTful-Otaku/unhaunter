@@ -63,7 +63,7 @@ impl Base1Concept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/base1/allobjectivesmetremindertoendmission_08.ogg".to_string(),
-                    subtitle_text: "Task completion confirmed. Return to the vehicle to finalize your mission report.".to_string(),
+                    subtitle_text: "Task completion confirmed. Return to the vehicle to finalise your mission report.".to_string(),
                     tags: vec![WalkieTag::FormalishReminder, WalkieTag::MediumLength, WalkieTag::ReminderMedium],
                     length_seconds: 6,
                 },
@@ -369,7 +369,7 @@ impl Base1Concept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/base1/playerleavestruckwithoutchangingloadout_05.ogg".to_string(),
-                    subtitle_text: "Standard loadout detected. Consider reviewing the gear options in the truck for optimal results.".to_string(),
+                    subtitle_text: "Standard loadout detected. Consider reviewing the gear options in the truck for optimum results.".to_string(),
                     tags: vec![WalkieTag::FormalishReminder, WalkieTag::LongDetailed, WalkieTag::ReminderLow],
                     length_seconds: 7,
                 },
@@ -387,7 +387,7 @@ impl Base1Concept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/base1/playerleavestruckwithoutchangingloadout_08.ogg".to_string(),
-                    subtitle_text: "You could optimise your equipment selection. The van has specialised tools that might be more effective.".to_string(),
+                    subtitle_text: "You could optimise your equipment selection. The van has specialized tools that might be more effective.".to_string(),
                     tags: vec![WalkieTag::DirectHint, WalkieTag::LongDetailed, WalkieTag::ReminderLow],
                     length_seconds: 7,
                 },

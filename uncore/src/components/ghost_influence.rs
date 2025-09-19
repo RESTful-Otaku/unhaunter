@@ -1,5 +1,5 @@
 //! This module defines the `GhostInfluence` component, which is used to determine
-//! how an object in the game world influences the ghost's behavior.
+//! how an object in the game world influences the ghost's behaviour.
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -13,7 +13,7 @@ pub enum InfluenceType {
 }
 
 /// This component stores the influence properties of a movable object, determining
-/// how it affects the ghost's behavior.
+/// how it affects the ghost's behaviour.
 #[derive(Component, Debug, Clone, Copy, PartialEq)]
 pub struct GhostInfluence {
     /// The type of influence this object has on the ghost (`Attractive` or

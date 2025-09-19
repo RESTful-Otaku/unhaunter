@@ -20,7 +20,7 @@ pub fn resolve_tiled_image_path(img_path: &Path) -> PathBuf {
     img_path
         .strip_prefix("assets/")
         .unwrap_or(img_path)
-        .normalize()
+        .normalize().to_path_buf().to_path_buf()
         .to_owned()
 }
 
@@ -156,7 +156,7 @@ pub fn bevy_load_map(
             } else {
                 // If it's a FloorLevel but has no number, use a default of 0
                 warn!(
-                    "Unrecognized layer structure {} - layer class but no number",
+                    "Unrecognised layer structure {} - layer class but no number",
                     layer.name
                 );
                 ungrouped_layers.push((layer_index, layer.clone()));
@@ -165,7 +165,7 @@ pub fn bevy_load_map(
         } else {
             // Not a floor level group, add to ungrouped layers
             warn!(
-                "Unrecognized layer structure {} - unrecognized layer class",
+                "Unrecognised layer structure {} - unrecognised layer class",
                 layer.name
             );
             ungrouped_layers.push((layer_index, layer.clone()));

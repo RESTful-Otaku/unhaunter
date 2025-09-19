@@ -1,6 +1,6 @@
 pub mod assets;
 pub mod behaviour;
-pub mod colors;
+pub mod colours;
 pub mod components;
 pub mod difficulty;
 pub mod events;

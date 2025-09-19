@@ -1,6 +1,6 @@
 use crate::components::*;
 use bevy::prelude::*;
-use uncore::colors;
+use uncore::colours;
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE, VERSION};
 use uncore::types::root::game_assets::GameAssets;
 
@@ -63,7 +63,7 @@ pub fn create_menu_strip<'a, T: Component + Copy>(
         width: Val::Px(300.0 * UI_SCALE),
         height: Val::Percent(100.0), // Full height
         flex_direction: FlexDirection::Column,
-        justify_content: JustifyContent::Center, // Center items vertically
+        justify_content: JustifyContent::Center, // centre items vertically
         align_items: AlignItems::FlexStart,      // Align items to the left
         padding: UiRect::horizontal(Val::Px(20.0 * UI_SCALE)), // Padding inside strip
         row_gap: Val::Px(16.0 * UI_SCALE),
@@ -92,9 +92,9 @@ pub fn create_menu_item<'a>(
     let text: String = text.into();
     warn!("Creating menu item {} with idx {}", text, idx);
 
-    // Define colors for menu items
-    let selected_color = colors::MENU_ITEM_COLOR_ON;
-    let unselected_color = colors::MENU_ITEM_COLOR_OFF;
+    // Define colours for menu items
+    let selected_color = colours::MENU_ITEM_COLOR_ON;
+    let unselected_color = colours::MENU_ITEM_COLOR_OFF;
 
     let mut entity_cmd = strip.spawn(Node {
         padding: UiRect::all(Val::Px(10.0 * UI_SCALE)), // Add padding for better click target
@@ -145,7 +145,7 @@ pub fn create_help_text(
             bottom: Val::Px(10.0 * UI_SCALE), // Small margin from bottom
             left: Val::Percent(0.0),          // Align to left edge of parent
             width: Val::Percent(100.0),       // Full width
-            justify_content: JustifyContent::Center, // Center the text container
+            justify_content: JustifyContent::Center, // centre the text container
             ..default()
         })
         .insert(MenuHelpText)
@@ -157,9 +157,9 @@ pub fn create_help_text(
                     font_size: 14.0 * FONT_SCALE,
                     ..default()
                 })
-                .insert(TextColor(colors::MENU_ITEM_COLOR_OFF))
+                .insert(TextColor(colours::MENU_ITEM_COLOR_OFF))
                 .insert(TextLayout {
-                    // Center align text within its container
+                    // centre align text within its container
                     justify: JustifyText::Center,
                     ..default()
                 });
@@ -269,7 +269,7 @@ pub fn create_description_content_area<'a>(
                 font_size: 19.0 * FONT_SCALE,
                 ..default()
             })
-            .insert(TextColor(colors::MENU_ITEM_COLOR_OFF))
+            .insert(TextColor(colours::MENU_ITEM_COLOR_OFF))
             .insert(Node {
                 margin: UiRect::all(Val::Px(20.0 * UI_SCALE)),
                 ..default()
@@ -317,7 +317,7 @@ pub fn create_scrollable_content_area<'a>(
                             font_size: 16.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(colors::MENU_ITEM_COLOR_OFF))
+                        .insert(TextColor(colours::MENU_ITEM_COLOR_OFF))
                         .insert(Node {
                             margin: UiRect::all(Val::Px(20.0 * UI_SCALE)),
                             ..default()
@@ -460,7 +460,7 @@ pub fn create_breadcrumb_navigation<'a>(
                             font_size: 30.0 * FONT_SCALE,
                             ..default()
                         })
-                        .insert(TextColor(colors::MENU_ITEM_COLOR_ON)); // Orange color for current item
+                        .insert(TextColor(colours::MENU_ITEM_COLOR_ON)); // Orange colour for current item
                 });
         });
 
@@ -533,9 +533,9 @@ pub fn create_content_item_enabled<'a>(
     // Always start with not selected to avoid UI jumping
     let is_selected = false;
 
-    // Define colors and background for items
-    let selected_color = colors::MENU_ITEM_COLOR_ON;
-    let unselected_color = colors::MENU_ITEM_COLOR_OFF;
+    // Define colours and background for items
+    let selected_color = colours::MENU_ITEM_COLOR_ON;
+    let unselected_color = colours::MENU_ITEM_COLOR_OFF;
     let selected_bg = Color::srgba(0.3, 0.3, 0.3, 0.1);
 
     let mut entity_cmd = parent.spawn(Node {
@@ -579,7 +579,7 @@ pub fn create_content_item_enabled<'a>(
                     ..default()
                 })
                 .insert(TextColor(if !is_enabled {
-                    colors::MENU_ITEM_COLOR_OFF.with_alpha(0.3)
+                    colours::MENU_ITEM_COLOR_OFF.with_alpha(0.3)
                 } else if is_selected {
                     selected_color
                 } else {
@@ -624,7 +624,7 @@ pub fn create_player_status_bar(
                     font_size: 20.0 * FONT_SCALE,
                     ..default()
                 })
-                .insert(TextColor(colors::MENU_ITEM_COLOR_ON))
+                .insert(TextColor(colours::MENU_ITEM_COLOR_ON))
                 .insert(Node {
                     // Using Node for styling the text element's layout
                     margin: UiRect {
@@ -649,8 +649,8 @@ pub fn create_player_status_bar(
                     justify_content: JustifyContent::FlexStart,
                     ..default()
                 })
-                .insert(BackgroundColor(colors::PANEL_BGCOLOR.with_alpha(0.5)))
-                .insert(BorderColor(colors::MENU_ITEM_COLOR_OFF))
+                .insert(BackgroundColor(colours::PANEL_BGCOLOR.with_alpha(0.5)))
+                .insert(BorderColor(colours::MENU_ITEM_COLOR_OFF))
                 .with_children(|progress_bar_container| {
                     // Actual Progress Fill
                     progress_bar_container
@@ -662,7 +662,7 @@ pub fn create_player_status_bar(
                             height: Val::Percent(100.0),
                             ..default()
                         })
-                        .insert(BackgroundColor(colors::MENU_ITEM_COLOR_ON));
+                        .insert(BackgroundColor(colours::MENU_ITEM_COLOR_ON));
                 });
 
             // Bank Balance Text
@@ -676,6 +676,6 @@ pub fn create_player_status_bar(
                     font_size: 20.0 * FONT_SCALE,
                     ..default()
                 })
-                .insert(TextColor(colors::MENU_ITEM_COLOR_ON));
+                .insert(TextColor(colours::MENU_ITEM_COLOR_ON));
         });
 }

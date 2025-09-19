@@ -81,7 +81,7 @@ impl GearUsable for Videocam {
 
     fn color(&self) -> Color {
         if self.display_glitch_timer > 0.0 {
-            // Shift color towards red during glitch
+            // Shift colour towards red during glitch
             return Color::srgb(0.4, 0.5, 0.01);
         }
         // Green-Cyan (for NightVision)

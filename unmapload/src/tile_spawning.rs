@@ -1,7 +1,7 @@
 //! # Tile Spawning Module
 //!
 //! This module handles the spawning and processing of individual map tiles.
-//! It converts tile data from Tiled into game entities with appropriate components and behaviors.
+//! It converts tile data from Tiled into game entities with appropriate components and behaviours.
 
 use bevy::prelude::*;
 use uncore::behaviour::{TileState, Util};
@@ -58,7 +58,7 @@ pub fn process_and_spawn_tile(
     // Spawn the base entity
     let mut entity = {
         let mut b = mt.bundle.clone();
-        let mut beh = mt.behavior.clone();
+        let mut beh = mt.behaviour.clone();
 
         // Handle sprite flipping
         if tile.flip_x {
@@ -114,7 +114,7 @@ pub fn process_and_spawn_tile(
 
     // Ensure unique z-ordering within the same floor level
     *c += 0.000000001;
-    pos.global_z = f32::from(mt.behavior.p.display.global_z) + *c;
+    pos.global_z = f32::from(mt.behaviour.p.display.global_z) + *c;
 
     // Position for spawn points (slightly adjusted)
     let new_pos = Position {
@@ -123,7 +123,7 @@ pub fn process_and_spawn_tile(
     };
 
     // Handle special tile types based on utility
-    match &mt.behavior.p.util {
+    match &mt.behaviour.p.util {
         Util::PlayerSpawn => {
             player_spawn_points.push(new_pos);
         }
@@ -142,23 +142,23 @@ pub fn process_and_spawn_tile(
         Util::None => {}
     }
 
-    // Add behavior-specific components
-    mt.behavior.default_components(&mut entity, layer);
+    // Add behaviour-specific components
+    mt.behaviour.default_components(&mut entity, layer);
 
-    // Clone and configure behavior for this tile instance
-    let mut beh = mt.behavior.clone();
+    // Clone and configure behaviour for this tile instance
+    let mut beh = mt.behaviour.clone();
 
     // Register the entity in the board's map entity field
     p.bf.map_entity_field[pos.to_board_position().ndidx()].push(entity.id());
 
-    // Handle horizontal flipping for behavior
+    // Handle horizontal flipping for behaviour
     beh.flip(tile.flip_x);
 
     // Add board position component
     entity.insert(MapEntityFieldBPos(pos.to_board_position()));
 
     // Check if the object is movable
-    if mt.behavior.p.object.movable {
+    if mt.behaviour.p.object.movable {
         // FIXME: It does not check if the item is in a valid room, since the rooms are
         // still being constructed at this point. This is something to fix later on.
         movable_objects.push(entity.id());

@@ -4,7 +4,7 @@ use std::collections::{BinaryHeap, HashMap, HashSet};
 use bevy::prelude::*;
 use uncore::{
     behaviour::component::Stairs,
-    behaviour::{Behavior, Orientation},
+    behaviour::{Behaviour, Orientation},
     components::board::{boardposition::BoardPosition, position::Position},
     resources::{board_data::BoardData, visibility_data::VisibilityData},
 };
@@ -31,7 +31,7 @@ impl PathNode {
 
 impl Ord for PathNode {
     fn cmp(&self, other: &Self) -> Ordering {
-        // Reverse ordering for min-heap behavior
+        // Reverse ordering for min-heap behaviour
         other
             .f_cost
             .cmp(&self.f_cost)
@@ -56,11 +56,10 @@ fn is_visible(
     board_data: &BoardData,
     visibility_data: &VisibilityData,
 ) -> bool {
-    if let Some(idx) = pos.ndidx_checked(board_data.map_size) {
-        if let Some(visibility) = visibility_data.visibility_field.get(idx) {
+    if let Some(idx) = pos.ndidx_checked(board_data.map_size)
+        && let Some(visibility) = visibility_data.visibility_field.get(idx) {
             return *visibility > 0.0; // Assume visibility > 0 means visible
         }
-    }
     false // Out of bounds or no visibility data means not visible
 }
 
@@ -88,14 +87,12 @@ fn get_neighbours(
         };
 
         // Check if the neighbour is within bounds, walkable, and visible
-        if let Some(idx) = neighbour.ndidx_checked(board_data.map_size) {
-            if let Some(collision_data) = board_data.collision_field.get(idx) {
-                if collision_data.player_free && is_visible(&neighbour, board_data, visibility_data)
+        if let Some(idx) = neighbour.ndidx_checked(board_data.map_size)
+            && let Some(collision_data) = board_data.collision_field.get(idx)
+                && collision_data.player_free && is_visible(&neighbour, board_data, visibility_data)
                 {
                     neighbours.push(neighbour);
                 }
-            }
-        }
     }
 
     neighbours
@@ -183,7 +180,7 @@ pub fn find_path(
     let mut came_from = HashMap::new();
     let mut g_costs = HashMap::new();
 
-    // Initialize with start position
+    // Initialise with start position
     let start_h = heuristic(&start_board, &goal_board);
     open_set.push(PathNode::new(start_board.clone(), 0, start_h));
     g_costs.insert(start_board.clone(), 0);
@@ -277,7 +274,7 @@ pub fn find_path_to_interactive(
     let mut came_from = HashMap::new();
     let mut g_costs = HashMap::new();
 
-    // Initialize with start position
+    // Initialise with start position
     let start_h = heuristic(&start_board, &goal_board);
     open_set.push(PathNode::new(start_board.clone(), 0, start_h));
     g_costs.insert(start_board.clone(), 0);
@@ -452,11 +449,10 @@ fn has_line_of_sight(
 
 /// Helper function to check if a board position is walkable
 fn is_walkable(pos: &BoardPosition, board_data: &BoardData) -> bool {
-    if let Some(idx) = pos.ndidx_checked(board_data.map_size) {
-        if let Some(collision_data) = board_data.collision_field.get(idx) {
+    if let Some(idx) = pos.ndidx_checked(board_data.map_size)
+        && let Some(collision_data) = board_data.collision_field.get(idx) {
             return collision_data.player_free;
         }
-    }
     false
 }
 
@@ -472,8 +468,8 @@ fn is_walkable_and_visible(
 /// Detects if a position is within a stairs area and returns stair information
 pub fn detect_stair_area(
     target_pos: Position,
-    stairs_query: &Query<(Entity, &Position, &Stairs, &Behavior)>,
-) -> Option<(Entity, Position, Stairs, Behavior, Position, Position)> {
+    stairs_query: &Query<(Entity, &Position, &Stairs, &Behaviour)>,
+) -> Option<(Entity, Position, Stairs, Behaviour, Position, Position)> {
     let target_bpos = target_pos.to_board_position();
 
     debug!(
@@ -481,19 +477,19 @@ pub fn detect_stair_area(
         target_pos, target_bpos
     );
 
-    for (stair_entity, stair_pos, stair_component, behavior) in stairs_query.iter() {
+    for (stair_entity, stair_pos, stair_component, behaviour) in stairs_query.iter() {
         let stair_bpos = stair_pos.to_board_position();
 
         debug!(
             "Checking stair at {:?} (board: {:?}), orientation: {:?}, z: {}",
             stair_pos,
             stair_bpos,
-            behavior.orientation(),
+            behaviour.orientation(),
             stair_component.z
         );
 
         // Check if target is within the stairs area based on orientation
-        let in_stairs_area = match behavior.orientation() {
+        let in_stairs_area = match behaviour.orientation() {
             Orientation::XAxis => {
                 // XAxis stairs: 2 tiles in X, 3 tiles in Y
                 (stair_bpos.x == target_bpos.x || stair_bpos.x + 1 == target_bpos.x)
@@ -515,11 +511,11 @@ pub fn detect_stair_area(
                 stair_entity,
                 stair_pos,
                 stair_component.z,
-                behavior.orientation()
+                behaviour.orientation()
             );
             // Calculate start and end waypoints for stair traversal
             let (start_waypoint, end_waypoint) =
-                calculate_stair_waypoints(stair_pos, stair_component, behavior, stairs_query);
+                calculate_stair_waypoints(stair_pos, stair_component, behaviour, stairs_query);
             debug!(
                 "Calculated waypoints: start={:?}, end={:?}",
                 start_waypoint, end_waypoint
@@ -528,7 +524,7 @@ pub fn detect_stair_area(
                 stair_entity,
                 *stair_pos,
                 stair_component.clone(),
-                behavior.clone(),
+                behaviour.clone(),
                 start_waypoint,
                 end_waypoint,
             ));
@@ -545,14 +541,14 @@ pub fn detect_stair_area(
 fn detect_stair_direction(
     stair_pos: &Position,
     stair_component: &Stairs,
-    behavior: &Behavior,
-    stairs_query: &Query<(Entity, &Position, &Stairs, &Behavior)>,
+    behaviour: &Behaviour,
+    stairs_query: &Query<(Entity, &Position, &Stairs, &Behaviour)>,
 ) -> bool {
     let target_z = stair_pos.z + stair_component.z as f32;
     let stair_bpos = stair_pos.to_board_position();
 
     // Look for paired stairs on the target floor
-    for (_paired_entity, paired_pos, paired_component, paired_behavior) in stairs_query.iter() {
+    for (_paired_entity, paired_pos, paired_component, paired_behaviour) in stairs_query.iter() {
         let paired_bpos = paired_pos.to_board_position();
 
         // Check if this could be a paired stair
@@ -566,11 +562,11 @@ fn detect_stair_direction(
         }
 
         // Paired stairs should have same orientation
-        if paired_behavior.orientation() != behavior.orientation() {
+        if paired_behaviour.orientation() != behaviour.orientation() {
             continue;
         }
 
-        match behavior.orientation() {
+        match behaviour.orientation() {
             Orientation::XAxis => {
                 // For XAxis stairs, check if X coordinates are close and Y direction
                 if (paired_bpos.x - stair_bpos.x).abs() <= 2 {
@@ -598,13 +594,13 @@ fn detect_stair_direction(
 pub fn calculate_stair_waypoints(
     stair_pos: &Position,
     stair_component: &Stairs,
-    behavior: &Behavior,
-    stairs_query: &Query<(Entity, &Position, &Stairs, &Behavior)>,
+    behaviour: &Behaviour,
+    stairs_query: &Query<(Entity, &Position, &Stairs, &Behaviour)>,
 ) -> (Position, Position) {
     // Detect the actual direction of the stairs
     let positive_direction =
-        detect_stair_direction(stair_pos, stair_component, behavior, stairs_query);
-    match behavior.orientation() {
+        detect_stair_direction(stair_pos, stair_component, behaviour, stairs_query);
+    match behaviour.orientation() {
         Orientation::XAxis => {
             // For XAxis stairs, movement is in Y direction
             // Start: at the beginning of the stair area (no Z change)

@@ -22,7 +22,7 @@ cargo build --release
 # Set analysis and optimization
 ./target/release/ghost_list test-set "Bean Sidhe,Dullahan,Leprechaun"
 ./target/release/ghost_list optimise-set --size 4 --balance-factor 0.7
-./target/release/ghost_list diverse-set --size 3           # Maximize diversity
+./target/release/ghost_list diverse-set --size 3           # Maximise diversity
 ./target/release/ghost_list tutorial-set --size 2          # Beginner sets
 
 # Set comparison and validation
@@ -45,8 +45,8 @@ cargo build --release
 - **Gap Analysis**: Identify missing evidence types in sets
 
 ### 🔬 **Advanced Algorithms (100% Complete)**
-- **Optimize-Set**: Generate balanced sets with configurable overlap constraints
-- **Diverse-Set**: Maximize evidence type diversity across ghost sets
+- **Optimise-Set**: Generate balanced sets with configurable overlap constraints
+- **Diverse-Set**: Maximise evidence type diversity across ghost sets
 - **Tutorial-Set**: Generate beginner-friendly, easily distinguishable sets
 - **Find-Sets**: Discover optimal sets targeting specific evidence combinations
 
@@ -86,7 +86,7 @@ ghost_list unique-combinations [--min-evidence N] # Unique evidence patterns
 ```bash
 ghost_list test-set "Ghost1,Ghost2,..."              # Test set quality
 ghost_list validate-set "Ghost1,Ghost2" [--min-evidence N] # Uniqueness check
-ghost_list analyze-set "Ghost1,Ghost2,..."          # Gap analysis
+ghost_list analyse-set "Ghost1,Ghost2,..."          # Gap analysis
 ghost_list complete-set "Ghost1,Ghost2"             # Find completing ghosts
 ```
 
@@ -94,7 +94,7 @@ ghost_list complete-set "Ghost1,Ghost2"             # Find completing ghosts
 ```bash
 ghost_list find-sets --target-evidence "Evidence" --size N  # Find optimal sets
 ghost_list optimise-set --size N [--balance-factor 0.0-1.0] [--max-overlap N]
-ghost_list diverse-set --size N [--min-evidence-coverage N] # Maximize diversity
+ghost_list diverse-set --size N [--min-evidence-coverage N] # Maximise diversity
 ghost_list tutorial-set --size N [--beginner-friendly]      # Beginner sets
 ```
 
@@ -113,7 +113,7 @@ ghost_list merge-sets --sets "Set1:..." "Set2:..." [--optimise]    # Combine set
 # Check for problematic ghost configurations
 ghost_list conflicts --show-all
 
-# Analyze evidence distribution fairness
+# Analyse evidence distribution fairness
 ghost_list stats
 
 # Find correlation patterns that might affect difficulty
@@ -137,7 +137,7 @@ ghost_list diverse-set --size 3 --min-evidence-coverage 6
 # Find unique identification patterns
 ghost_list unique-combinations --min-evidence 2
 
-# Analyze ghost set completion strategies
+# Analyse ghost set completion strategies
 ghost_list complete-set "Bean Sidhe,Dullahan"
 
 # Compare different team configurations

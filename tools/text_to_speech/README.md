@@ -10,7 +10,7 @@ so they can be referenced later. I'm not sure when this would be in the game
 or if it will be discarded later on.
 
 [Kokoro](https://kokorotts.net/) is an opensource AI Text To Speech tool using
-Apache 2.0 license, fairly modern and powerful. It sounds fairly realistic,
+Apache 2.0 licence, fairly modern and powerful. It sounds fairly realistic,
 and it could be enough to replace some cases where a human voice is needed.
 
 The [HexGrad Kokoro GitHub](https://github.com/hexgrad/kokoro) contains the

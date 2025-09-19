@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use uncore::colors;
+use uncore::colours;
 use uncore::components::player_inventory::{Inventory, InventoryNext, InventoryStats};
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
 use uncore::types::gear::spriteid::GearSpriteID;
@@ -35,7 +35,7 @@ pub fn setup_ui_gear_inv_left(p: &mut ChildSpawnerCommands, handles: &GameAssets
                 font_size: 16.0 * FONT_SCALE,
                 ..default()
             })
-            .insert(TextColor(colors::INVENTORY_STATS_COLOR))
+            .insert(TextColor(colours::INVENTORY_STATS_COLOR))
             .insert(Node {
                 margin: UiRect::new(
                     Val::Px(-8.0 * UI_SCALE),
@@ -57,7 +57,7 @@ pub fn setup_ui_gear_inv_left(p: &mut ChildSpawnerCommands, handles: &GameAssets
             font_size: 15.0 * FONT_SCALE,
             ..default()
         })
-        .insert(TextColor(colors::INVENTORY_STATS_COLOR))
+        .insert(TextColor(colours::INVENTORY_STATS_COLOR))
         .insert(Node {
             justify_content: JustifyContent::Center,
             margin: UiRect::new(
@@ -126,7 +126,7 @@ pub fn setup_ui_gear_inv_right(p: &mut ChildSpawnerCommands, handles: &GameAsset
                 font_size: 15.0 * FONT_SCALE,
                 ..default()
             })
-            .insert(TextColor(colors::INVENTORY_STATS_COLOR))
+            .insert(TextColor(colours::INVENTORY_STATS_COLOR))
             .insert(Node {
                 justify_content: JustifyContent::Center,
                 margin: UiRect::new(
@@ -148,7 +148,7 @@ pub fn setup_ui_gear_inv_right(p: &mut ChildSpawnerCommands, handles: &GameAsset
             font_size: 16.0 * FONT_SCALE,
             ..default()
         })
-        .insert(TextColor(colors::INVENTORY_STATS_COLOR))
+        .insert(TextColor(colours::INVENTORY_STATS_COLOR))
         .insert(Node {
             margin: UiRect::new(
                 Val::Px(16.0 * UI_SCALE),

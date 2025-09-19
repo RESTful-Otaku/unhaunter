@@ -52,7 +52,7 @@ pub fn test_set(ghost_names: &str) {
     );
 }
 
-pub fn analyze_set(ghost_names: &str) {
+pub fn analyse_set(ghost_names: &str) {
     let ghosts = parse_ghost_list(ghost_names);
 
     if ghosts.is_empty() {
@@ -61,14 +61,14 @@ pub fn analyze_set(ghost_names: &str) {
     }
 
     println!(
-        "Analyzing ghost set: {} ({} ghosts)",
+        "Analysing ghost set: {} ({} ghosts)",
         ghost_names,
         ghosts.len()
     );
 
     // Show evidence distribution (balance metrics)
     println!("\n--- Balance Metrics (Evidence Distribution) ---");
-    completion::analyze_evidence_distribution(&ghosts);
+    completion::analyse_evidence_distribution(&ghosts);
 
     // Gap Analysis
     println!("\n--- Gap Analysis ---");

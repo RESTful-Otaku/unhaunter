@@ -81,7 +81,7 @@ impl Difficulty {
         )
     }
 
-    // --- Ghost Behavior ---
+    // --- Ghost behaviour ---
     /// Returns the ghost's movement speed multiplier.
     ///
     /// A higher value indicates a faster ghost.
@@ -683,7 +683,7 @@ impl Difficulty {
 /// `Difficulty` enum.
 #[derive(Debug, Clone, Serialize, Deserialize, Resource, PartialEq)]
 pub struct DifficultyStruct {
-    // --- Ghost Behavior ---
+    // --- Ghost behaviour ---
     pub ghost_speed: f32,
     pub ghost_rage_likelihood: f32,
     pub ghost_hunting_aggression: f32,

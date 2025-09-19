@@ -71,7 +71,7 @@ impl RepellentAndExpulsionConcept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/repellent_and_expulsion/ghostexpelledplayerlingers_09.ogg".to_string(),
-                    subtitle_text: "Feels good to clear a haunting, eh? Don't forget to finalize the mission in the truck.".to_string(),
+                    subtitle_text: "Feels good to clear a haunting, eh? Don't forget to finalise the mission in the truck.".to_string(),
                     tags: vec![WalkieTag::MediumLength, WalkieTag::PositiveReinforcement, WalkieTag::ReminderLow],
                     length_seconds: 6,
                 },
@@ -381,7 +381,7 @@ impl RepellentAndExpulsionConcept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/repellent_and_expulsion/repellentusedtoofar_09.ogg".to_string(),
-                    subtitle_text: "That was a practice shot, right? Because it was nowhere near. Get in closer before you use the repellent again.".to_string(),
+                    subtitle_text: "That was a practise shot, right? Because it was nowhere near. Get in closer before you use the repellent again.".to_string(),
                     tags: vec![WalkieTag::DirectHint, WalkieTag::MediumLength, WalkieTag::PlayerStruggling, WalkieTag::SnarkyHumor],
                     length_seconds: 7,
                 },

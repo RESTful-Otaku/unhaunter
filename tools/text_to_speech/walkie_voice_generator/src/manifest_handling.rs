@@ -58,7 +58,7 @@ pub fn save_manifest(
 
     // Serialize the sorted manifest to a RON string.
     let serialized_manifest = ron::ser::to_string_pretty(&sorted_manifest, pretty_config)
-        .map_err(|e| anyhow::anyhow!("Failed to serialize manifest to RON: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to Serialize manifest to RON: {}", e))?;
 
     // Create/truncate and write to the manifest file.
     let mut file = File::create(manifest_path)

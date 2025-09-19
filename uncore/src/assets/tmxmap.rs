@@ -16,7 +16,7 @@ pub struct NaivelyParsedProps {
     pub is_campaign_mission: bool,
     /// The human-readable display name of the map. Parsed from the 'display_name' TMX property. Defaults to empty string.
     pub display_name: String,
-    /// Descriptive or flavour text for the map/mission. Parsed from the 'flavor_text' TMX property.
+    /// Descriptive or flavour text for the map/mission. Parsed from the 'flavour_text' TMX property.
     pub flavour_text: String,
     /// String defining the mission's order in a campaign sequence. Parsed from the 'campaign_order' TMX property.
     pub campaign_order: String,
@@ -97,7 +97,7 @@ impl TmxMap {
         let mut parsed_props = NaivelyParsedProps {
             is_campaign_mission,
             display_name: display_name_from_map,
-            flavour_text: props_map.get("flavor_text").cloned().unwrap_or_default(),
+            flavour_text: props_map.get("flavour_text").cloned().unwrap_or_default(),
             campaign_order: props_map.get("campaign_order").cloned().unwrap_or_default(),
             campaign_difficulty_str: props_map
                 .get("campaign_difficulty")
@@ -159,30 +159,26 @@ impl TmxMap {
             if grade_b.is_none() {
                 grade_b = Some((a_val as f32 / GOLDEN_RATIO).round() as i64);
             }
-            if let Some(b_val) = grade_b {
-                if grade_c.is_none() {
+            if let Some(b_val) = grade_b
+                && grade_c.is_none() {
                     grade_c = Some((b_val as f32 / GOLDEN_RATIO).round() as i64);
                 }
-            }
-            if let Some(c_val) = grade_c {
-                if grade_d.is_none() {
+            if let Some(c_val) = grade_c
+                && grade_d.is_none() {
                     grade_d = Some((c_val as f32 / GOLDEN_RATIO).round() as i64);
                 }
-            }
         } else if let Some(d_val) = grade_d {
             if grade_c.is_none() {
                 grade_c = Some((d_val as f32 * GOLDEN_RATIO).round() as i64);
             }
-            if let Some(c_val) = grade_c {
-                if grade_b.is_none() {
+            if let Some(c_val) = grade_c
+                && grade_b.is_none() {
                     grade_b = Some((c_val as f32 * GOLDEN_RATIO).round() as i64);
                 }
-            }
-            if let Some(b_val) = grade_b {
-                if grade_a.is_none() {
+            if let Some(b_val) = grade_b
+                && grade_a.is_none() {
                     grade_a = Some((b_val as f32 * GOLDEN_RATIO).round() as i64);
                 }
-            }
         }
 
         (

@@ -25,7 +25,7 @@ pub enum WalkieEventPriority {
 
 /// Controls how often a walkie event should repeat across missions
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub enum WalkieRepeatBehavior {
+pub enum WalkieRepeatbehaviour {
     /// Very low repeat frequency - almost never repeat (introductions, one-time tips)
     VeryLowRepeat,
     /// Low repeat frequency - rarely repeat (basic tutorials, simple reminders)
@@ -90,7 +90,7 @@ pub enum WalkieEvent {
     /// Player's sanity dropped due to ghost proximity.
     SanityDroppedBelowThresholdGhost,
 
-    // --- Consumables and Defense Events ---
+    // --- Consumables and defence Events ---
     /// Player used quartz, and it cracked during use.
     QuartzCrackedFeedback,
     /// Player used quartz, and it shattered during use.

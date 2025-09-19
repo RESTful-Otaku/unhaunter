@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use uncore::behaviour::Behavior;
+use uncore::behaviour::Behaviour;
 use uncore::behaviour::component::{Interactive, RoomState};
 use uncore::components::animation::{AnimationTimer, CharacterAnimation};
 use uncore::components::board::direction::Direction;
@@ -56,7 +56,7 @@ pub fn player_movement_system(
             Entity,
             &Position,
             &Interactive,
-            &Behavior,
+            &Behaviour,
             Option<&RoomState>,
         ),
         Without<PlayerSprite>,
@@ -107,12 +107,12 @@ pub fn player_movement_system(
             dz: 0.0,
         };
 
-        d = d.normalized();
+        d = d.normalised();
         let col_delta_n = (col_delta * 100.0).clamp_length_max(1.0);
         let col_dotp = (d.dx * col_delta_n.x + d.dy * col_delta_n.y).clamp(0.0, 1.0);
         d.dx -= col_delta_n.x * col_dotp;
         d.dy -= col_delta_n.y * col_dotp;
-        let delta = d / 0.1 + dir.normalized() / DIR_MAG2 / 1000.0;
+        let delta = d / 0.1 + dir.normalised() / DIR_MAG2 / 1000.0;
 
         // Speed Penalty Based on Held Object Weight
         let speed_penalty = if player_gear.held_item.is_some() {
@@ -185,8 +185,8 @@ pub fn player_movement_system(
         if keyboard_input.just_pressed(player.controls.activate) {
             let mut max_dist = 1.4;
             let mut selected_entity = None;
-            for (entity, item_pos, interactive, behavior, _) in interactables.iter() {
-                let cp_delta = interactive.control_point_delta(behavior);
+            for (entity, item_pos, interactive, behaviour, _) in interactables.iter() {
+                let cp_delta = interactive.control_point_delta(behaviour);
                 let item_pos = Position {
                     x: item_pos.x + cp_delta.x,
                     y: item_pos.y + cp_delta.y,
@@ -202,17 +202,17 @@ pub fn player_movement_system(
                 }
             }
             if let Some(entity) = selected_entity {
-                for (entity, item_pos, interactive, behavior, rs) in
+                for (entity, item_pos, interactive, behaviour, rs) in
                     interactables.iter().filter(|(e, _, _, _, _)| *e == entity)
                 {
-                    if behavior.is_npc() {
+                    if behaviour.is_npc() {
                         ev_npc.write(NpcHelpEvent::new(entity));
                     }
                     if interactive_stuff.execute_interaction(
                         entity,
                         item_pos,
                         Some(interactive),
-                        behavior,
+                        behaviour,
                         rs,
                         InteractionExecutionType::ChangeState,
                     ) {

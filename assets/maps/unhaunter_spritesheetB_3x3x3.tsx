@@ -970,7 +970,7 @@
   <properties>
    <property name="sprite:orientation" value="None"/>
    <property name="sprite:state" value="None"/>
-   <property name="sprite:variant" value="GraffittiColor"/>
+   <property name="sprite:variant" value="Graffitticolour"/>
   </properties>
  </tile>
  <tile id="185" type="Item"/>

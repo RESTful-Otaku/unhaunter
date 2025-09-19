@@ -9,5 +9,5 @@ mod walkie_types;
 mod test_effective_priority;
 
 pub use walkie_types::{
-    WalkieEvent, WalkieEventPriority, WalkieRepeatBehavior, WalkieTalkingEvent,
+    WalkieEvent, WalkieEventPriority, WalkieRepeatbehaviour, WalkieTalkingEvent,
 };

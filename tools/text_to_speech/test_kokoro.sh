@@ -50,7 +50,7 @@ GHOST_NEAR_HUNT_4="Uh... you're not alone in there. And whatever it is, it's not
 # Mission start - flavour text to welcome the player to the mission and set the scene.
 
 # .. easy variant - these are for easy missions which we need to tell the player to enter the location somehow.
-MISSION_START_EASY_1="Alright, you're on site. Reports indicate significant paranormal activity. Standard procedure: locate, identify, and neutralize the entity."
+MISSION_START_EASY_1="Alright, you're on site. Reports indicate significant paranormal activity. Standard procedure: locate, identify, and neutralise the entity."
 MISSION_START_EASY_2="Unhaunter, this is base. Seems you've arrived. We've got multiple reports of disturbances. Get in there; assess the situation, and deal with the problem."
 MISSION_START_EASY_3="Looks like you made it. This should be a good one to warm you up. Get inside and find what's causing all that ruckus."
 MISSION_START_EASY_4="Okay, you're at the location. Shouldn't be anything too crazy in there... just, you know, the usual ghostly stuff. Head in when you're ready."

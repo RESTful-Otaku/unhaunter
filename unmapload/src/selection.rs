@@ -92,8 +92,7 @@ pub fn select_influence_objects(
                 .floor_mapping
                 .ghost_attracting_objects
                 .get(&tiled_floor_num)
-            {
-                if attract_count > 0 {
+                && attract_count > 0 {
                     // info!(
                     //     "Floor {floor_z} (Tiled floor {tiled_floor_num}) requires {attract_count} attractive objects"
                     // );
@@ -130,15 +129,13 @@ pub fn select_influence_objects(
                         }
                     }
                 }
-            }
 
             // Check if this floor has specific requirements for ghost repelling objects
             if let Some(&repel_count) = board_data
                 .floor_mapping
                 .ghost_repelling_objects
                 .get(&tiled_floor_num)
-            {
-                if repel_count > 0 {
+                && repel_count > 0 {
                     // info!(
                     //     "Floor {floor_z} (Tiled floor {tiled_floor_num}) requires {repel_count} repulsive objects"
                     // );
@@ -175,7 +172,6 @@ pub fn select_influence_objects(
                         }
                     }
                 }
-            }
         }
     }
 
@@ -193,8 +189,8 @@ pub fn select_influence_objects(
 
         // Try to find objects from unrestricted floors
         for floor_z in &unrestricted_floors {
-            if let Some(floor_objects) = objects_by_floor_copy.get_mut(floor_z) {
-                if !floor_objects.is_empty() {
+            if let Some(floor_objects) = objects_by_floor_copy.get_mut(floor_z)
+                && !floor_objects.is_empty() {
                     // Shuffle objects for this floor to randomize selection
                     floor_objects.shuffle(rng);
 
@@ -213,7 +209,6 @@ pub fn select_influence_objects(
                         break;
                     }
                 }
-            }
         }
     }
 
@@ -224,8 +219,8 @@ pub fn select_influence_objects(
 
         // Try to find objects from unrestricted floors
         for floor_z in &unrestricted_floors {
-            if let Some(floor_objects) = objects_by_floor_copy.get_mut(floor_z) {
-                if !floor_objects.is_empty() {
+            if let Some(floor_objects) = objects_by_floor_copy.get_mut(floor_z)
+                && !floor_objects.is_empty() {
                     // Shuffle objects for this floor to randomize selection
                     floor_objects.shuffle(rng);
 
@@ -244,7 +239,6 @@ pub fn select_influence_objects(
                         break;
                     }
                 }
-            }
         }
     }
 

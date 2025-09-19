@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use uncore::{
-    behaviour::{Behavior, component::Interactive, component::Stairs},
+    behaviour::{Behaviour, component::Interactive, component::Stairs},
     components::{
         board::{PERSPECTIVE_X, PERSPECTIVE_Y, PERSPECTIVE_Z, position::Position},
         game::{GCameraArena, GameSprite},
@@ -31,10 +31,10 @@ pub fn waypoint_creation_system(
         Entity,
         &Position,
         &Interactive,
-        &Behavior,
+        &Behaviour,
         Option<&uncore::behaviour::component::RoomState>,
     )>,
-    q_stairs: Query<(Entity, &Position, &Stairs, &Behavior)>,
+    q_stairs: Query<(Entity, &Position, &Stairs, &Behaviour)>,
     mut click_events: EventReader<bevy::picking::events::Pointer<bevy::picking::events::Click>>,
     mouse: Res<ButtonInput<MouseButton>>,
     mouse_visibility: Res<MouseVisibility>,
@@ -68,7 +68,7 @@ pub fn waypoint_creation_system(
         }
 
         // Check if clicked on an interactive entity
-        if let Ok((interactive_entity, interactive_pos, _interactive, _behavior, _room_state)) =
+        if let Ok((interactive_entity, interactive_pos, _interactive, _behaviour, _room_state)) =
             q_interactives.get(click_event.target)
         {
             let interactive_floor = interactive_pos.z.round() as i32;
@@ -149,7 +149,7 @@ pub fn waypoint_creation_system(
                 _stair_entity,
                 _stair_pos,
                 _stair_component,
-                _behavior,
+                _behaviour,
                 start_waypoint,
                 end_waypoint,
             )) = detect_stair_area(target, &q_stairs)
@@ -194,7 +194,7 @@ pub fn waypoint_following_system(
         Entity,
         &Position,
         &Interactive,
-        &Behavior,
+        &Behaviour,
         Option<&uncore::behaviour::component::RoomState>,
     )>,
     mut player_input: ResMut<PlayerInput>,
@@ -219,7 +219,7 @@ pub fn waypoint_following_system(
                     }
                     WaypointType::Interact(interaction_target) => {
                         // For interaction waypoints, try to interact as soon as we're close enough
-                        if let Ok((_, interactive_pos, interactive, behavior, room_state)) =
+                        if let Ok((_, interactive_pos, interactive, behaviour, room_state)) =
                             q_interactives.get(*interaction_target)
                         {
                             let distance = player_pos.distance(interactive_pos);
@@ -229,7 +229,7 @@ pub fn waypoint_following_system(
                                     *interaction_target,
                                     interactive_pos,
                                     Some(interactive),
-                                    behavior,
+                                    behaviour,
                                     room_state,
                                     InteractionExecutionType::ChangeState,
                                 ) {

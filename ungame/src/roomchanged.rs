@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use uncore::behaviour::Behavior;
+use uncore::behaviour::Behaviour;
 use uncore::behaviour::component::RoomState;
 use uncore::components::board::position::Position;
 use uncore::components::game::GCameraArena;
@@ -25,7 +25,7 @@ fn roomchanged_event(
     mut ev_bdr: EventWriter<BoardDataToRebuild>,
     mut ev_room: EventReader<RoomChangedEvent>,
     mut interactive_stuff: InteractiveStuff,
-    interactables: Query<(Entity, &Position, &Behavior, &RoomState), Without<PlayerSprite>>,
+    interactables: Query<(Entity, &Position, &Behaviour, &RoomState), Without<PlayerSprite>>,
     gc: Res<GameConfig>,
     pc: Query<(&PlayerSprite, &Transform), Without<GCameraArena>>,
     mut camera: Query<&mut Transform, With<GCameraArena>>,
@@ -33,17 +33,17 @@ fn roomchanged_event(
     let Some(ev) = ev_room.read().next() else {
         return;
     };
-    for (entity, item_pos, behavior, room_state) in interactables.iter() {
+    for (entity, item_pos, behaviour, room_state) in interactables.iter() {
         let changed = interactive_stuff.execute_interaction(
             entity,
             item_pos,
             None,
-            behavior,
+            behaviour,
             Some(room_state),
             InteractionExecutionType::ReadRoomState,
         );
         if changed {
-            // dbg!(&behavior);
+            // dbg!(&behaviour);
         }
     }
     ev_bdr.write(BoardDataToRebuild {

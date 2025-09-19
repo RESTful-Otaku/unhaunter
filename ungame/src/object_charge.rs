@@ -1,5 +1,5 @@
 //! This module defines systems related to managing the charge levels of objects
-//! that influence ghost behavior.
+//! that influence ghost behaviour.
 use uncore::components::board::position::Position;
 use uncore::components::ghost_influence::{GhostInfluence, InfluenceType};
 use uncore::components::ghost_sprite::GhostSprite;

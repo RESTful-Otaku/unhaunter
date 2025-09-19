@@ -65,7 +65,7 @@ fn cleanup(mut commands: Commands, qtui: Query<Entity, With<TruckUI>>) {
     }
 }
 
-// Initialize the repellent craft tracker when entering a mission
+// Initialise the repellent craft tracker when entering a mission
 fn init_repellent_tracker(
     mut craft_tracker: ResMut<RepellentCraftTracker>,
     difficulty: Res<CurrentDifficulty>,
@@ -120,7 +120,7 @@ fn keyboard(
 ///
 /// # Progress Bar
 ///
-/// The progress bar is a colored horizontal bar that grows from 0% to 100% width
+/// The progress bar is a coloured horizontal bar that grows from 0% to 100% width
 /// during the hold duration. It's positioned at the bottom of the button and uses
 /// a high z-index to ensure visibility.
 ///
@@ -247,12 +247,11 @@ fn hold_button_system(
                     let progress = (*hold_timer / hold_duration).clamp(0.0, 1.0);
 
                     for (progress_entity, parent) in &progress_query {
-                        if parent.parent() == button_entity {
-                            if let Ok(mut node) = node_query.get_mut(progress_entity) {
+                        if parent.parent() == button_entity
+                            && let Ok(mut node) = node_query.get_mut(progress_entity) {
                                 // We only cover up to 99% to avoid overflowing the button due to the borders.
                                 node.width = Val::Percent(progress.abs().sqrt() * 99.0);
                             }
-                        }
                     }
 
                     // Check if hold is complete
@@ -287,16 +286,15 @@ fn hold_button_system(
             _ => {
                 // Button is no longer pressed, reset state
                 if button.holding {
-                    info!("Button hold canceled: {:?}", button_class);
+                    info!("Button hold cancelled: {:?}", button_class);
                     button.holding = false;
                     button.hold_timer = None;
 
                     // Stop sound
-                    if let Some(entity) = hold_sound.take() {
-                        if let Ok(mut cmd_e) = commands.get_entity(entity) {
+                    if let Some(entity) = hold_sound.take()
+                        && let Ok(mut cmd_e) = commands.get_entity(entity) {
                             cmd_e.despawn();
                         }
-                    }
                 }
             }
         }
@@ -381,8 +379,8 @@ fn truckui_event_handle(
             TruckUIEvent::ExitTruck => game_next_state.set(GameState::None),
             TruckUIEvent::CraftRepellent => {
                 for (player, mut gear) in q_gear.iter_mut() {
-                    if player.id == gc.player_id {
-                        if let Some(ghost_type) = gg.ghost_type {
+                    if player.id == gc.player_id
+                        && let Some(ghost_type) = gg.ghost_type {
                             let consumed_new_bottle = craft_repellent(&mut gear, ghost_type);
 
                             // Only count as a craft if we actually consumed a new bottle
@@ -410,7 +408,6 @@ fn truckui_event_handle(
                             // Automatically exit the truck after crafting repellent
                             game_next_state.set(GameState::None);
                         }
-                    }
                 }
             }
         }
@@ -453,7 +450,7 @@ fn update_craft_button_text(
 }
 
 pub(crate) fn app_setup(app: &mut App) {
-    // Initialize the RepellentCraftTracker resource
+    // Initialise the RepellentCraftTracker resource
     app.init_resource::<RepellentCraftTracker>();
 
     app.add_systems(OnExit(AppState::InGame), cleanup);

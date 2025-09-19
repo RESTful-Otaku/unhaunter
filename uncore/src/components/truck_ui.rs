@@ -1,4 +1,4 @@
-use crate::colors;
+use crate::colours;
 use crate::platform::plt::FONT_SCALE;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -82,24 +82,24 @@ impl TruckTab {
 
     pub fn text_color(&self) -> Color {
         match self.state {
-            TabState::Selected => colors::TRUCKUI_BGCOLOR.with_alpha(1.0),
-            TabState::Pressed => colors::TRUCKUI_BGCOLOR.with_alpha(0.8),
-            TabState::Hover => colors::TRUCKUI_ACCENT2_COLOR.with_alpha(0.6),
-            TabState::Default => Hsla::from(colors::TRUCKUI_ACCENT_COLOR)
+            TabState::Selected => colours::TRUCKUI_BGCOLOR.with_alpha(1.0),
+            TabState::Pressed => colours::TRUCKUI_BGCOLOR.with_alpha(0.8),
+            TabState::Hover => colours::TRUCKUI_ACCENT2_COLOR.with_alpha(0.6),
+            TabState::Default => Hsla::from(colours::TRUCKUI_ACCENT_COLOR)
                 .with_saturation(0.1)
                 .with_alpha(0.6)
                 .into(),
-            TabState::Disabled => colors::INVENTORY_STATS_COLOR.with_alpha(0.05),
+            TabState::Disabled => colours::INVENTORY_STATS_COLOR.with_alpha(0.05),
         }
     }
 
     pub fn bg_color(&self) -> Color {
         match self.state {
-            TabState::Pressed => colors::TRUCKUI_ACCENT2_COLOR,
-            TabState::Selected => colors::TRUCKUI_ACCENT_COLOR,
-            TabState::Hover => colors::TRUCKUI_BGCOLOR,
-            TabState::Default => colors::TRUCKUI_BGCOLOR.with_alpha(0.7),
-            TabState::Disabled => colors::TRUCKUI_BGCOLOR.with_alpha(0.5),
+            TabState::Pressed => colours::TRUCKUI_ACCENT2_COLOR,
+            TabState::Selected => colours::TRUCKUI_ACCENT_COLOR,
+            TabState::Hover => colours::TRUCKUI_BGCOLOR,
+            TabState::Default => colours::TRUCKUI_BGCOLOR.with_alpha(0.7),
+            TabState::Disabled => colours::TRUCKUI_BGCOLOR.with_alpha(0.5),
         }
     }
 

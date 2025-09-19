@@ -1,4 +1,4 @@
-//! Prebaked lighting data for optimized light propagation.
+//! Prebaked lighting data for optimised light propagation.
 //!
 //! This module defines structures to store precomputed lighting information,
 //! allowing for significant performance improvements by reusing calculations
@@ -48,7 +48,7 @@ pub struct WaveEdgeData {
     pub source_id: u32,
     /// The light intensity (lux) at the wave edge.
     pub lux: f32,
-    /// The color of the light at the wave edge.
+    /// The colour of the light at the wave edge.
     pub color: (f32, f32, f32),
     /// The wave edge data containing propagation history.
     pub wave_edge: WaveEdge,
@@ -63,7 +63,7 @@ pub struct LightInfo {
     /// Amount of lux intensity in this tile
     pub lux: f32,
 
-    /// Light color (r, g, b)
+    /// Light colour (r, g, b)
     pub color: (f32, f32, f32),
 }
 

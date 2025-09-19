@@ -11,7 +11,7 @@ use uncore::noise::{LONG_TERM_NOISE_FREQ, SHORT_TERM_NOISE_FREQ};
 /// Helper function to calculate a noise-based multiplier value
 ///
 /// This function combines short-term and long-term noise values with given offsets,
-/// normalizes them, combines them, applies power scaling, and clamps the result.
+/// normalises them, combines them, applies power scaling, and clamps the result.
 fn calculate_noise_multiplier(
     noise_table: &uncore::noise::PerlinNoise,
     elapsed_seconds: f32,

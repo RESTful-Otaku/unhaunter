@@ -4,7 +4,7 @@ use bevy::{
     prelude::*,
 };
 use uncore::{
-    behaviour::{Behavior, component::Interactive},
+    behaviour::{Behaviour, component::Interactive},
     components::{board::position::Position, game_config::GameConfig, player_sprite::PlayerSprite},
     resources::{looking_gear::LookingGear, visibility_data::VisibilityData},
 };
@@ -21,7 +21,7 @@ pub(crate) fn mouse_right_click_gear_system(
     mut q_gear: Query<(&PlayerSprite, &mut PlayerGear)>,
     mut gs: GearStuff,
 ) {
-    // Check for right-click (just pressed to match keyboard behavior)
+    // Check for right-click (just pressed to match keyboard behaviour)
     if mouse.just_pressed(MouseButton::Right) {
         for (_, mut playergear) in q_gear.iter_mut() {
             // Trigger the right-hand gear, same as R-key
@@ -85,7 +85,7 @@ pub(crate) fn mouse_scroll_gear_system(
 /// Only allows hover/click on interactive entities that are on the same floor as the player
 /// and that are visible to the player (visibility > 0.1).
 pub(crate) fn mouse_hover_interactive_system(
-    mut q_interactives: Query<(Entity, &Position, &mut Interactive, &Behavior)>,
+    mut q_interactives: Query<(Entity, &Position, &mut Interactive, &Behaviour)>,
     q_player: Query<(&Position, &PlayerSprite)>,
     game_config: Res<GameConfig>,
     visibility_data: Res<VisibilityData>,
@@ -108,7 +108,7 @@ pub(crate) fn mouse_hover_interactive_system(
     let player_floor = player_pos.z.round() as i32;
 
     for over_event in hover_events.read() {
-        if let Ok((entity, position, mut interactive, _behavior)) =
+        if let Ok((entity, position, mut interactive, _behaviour)) =
             q_interactives.get_mut(over_event.target)
         {
             let interactive_floor = position.z.round() as i32;
@@ -155,7 +155,7 @@ pub(crate) fn mouse_hover_interactive_system(
     }
 
     for exit_event in exit_events.read() {
-        if let Ok((entity, position, mut interactive, _behavior)) =
+        if let Ok((entity, position, mut interactive, _behaviour)) =
             q_interactives.get_mut(exit_event.target)
         {
             let interactive_floor = position.z.round() as i32;

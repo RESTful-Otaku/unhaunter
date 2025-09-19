@@ -24,17 +24,11 @@ pub struct SettingsMenu {
 pub struct SCamera;
 
 #[derive(Component)]
+#[derive(Default)]
 pub struct CustomNameInput {
     pub current_text: String,
 }
 
-impl Default for CustomNameInput {
-    fn default() -> Self {
-        Self {
-            current_text: String::new(),
-        }
-    }
-}
 
 #[derive(Component)]
 pub struct TextInputField;

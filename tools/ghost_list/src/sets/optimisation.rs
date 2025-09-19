@@ -372,13 +372,13 @@ pub fn handle_find_sets_command(target_evidence_str: &str, size: usize, max_resu
 // - `diverse-set` would primarily score based on the count of unique evidences present in the set.
 // - `tutorial-set` might filter for ghosts with "easy" or "common" evidences and prioritise simpler sets.Tool output for `overwrite_file_with_block`:
 
-pub fn handle_optimize_set_command(
+pub fn handle_optimise_set_command(
     size: usize,
     balance_factor: Option<f32>,
     max_overlap: Option<usize>,
 ) {
     println!(
-        "Generating optimized set of size {} (balance_factor: {:?}, max_overlap: {:?})",
+        "Generating optimised set of size {} (balance_factor: {:?}, max_overlap: {:?})",
         size, balance_factor, max_overlap
     );
 
@@ -402,7 +402,7 @@ pub fn handle_optimize_set_command(
     }
 
     println!(
-        "Optimizing for evidence balance (weight: {:.1}) and overlap control (max: {} shared evidences)...",
+        "Optimising for evidence balance (weight: {:.1}) and overlap control (max: {} shared evidences)...",
         balance_weight, max_overlap_limit
     );
 
@@ -425,8 +425,8 @@ pub fn handle_optimize_set_command(
             continue;
         }
 
-        // Calculate optimization score
-        let score = calculate_optimization_score(&ghost_set, balance_weight);
+        // Calculate optimisation score
+        let score = calculate_optimisation_score(&ghost_set, balance_weight);
 
         if score > 0.0 {
             scored_sets.push((ghost_set, score));
@@ -434,7 +434,7 @@ pub fn handle_optimize_set_command(
     }
 
     if scored_sets.is_empty() {
-        println!("❌ No sets found meeting the optimization criteria.");
+        println!("❌ No sets found meeting the optimisation criteria.");
         return;
     }
 
@@ -444,7 +444,7 @@ pub fn handle_optimize_set_command(
     // Show top results
     let num_to_show = scored_sets.len().min(10);
     println!(
-        "\n✅ Found {} optimized set(s). Showing top {}:",
+        "\n✅ Found {} optimised set(s). Showing top {}:",
         scored_sets.len(),
         num_to_show
     );
@@ -469,7 +469,7 @@ pub fn handle_optimize_set_command(
 
     // Show detailed analysis for the best set
     if let Some((best_set, best_score)) = scored_sets.first() {
-        println!("\n📋 Best Optimized Set Analysis:");
+        println!("\n📋 Best Optimised Set Analysis:");
         println!("  Total Score: {:.1}", best_score);
 
         // Evidence analysis
@@ -841,7 +841,7 @@ fn violates_overlap_constraint(ghost_set: &HashSet<GhostType>, max_overlap: usiz
     false
 }
 
-fn calculate_optimization_score(ghost_set: &HashSet<GhostType>, balance_weight: f32) -> f32 {
+fn calculate_optimisation_score(ghost_set: &HashSet<GhostType>, balance_weight: f32) -> f32 {
     let balance_score = calculate_balance_score(ghost_set);
     let overlap_score = calculate_overlap_score(ghost_set);
 

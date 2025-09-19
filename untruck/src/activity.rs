@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use uncore::colors;
+use uncore::colours;
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
 use uncore::types::root::game_assets::GameAssets;
 
@@ -13,7 +13,7 @@ pub fn setup_activity_ui(p: &mut ChildSpawnerCommands, handles: &GameAssets) {
             font_size: 35.0 * FONT_SCALE,
             ..default()
         })
-        .insert(TextColor(colors::TRUCKUI_ACCENT_COLOR))
+        .insert(TextColor(colours::TRUCKUI_ACCENT_COLOR))
         .insert(Node {
             height: Val::Px(40.0 * UI_SCALE),
             ..default()
@@ -25,10 +25,10 @@ pub fn setup_activity_ui(p: &mut ChildSpawnerCommands, handles: &GameAssets) {
         height: Val::Px(0.0),
         ..default()
     })
-    .insert(BorderColor(colors::TRUCKUI_ACCENT_COLOR));
+    .insert(BorderColor(colours::TRUCKUI_ACCENT_COLOR));
 
     p.spawn(Text::new("Instrumentation broken"))
-        .insert(TextColor(colors::TRUCKUI_TEXT_COLOR))
+        .insert(TextColor(colours::TRUCKUI_TEXT_COLOR))
         .insert(TextFont {
             font: handles.fonts.chakra.w300_light.clone(),
             font_size: 25.0 * FONT_SCALE,

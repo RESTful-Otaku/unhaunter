@@ -9,7 +9,7 @@
 use bevy::prelude::*;
 use bevy_platform::collections::HashMap;
 use rand::Rng;
-use uncore::behaviour::Behavior;
+use uncore::behaviour::Behaviour;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::position::Position;
 use uncore::events::loadlevel::LevelReadyEvent;
@@ -26,7 +26,7 @@ use unstd::plugins::board::rebuild_collision_data;
 ///
 /// This system:
 /// - Transitions to the in-game state
-/// - Initializes the temperature field with randomized values
+/// - initialises the temperature field with randomized values
 /// - Makes cold spots near the ghost breach
 /// - Calculates usable area statistics for each floor
 /// - Performs temperature field smoothing for a more natural distribution
@@ -106,7 +106,7 @@ fn after_level_ready(
             }
         } else {
             warn!(
-                "Tile at {:?} found in RoomDB but not in behavior_field.",
+                "Tile at {:?} found in RoomDB but not in behaviour_field.",
                 bpos
             );
         }
@@ -252,10 +252,10 @@ fn process_pre_meshes(
 ///
 /// # Arguments
 /// * `bf` - Board data resource for collision/lighting fields
-/// * `qt` - Query to access all level entities with behaviors and positions
+/// * `qt` - Query to access all level entities with behaviours and positions
 fn load_map_add_prebaked_lighting(
     mut bf: ResMut<BoardData>,
-    qt: Query<(Entity, &Position, &Behavior)>,
+    qt: Query<(Entity, &Position, &Behaviour)>,
     roomdb: Res<RoomDB>,
 ) {
     // Ensure the collision field is up to date first

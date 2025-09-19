@@ -99,8 +99,8 @@ WalkiePhraseFile(
           tags: [PlayerStruggling, Questioning, Guidance, MediumLength],
         ),
         WalkieLineEntry(
-          tts_text: "That was a practice shot, right? Because it was nowhere near. Get in closer before you use the repellent again.",
-          subtitle_text: "That was a practice shot, right? Because it was nowhere near. Get in closer before you use the repellent again.",
+          tts_text: "That was a practise shot, right? Because it was nowhere near. Get in closer before you use the repellent again.",
+          subtitle_text: "That was a practise shot, right? Because it was nowhere near. Get in closer before you use the repellent again.",
           tags: [PlayerStruggling, SnarkyHumor, DirectHint, MediumLength],
         ),
         WalkieLineEntry(
@@ -264,8 +264,8 @@ WalkiePhraseFile(
           tags: [ReminderMedium, DirectHint, MediumLength],
         ),
         WalkieLineEntry(
-          tts_text: "Feels good to clear a haunting, eh? Do not forget to finalize the mission in the truck.",
-          subtitle_text: "Feels good to clear a haunting, eh? Don't forget to finalize the mission in the truck.",
+          tts_text: "Feels good to clear a haunting, eh? Do not forget to finalise the mission in the truck.",
+          subtitle_text: "Feels good to clear a haunting, eh? Don't forget to finalise the mission in the truck.",
           tags: [PositiveReinforcement, ReminderLow, MediumLength],
         ),
         WalkieLineEntry(

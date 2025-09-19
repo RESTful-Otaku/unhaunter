@@ -12,7 +12,7 @@ pub struct MissionData {
     /// Human-readable name of the mission (from TMX `display_name`).
     pub display_name: String,
 
-    /// Flavour text or briefing for the mission (from TMX `flavor_text`).
+    /// Flavour text or briefing for the mission (from TMX `flavour_text`).
     pub flavour_text: String,
 
     /// Sorting order string (e.g., "01A", "02B") (from TMX `campaign_order`).

@@ -45,7 +45,7 @@ impl Grade {
         }
     }
 
-    /// Returns a color associated with this grade for UI elements
+    /// Returns a colour associated with this grade for UI elements
     pub fn color(&self) -> bevy::prelude::Color {
         use bevy::prelude::Color;
 
@@ -55,7 +55,7 @@ impl Grade {
             Grade::C => Color::srgb(1.0, 0.8, 0.0),  // Yellow
             Grade::D => Color::srgb(1.0, 0.5, 0.0),  // Orange
             Grade::F => Color::srgb(1.0, 0.0, 0.0),  // Red
-            Grade::NA => Color::srgb(0.5, 0.5, 0.5), // Gray
+            Grade::NA => Color::srgb(0.5, 0.5, 0.5), // Grey
         }
     }
 

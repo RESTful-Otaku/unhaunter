@@ -1,22 +1,22 @@
-//! ## Behavior module
+//! ## Behaviour module
 //!
-//! This module defines the `Behavior` component and its associated data
+//! This module defines the `Behaviour` component and its associated data
 //! structures, which are used to represent the behaviour of objects in the game
 //! world.
 //!
-//! The `Behavior` component stores information about the object's type, variant,
+//! The `Behaviour` component stores information about the object's type, variant,
 //! orientation, state, and a collection of properties that determine how it
 //! interacts with the player and the environment. This component is crucial for
 //! separating the object's visual representation (its sprite) from its logical
 //! behaviour.
 //!
-//! The information stored in the `Behavior` component is loaded from Tiled map
+//! The information stored in the `Behaviour` component is loaded from Tiled map
 //! data. Each tile in Tiled can be assigned a "class" (e.g., "Door", "Wall",
 //! "Light"), a "variant" (e.g., "wooden", "brick", "fluorescent"), an
 //! "orientation", and a "state" (e.g., "open", "closed", "on", "off").
 //!
 //! This data is used to create a `SpriteConfig` struct, which is then used to
-//! initialise the `Behavior` component. The `Behavior` component, in turn, is used
+//! initialise the `Behaviour` component. The `Behaviour` component, in turn, is used
 //! to add other Bevy components to the object's entity, such as `Collision`,
 //! `Interactive`, `Light`, etc., based on its configuration.
 pub mod component;
@@ -35,14 +35,14 @@ use serde::{Deserialize, Serialize};
 use crate::types::board::light::LightData;
 use crate::types::tiledmap::map::MapLayer;
 
-/// The `Behavior` component defines the behaviour of an object in the game world.
+/// The `Behaviour` component defines the behaviour of an object in the game world.
 ///
 /// It stores a `SpriteConfig` struct, which contains the object's basic
 /// configuration (class, variant, orientation, state), and a `Properties` struct,
 /// which holds a collection of properties that determine how the object interacts
 /// with the player and the environment.
 #[derive(Component, Debug, Clone, PartialEq, Eq)]
-pub struct Behavior {
+pub struct Behaviour {
     /// This `cfg` property is PRIVATE on purpose! We need to separate the "what it is"
     /// from "what it does". There is always a tendency to read and write cfg from
     /// everywhere because it is "the easiest" thing to do, but that creates a mess in
@@ -54,8 +54,8 @@ pub struct Behavior {
     pub p: Properties,
 }
 
-impl Behavior {
-    /// Creates a new `Behavior` component from a `SpriteConfig`.
+impl Behaviour {
+    /// Creates a new `Behaviour` component from a `SpriteConfig`.
     ///
     /// The `cfg` field is set to the given `SpriteConfig`, and the `p` field is
     /// initialised based on the properties defined in the `SpriteConfig`.
@@ -372,7 +372,7 @@ trait AutoSerialize: Serialize + for<'a> Deserialize<'a> + Default {
             return Ok(Self::default());
         };
         let t = format!("\"{text}\"");
-        serde_json::from_str(&t).context("Auto deserialize error")
+        serde_json::from_str(&t).context("Auto deSerialize error")
     }
 
     #[allow(dead_code)]
@@ -380,7 +380,7 @@ trait AutoSerialize: Serialize + for<'a> Deserialize<'a> + Default {
         // FIXME: This is not used at all.
         serde_json::to_string(self)
             .map(|x| x.replace('"', ""))
-            .context("Auto serialize error")
+            .context("Auto Serialize error")
     }
 }
 
@@ -429,7 +429,7 @@ pub struct SpriteConfig {
     /// UID of the tileset for this sprite
     pub tileuid: u32,
     /// All other tiled properties live here
-    pub properties: BehaviorProperties,
+    pub properties: BehaviourProperties,
 }
 
 impl PartialEq for SpriteConfig {
@@ -465,7 +465,7 @@ impl SpriteConfig {
 
     pub fn from_tiled_auto(tset_name: String, tileuid: u32, tiled_tile: &tiled::Tile) -> Self {
         // --- Load properties
-        let properties = BehaviorProperties::from_tiled(tiled_tile);
+        let properties = BehaviourProperties::from_tiled(tiled_tile);
 
         Self::from_tiled(
             tiled_tile.user_type.as_deref(),
@@ -479,7 +479,7 @@ impl SpriteConfig {
         class: Option<&str>,
         tileset: String,
         tileuid: u32,
-        properties: BehaviorProperties,
+        properties: BehaviourProperties,
     ) -> Self {
         Self::try_from_tiled(class, tileset.clone(), tileuid, properties)
             .with_context(|| {
@@ -495,7 +495,7 @@ impl SpriteConfig {
         class: Option<&str>,
         tileset: String,
         tileuid: u32,
-        properties: BehaviorProperties,
+        properties: BehaviourProperties,
     ) -> anyhow::Result<Self> {
         let variant = properties.get_string_opt("sprite:variant");
         let orientation = properties.get_string_opt("sprite:orientation");
@@ -624,7 +624,7 @@ impl SpriteConfig {
             Class::FakeGhost => entity,
             Class::NPC => entity
                 .insert(Pickable::default())
-                .insert(component::NpcHelpDialog::new("NPC", &self.variant, layer))
+                .insert(component::NpcHelpdialogue::new("NPC", &self.variant, layer))
                 .insert(component::Interactive::new(
                     "sounds/effects-dongdongdong.ogg",
                     "sounds/effects-dongdongdong.ogg",
@@ -818,12 +818,12 @@ impl SpriteConfig {
 ///
 /// This struct provides helper functions for accessing property values by key.
 #[derive(Debug, Clone)]
-pub struct BehaviorProperties {
+pub struct BehaviourProperties {
     properties: HashMap<String, tiled::PropertyValue>,
 }
 
-impl BehaviorProperties {
-    /// Creates a new `BehaviorProperties` instance from the properties of a
+impl BehaviourProperties {
+    /// Creates a new `BehaviourProperties` instance from the properties of a
     /// `tiled::Tile`.
     pub fn from_tiled(tiled_tile: &tiled::Tile) -> Self {
         let mut properties = HashMap::new();
@@ -864,7 +864,7 @@ impl BehaviorProperties {
                 tiled::PropertyValue::BoolValue(x) => x.to_string(),
                 tiled::PropertyValue::FloatValue(x) => x.to_string(),
                 tiled::PropertyValue::IntValue(x) => x.to_string(),
-                tiled::PropertyValue::ColorValue(x) => {
+                tiled::PropertyValue::colourValue(x) => {
                     format!("{},{},{},{}", x.red, x.green, x.blue, x.alpha)
                 }
                 tiled::PropertyValue::StringValue(x) => x.to_string(),
@@ -885,7 +885,7 @@ impl BehaviorProperties {
                 tiled::PropertyValue::BoolValue(x) => x.to_string(),
                 tiled::PropertyValue::FloatValue(x) => x.to_string(),
                 tiled::PropertyValue::IntValue(x) => x.to_string(),
-                tiled::PropertyValue::ColorValue(x) => {
+                tiled::PropertyValue::colourValue(x) => {
                     format!("{},{},{},{}", x.red, x.green, x.blue, x.alpha)
                 }
                 tiled::PropertyValue::StringValue(x) => x.to_string(),

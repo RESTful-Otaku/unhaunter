@@ -1,11 +1,11 @@
 //! This module contains the main systems and plugins for managing the board in the Unhaunter game.
 //! It includes systems for applying isometric perspective, rebuilding collision data, and updating
-//! the lighting field based on the current state of the board and behaviors.
+//! the lighting field based on the current state of the board and behaviours.
 
 use bevy::diagnostic::{Diagnostic, DiagnosticPath, RegisterDiagnostic};
 use bevy::prelude::*;
 
-use uncore::behaviour::{Behavior, Orientation};
+use uncore::behaviour::{Behaviour, Orientation};
 use uncore::components::board::position::Position;
 use uncore::metric_recorder::SendMetric;
 use uncore::resources::roomdb::RoomDB;
@@ -52,15 +52,15 @@ impl Plugin for UnhaunterBoardPlugin {
     }
 }
 
-/// Rebuilds the collision data for the board based on the current state of the board and behaviors.
+/// Rebuilds the collision data for the board based on the current state of the board and behaviours.
 ///
 /// # Arguments
 ///
 /// * `bf` - A mutable reference to the `BoardData` resource, which stores the collision field.
-/// * `qt` - A query for entities with `Position` and `Behavior` components.
+/// * `qt` - A query for entities with `Position` and `Behaviour` components.
 pub fn rebuild_collision_data(
     bf: &mut ResMut<BoardData>,
-    qt: &Query<(Entity, &Position, &Behavior)>,
+    qt: &Query<(Entity, &Position, &Behaviour)>,
 ) {
     // info!("Collision rebuild");
     assert_eq!(
@@ -69,7 +69,7 @@ pub fn rebuild_collision_data(
     );
     bf.collision_field.fill(CollisionFieldData::default());
 
-    for (_entity, pos, behavior) in qt.iter().filter(|(_e, _p, b)| b.p.movement.walkable) {
+    for (_entity, pos, behaviour) in qt.iter().filter(|(_e, _p, b)| b.p.movement.walkable) {
         let bpos = pos.to_board_position();
         let colfd = CollisionFieldData {
             player_free: true,
@@ -77,11 +77,11 @@ pub fn rebuild_collision_data(
             see_through: true,
             wall_orientation: Orientation::None,
             is_dynamic: false,
-            stair_offset: behavior.p.movement.stair_offset,
+            stair_offset: behaviour.p.movement.stair_offset,
         };
         bf.collision_field[bpos.ndidx()] = colfd;
     }
-    for (_entity, pos, behavior) in qt
+    for (_entity, pos, behaviour) in qt
         .iter()
         .filter(|(_e, _p, b)| b.p.movement.player_collision)
     {
@@ -89,19 +89,19 @@ pub fn rebuild_collision_data(
 
         let colfd = CollisionFieldData {
             player_free: false,
-            ghost_free: !behavior.p.movement.ghost_collision,
-            see_through: behavior.p.light.see_through,
-            wall_orientation: behavior.orientation(),
-            is_dynamic: behavior.p.movement.is_dynamic,
-            stair_offset: behavior.p.movement.stair_offset,
+            ghost_free: !behaviour.p.movement.ghost_collision,
+            see_through: behaviour.p.light.see_through,
+            wall_orientation: behaviour.orientation(),
+            is_dynamic: behaviour.p.movement.is_dynamic,
+            stair_offset: behaviour.p.movement.stair_offset,
         };
         bf.collision_field[bpos.ndidx()] = colfd;
     }
-    for (_entity, pos, behavior) in qt
+    for (_entity, pos, behaviour) in qt
         .iter()
         .filter(|(_e, _p, b)| b.p.movement.stair_offset != 0)
     {
         let bpos = pos.to_board_position();
-        bf.collision_field[bpos.ndidx()].stair_offset = behavior.p.movement.stair_offset;
+        bf.collision_field[bpos.ndidx()].stair_offset = behaviour.p.movement.stair_offset;
     }
 }

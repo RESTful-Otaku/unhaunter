@@ -47,7 +47,7 @@ impl Evidence {
                 "Check if the ghost turns green under UV.\nLights need to be off."
             }
             Evidence::EMFLevel5 => {
-                "Some ghosts will register EMF5 on the meter.\nFollow the ghost close by and keep an eye on the reading."
+                "Some ghosts will register EMF5 on the metre.\nFollow the ghost close by and keep an eye on the reading."
             }
             Evidence::EVPRecording => {
                 "Some ghost leave recordings. Keep an eye on the recorder.\nIf a EVP Recording is made, [EVP RECORDED] will appear."

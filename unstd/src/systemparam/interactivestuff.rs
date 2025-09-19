@@ -1,6 +1,6 @@
 use crate::board::spritedb::SpriteDB;
 use crate::materials::CustomMaterial1;
-use uncore::behaviour::Behavior;
+use uncore::behaviour::Behaviour;
 use uncore::behaviour::component::{Interactive, RoomState};
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::position::Position;
@@ -51,7 +51,7 @@ impl InteractiveStuff<'_, '_> {
     /// Executes an interaction with an interactive object.
     ///
     /// This method determines the object's new state based on the type of interaction,
-    /// updates its `Behavior` component, plays the corresponding sound effect, and
+    /// updates its `Behaviour` component, plays the corresponding sound effect, and
     /// updates the room state if applicable.
     ///
     /// # Parameters:
@@ -62,7 +62,7 @@ impl InteractiveStuff<'_, '_> {
     ///
     /// * `interactive`: The `Interactive` component of the object, if present.
     ///
-    /// * `behavior`: The `Behavior` component of the object.
+    /// * `behaviour`: The `Behaviour` component of the object.
     ///
     /// * `room_state`: The `RoomState` component of the object, if present.
     ///
@@ -78,19 +78,19 @@ impl InteractiveStuff<'_, '_> {
         entity: Entity,
         item_pos: &Position,
         interactive: Option<&Interactive>,
-        behavior: &Behavior,
+        behaviour: &Behaviour,
         room_state: Option<&RoomState>,
         ietype: InteractionExecutionType,
     ) -> bool {
         let item_bpos = item_pos.to_board_position();
-        let tuid = behavior.key_tuid();
-        let cvo = behavior.key_cvo();
-        if behavior.is_van_entry() {
+        let tuid = behaviour.key_tuid();
+        let cvo = behaviour.key_cvo();
+        if behaviour.is_van_entry() {
             if ietype != InteractionExecutionType::ChangeState {
                 return false;
             }
             if let Some(interactive) = interactive {
-                let sound_file = interactive.sound_for_moving_into_state(behavior);
+                let sound_file = interactive.sound_for_moving_into_state(behaviour);
                 self.sound_events.write(SoundEvent {
                     sound_file,
                     volume: 1.0,
@@ -106,8 +106,8 @@ impl InteractiveStuff<'_, '_> {
             }
             let mut e_commands = self.commands.get_entity(entity).unwrap();
             let other = self.bf.map_tile.get(other_tuid).unwrap();
-            let mut beh = other.behavior.clone();
-            beh.flip(behavior.p.flip);
+            let mut beh = other.behaviour.clone();
+            beh.flip(behaviour.p.flip);
             // Update cached heat output after flipping (which might affect light properties)
             beh.update_light_cache();
 
@@ -133,11 +133,10 @@ impl InteractiveStuff<'_, '_> {
                         }
                     }
                     InteractionExecutionType::ReadRoomState => {
-                        if let Some(main_room_state) = self.roomdb.room_state.get(&room_name) {
-                            if *main_room_state != beh.state() {
+                        if let Some(main_room_state) = self.roomdb.room_state.get(&room_name)
+                            && *main_room_state != beh.state() {
                                 continue;
                             }
-                        }
                     }
                 }
             }
@@ -147,16 +146,15 @@ impl InteractiveStuff<'_, '_> {
             e_commands.insert(MeshMaterial2d(mat));
 
             e_commands.insert(beh);
-            if ietype == InteractionExecutionType::ChangeState {
-                if let Some(interactive) = interactive {
-                    let sound_file = interactive.sound_for_moving_into_state(&other.behavior);
+            if ietype == InteractionExecutionType::ChangeState
+                && let Some(interactive) = interactive {
+                    let sound_file = interactive.sound_for_moving_into_state(&other.behaviour);
                     self.sound_events.write(SoundEvent {
                         sound_file,
                         volume: 1.0,
                         position: Some(*item_pos),
                     });
                 }
-            }
             return true;
         }
         false

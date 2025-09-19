@@ -3,7 +3,7 @@ use bevy::sprite::Anchor;
 use bevy_platform::collections::HashMap;
 use ndarray::{Array3, s};
 use rand::Rng;
-use uncore::behaviour::Behavior;
+use uncore::behaviour::Behaviour;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::chunk::{CellIterator, ChunkIterator};
 use uncore::components::board::position::Position;
@@ -31,7 +31,7 @@ fn initialise_miasma(
     roomdb: Res<RoomDB>,
     config: Res<MiasmaConfig>,
     mut level_ready: EventReader<LevelReadyEvent>,
-    qt: Query<(Entity, &Position, &Behavior)>,
+    qt: Query<(Entity, &Position, &Behaviour)>,
 ) {
     // Only run on LevelLoadedEvent
     if level_ready.read().next().is_none() {
@@ -163,7 +163,7 @@ fn spawn_miasma(
             continue; // Skip only full walls, allow half-walls for miasma sprites
         }
         let bpos = BoardPosition::from_ndidx(bp);
-        let player_dst2 = player_pos.distance2(&bpos.to_position_center());
+        let player_dst2 = player_pos.distance2(&bpos.to_position_centre());
         let vis = vis + DIST_FACTOR / player_dst2;
         if vis < THRESHOLD * 2.0 {
             continue;
@@ -182,7 +182,7 @@ fn spawn_miasma(
             // Spawn miasma if too low
             let scale = rng.random_range(0.15..1.0_f32).sqrt() * 1.8;
             let pos = bpos
-                .to_position_center()
+                .to_position_centre()
                 .with_global_z(0.00037 * rng.random_range(0.99..1.01))
                 .with_random(0.5);
 
@@ -283,9 +283,9 @@ fn animate_miasma_sprites(
             .map(|collision| collision.player_free)
             .unwrap_or_default()
         {
-            let oc_pos = bpos.to_position_center();
+            let oc_pos = bpos.to_position_centre();
             let delta = miasma_sprite.base_position.delta(oc_pos);
-            let new_pos = delta.normalized().add_to_position(&oc_pos);
+            let new_pos = delta.normalised().add_to_position(&oc_pos);
             miasma_sprite.base_position = new_pos;
         }
     }
@@ -542,7 +542,7 @@ fn update_miasma(
     let mut new_velocities = board_data.miasma.velocity_field.clone();
     for chunk in &chunks {
         for p in CellIterator::new(chunk) {
-            let p_center = board_data.miasma.pressure_field[p];
+            let p_centre = board_data.miasma.pressure_field[p];
             let bpos = BoardPosition::from_ndidx(p);
             let is_room = room_present[p];
             if !is_room {
@@ -572,7 +572,7 @@ fn update_miasma(
                     // Allow pressure reading from half-walls (like repellent particles)
                     board_data.miasma.pressure_field[gp]
                 } else {
-                    p_center
+                    p_centre
                 }
             };
 

@@ -34,8 +34,8 @@ fn force_discard_evidence_system(
 
         let mut button_found = false;
         for mut tui_button in interaction_query.iter_mut() {
-            if let TruckButtonType::Evidence(evidence_type) = tui_button.class {
-                if evidence_type == event.0 {
+            if let TruckButtonType::Evidence(evidence_type) = tui_button.class
+                && evidence_type == event.0 {
                     info!(
                         "Journal: Setting evidence {:?} button from {:?} to Discard",
                         evidence_type, tui_button.status
@@ -45,7 +45,6 @@ fn force_discard_evidence_system(
                     button_found = true;
                     break;
                 }
-            }
         }
 
         if button_found {
@@ -180,12 +179,11 @@ fn button_system(
             let ghost_ev = ghost_type.evidences();
             let mut is_discarded = false;
             for (_, _, _, _, tui_button) in &interaction_query {
-                if let TruckButtonType::Ghost(gh) = tui_button.class {
-                    if gh == *ghost_type && tui_button.status == TruckButtonState::Discard {
+                if let TruckButtonType::Ghost(gh) = tui_button.class
+                    && gh == *ghost_type && tui_button.status == TruckButtonState::Discard {
                         is_discarded = true;
                         break;
                     }
-                }
             }
             !is_discarded
                 && ghost_ev.is_superset(&selected_evidences_found)
@@ -203,11 +201,10 @@ fn button_system(
     }
 
     // b) Auto-deselect if the currently selected ghost becomes invalid
-    if let Some(selected_ghost) = gg.ghost_type {
-        if !possible_ghosts.contains(&selected_ghost) {
+    if let Some(selected_ghost) = gg.ghost_type
+        && !possible_ghosts.contains(&selected_ghost) {
             gg.ghost_type = None;
         }
-    }
 
     // c) Auto-select if only one ghost is possible and nothing is selected
     if possible_ghosts.len() == 1 && gg.ghost_type.is_none() {
@@ -216,7 +213,7 @@ fn button_system(
 
     // --- 3. UPDATE UI FROM STATE ---
     // Second pass: Update visuals and disabled states of all buttons based on the now-finalised GhostGuess.
-    for (interaction_ref, mut bgcolor, mut border_color, children, mut tui_button) in
+    for (interaction_ref, mut bgcolour, mut border_color, children, mut tui_button) in
         &mut interaction_query
     {
         let interaction = *interaction_ref;
@@ -268,13 +265,11 @@ fn button_system(
             let mut disabled = gg.ghost_type.is_none();
             if !disabled {
                 for (player, gear) in q_gear.iter() {
-                    if player.id == gc.player_id {
-                        if let Some(ghost_type) = gg.ghost_type {
-                            if !gear.can_craft_repellent(ghost_type) {
+                    if player.id == gc.player_id
+                        && let Some(ghost_type) = gg.ghost_type
+                            && !gear.can_craft_repellent(ghost_type) {
                                 disabled = true;
                             }
-                        }
-                    }
                 }
             }
             tui_button.disabled = disabled;
@@ -286,9 +281,9 @@ fn button_system(
             interaction
         };
 
-        let mut textcolor = q_textcolor.get_mut(children[0]).unwrap();
+        let mut textcolour = q_textcolor.get_mut(children[0]).unwrap();
 
-        // Default color calculation
+        // Default colour calculation
         let current_border_color = tui_button.border_color(current_interaction);
         let current_background_color = tui_button.background_color(current_interaction);
         let current_text_color = tui_button.text_color(current_interaction);
@@ -296,8 +291,8 @@ fn button_system(
         if !tui_button.blinking_hint_active {
             border_color.0 = current_border_color;
         }
-        *bgcolor = current_background_color.into();
-        textcolor.0 = current_text_color;
+        *bgcolour = current_background_color.into();
+        textcolour.0 = current_text_color;
     }
 
     // Update GhostGuess resource with the latest evidence sets (only if changed)
@@ -321,12 +316,11 @@ fn button_system(
 
     // Acknowledge hints
     for (_interaction, _, _, _, tui_button) in &interaction_query {
-        if let TruckButtonType::Evidence(clicked_evidence_type) = tui_button.class {
-            if tui_button.status == TruckButtonState::Pressed {
+        if let TruckButtonType::Evidence(clicked_evidence_type) = tui_button.class
+            && tui_button.status == TruckButtonState::Pressed {
                 if let Some((hinted_evidence, _)) =
                     walkie_play.evidence_hinted_not_logged_via_walkie
-                {
-                    if hinted_evidence == clicked_evidence_type {
+                    && hinted_evidence == clicked_evidence_type {
                         const JOURNAL_HINT_THRESHOLD: u32 = 3;
                         let ack_count = profile_data
                             .times_evidence_acknowledged_in_journal
@@ -338,15 +332,12 @@ fn button_system(
                         }
                         walkie_play.clear_evidence_hint();
                     }
-                }
 
-                if let Some(potential_data) = &potential_id_timer.data {
-                    if potential_data.evidence == clicked_evidence_type {
+                if let Some(potential_data) = &potential_id_timer.data
+                    && potential_data.evidence == clicked_evidence_type {
                         potential_id_timer.data = None;
                     }
-                }
             }
-        }
     }
 }
 

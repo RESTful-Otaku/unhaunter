@@ -4,15 +4,15 @@ use strum::IntoEnumIterator;
 use unsettings::{
     audio::{AudioLevel, AudioSettings, AudioSettingsValue},
     game::{CameraControls, DevCheatMode, GameplaySettings, GameplaySettingsValue, MovementStyle},
-    profile::{ProfileSettings, ProfileColor},
-    video::{VideoSettings, VideoSettingsValue, WindowSize, AspectRatio, Scale},
+    profile::{ProfileSettings, Profilecolour},
+    video::{VideoSettings, VideoSettingsValue, display::Resolution, AspectRatio, ZoomLevel},
 };
 
 #[expect(non_camel_case_types)]
 #[derive(Debug, Clone)]
 pub enum ProfileSettingsValue {
     display_name(String),
-    color(ProfileColor),
+    colour(Profilecolour),
 }
 
 use crate::components::MenuEvent;
@@ -90,8 +90,8 @@ pub enum VideoSettingsMenu {
 pub enum ProfileSettingsMenu {
     #[strum(to_string = "Player Name")]
     DisplayName,
-    #[strum(to_string = "Name Color")]
-    Color,
+    #[strum(to_string = "Name Colour")]
+    Colour,
 }
 
 impl VideoSettingsMenu {
@@ -113,17 +113,26 @@ impl VideoSettingsMenu {
     pub fn iter_events_item(&self, _video_settings: &VideoSettings) -> Vec<(String, MenuEvent)> {
         use strum::IntoEnumIterator;
         match self {
-            VideoSettingsMenu::WindowSize => WindowSize::iter()
-                .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::window_size(v))))
-                .collect(),
+            VideoSettingsMenu::WindowSize => {
+                // Common resolutions that users might want to choose from
+                let common_resolutions = [
+                    Resolution::new(1280, 720),   // HD
+                    Resolution::new(1920, 1080),  // Full HD
+                    Resolution::new(2560, 1440),  // QHD
+                    Resolution::new(3840, 2160),  // 4K UHD
+                ];
+                common_resolutions.iter()
+                    .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::resolution(*v))))
+                    .collect()
+            },
             VideoSettingsMenu::AspectRatio => AspectRatio::iter()
                 .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::aspect_ratio(v))))
                 .collect(),
-            VideoSettingsMenu::UiScale => Scale::iter()
-                .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::ui_scale(v))))
+            VideoSettingsMenu::UiScale => ZoomLevel::iter()
+                .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::ui_zoom(v))))
                 .collect(),
-            VideoSettingsMenu::FontScale => Scale::iter()
-                .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::font_scale(v))))
+            VideoSettingsMenu::FontScale => ZoomLevel::iter()
+                .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::ui_zoom(v))))
                 .collect(),
         }
     }
@@ -133,14 +142,14 @@ impl ProfileSettingsMenu {
     pub fn menu_event(&self) -> MenuEvent {
         match self {
             ProfileSettingsMenu::DisplayName => MenuEvent::EditProfileSetting(ProfileSettingsMenu::DisplayName),
-            ProfileSettingsMenu::Color => MenuEvent::EditProfileSetting(ProfileSettingsMenu::Color),
+            ProfileSettingsMenu::Colour => MenuEvent::EditProfileSetting(ProfileSettingsMenu::Colour),
         }
     }
 
     pub fn setting_value(&self, profile_settings: &Res<Persistent<ProfileSettings>>) -> String {
         match self {
             ProfileSettingsMenu::DisplayName => profile_settings.display_name.clone(),
-            ProfileSettingsMenu::Color => profile_settings.color.to_string(),
+            ProfileSettingsMenu::Colour => profile_settings.color.to_string(),
         }
     }
 
@@ -169,8 +178,8 @@ impl ProfileSettingsMenu {
                 
                 options
             }
-            ProfileSettingsMenu::Color => ProfileColor::iter()
-                .map(|v| (v.to_string(), MenuEvent::SaveProfileSetting(ProfileSettingsValue::color(v))))
+            ProfileSettingsMenu::Colour => Profilecolour::iter()
+                .map(|v| (v.to_string(), MenuEvent::SaveProfileSetting(ProfileSettingsValue::colour(v))))
                 .collect(),
         }
     }

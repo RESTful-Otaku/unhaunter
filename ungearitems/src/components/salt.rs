@@ -5,7 +5,7 @@ use crate::metrics;
 use super::{Gear, GearKind, GearSpriteID, GearStuff, GearUsable};
 use bevy::prelude::*;
 use rand::Rng as _;
-use uncore::components::board::mapcolor::MapColor;
+use uncore::components::board::mapcolour::MapColour;
 use uncore::metric_recorder::SendMetric;
 use uncore::random_seed;
 use uncore::{
@@ -216,7 +216,7 @@ fn salty_trace_system(
     mut commands: Commands,
     time: Res<Time>,
     mut salty_traces: Query<
-        (Entity, &mut MapColor, &mut UVReactive, &mut SaltyTraceTimer),
+        (Entity, &mut MapColour, &mut UVReactive, &mut SaltyTraceTimer),
         With<SaltyTrace>,
     >,
 ) {
@@ -228,7 +228,7 @@ fn salty_trace_system(
         // --- UV Reactivity Fading --- 3 minutes in seconds
         const UV_FADE_DURATION: f32 = 180.0;
         uv_reactive.0 =
-            (2.0 - salty_trace_timer.0.elapsed_secs() / UV_FADE_DURATION).clamp(0.0, 1.0);
+            (2.0_f32 - salty_trace_timer.0.elapsed_secs() / UV_FADE_DURATION).clamp(0.0, 1.0);
 
         // --- Opacity Fading --- Start fading opacity after UV glow fades
         const OPACITY_FADE_START: f32 = UV_FADE_DURATION;

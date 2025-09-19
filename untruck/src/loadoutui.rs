@@ -2,7 +2,7 @@ use super::truckgear::TruckGear;
 use super::uibutton::{TruckButtonState, TruckButtonType, TruckUIButton};
 use crate::systems::truck_ui_systems::RepellentCraftTracker;
 use bevy::prelude::*;
-use uncore::colors;
+use uncore::colours;
 use uncore::components::game_config::GameConfig;
 use uncore::components::player_inventory::{Inventory, InventoryNext};
 use uncore::components::player_sprite::PlayerSprite;
@@ -46,8 +46,8 @@ pub fn setup_loadout_ui(
     let button = || {
         (
             Button,
-            BackgroundColor(colors::TRUCKUI_ACCENT2_COLOR),
-            BorderColor(colors::TRUCKUI_ACCENT_COLOR),
+            BackgroundColor(colours::TRUCKUI_ACCENT2_COLOR),
+            BorderColor(colours::TRUCKUI_ACCENT_COLOR),
             Node {
                 justify_content: JustifyContent::Center,
                 justify_items: JustifyItems::Center,
@@ -86,7 +86,7 @@ pub fn setup_loadout_ui(
     let equipment_frame = |materials: &mut Assets<UIPanelMaterial>| {
         (
             MaterialNode(materials.add(UIPanelMaterial {
-                color: colors::TRUCKUI_BGCOLOR.into(),
+                color: colours::TRUCKUI_BGCOLOR.into(),
             })),
             Node {
                 padding: UiRect::all(Val::Px(8.0 * UI_SCALE)),
@@ -104,7 +104,7 @@ pub fn setup_loadout_ui(
                 font_size: 25.0 * FONT_SCALE,
                 ..default()
             },
-            TextColor(colors::TRUCKUI_TEXT_COLOR),
+            TextColor(colours::TRUCKUI_TEXT_COLOR),
             TextLayout::default(),
             Node {
                 margin: UiRect::all(Val::Px(4.0 * UI_SCALE)),
@@ -149,7 +149,7 @@ pub fn setup_loadout_ui(
                 font_size: 25.0 * FONT_SCALE,
                 ..default()
             },
-            TextColor(colors::TRUCKUI_TEXT_COLOR),
+            TextColor(colours::TRUCKUI_TEXT_COLOR),
             TextLayout::default(),
             Node {
                 margin: UiRect::all(Val::Px(4.0 * UI_SCALE)),
@@ -159,7 +159,7 @@ pub fn setup_loadout_ui(
         p.spawn(Node { ..default() }).with_children(|p| {
             p.spawn((
                 MaterialNode(materials.add(UIPanelMaterial {
-                    color: colors::TRUCKUI_BGCOLOR.into(),
+                    color: colours::TRUCKUI_BGCOLOR.into(),
                 })),
                 Node {
                     justify_content: JustifyContent::Center,
@@ -218,7 +218,7 @@ pub fn setup_loadout_ui(
                     font_size: 25.0 * FONT_SCALE,
                     ..default()
                 },
-                TextColor(colors::TRUCKUI_TEXT_COLOR),
+                TextColor(colours::TRUCKUI_TEXT_COLOR),
                 TextLayout::default(),
                 Node {
                     margin: UiRect::all(Val::Px(4.0 * UI_SCALE)),
@@ -233,7 +233,7 @@ pub fn setup_loadout_ui(
                     font_size: 16.0 * FONT_SCALE,
                     ..default()
                 },
-                TextColor(colors::TRUCKUI_TEXT_COLOR.with_alpha(0.7)),
+                TextColor(colours::TRUCKUI_TEXT_COLOR.with_alpha(0.7)),
                 TextLayout::default(),
                 Node {
                     margin: UiRect::all(Val::Px(4.0 * UI_SCALE)),
@@ -280,8 +280,8 @@ fn update_loadout_buttons(
             Interaction::Hovered => 0.5,
             Interaction::None => 0.01,
         };
-        border.0 = colors::TRUCKUI_ACCENT_COLOR.with_alpha(bdalpha);
-        bg.0 = colors::TRUCKUI_ACCENT2_COLOR.with_alpha(bgalpha);
+        border.0 = colours::TRUCKUI_ACCENT_COLOR.with_alpha(bdalpha);
+        bg.0 = colours::TRUCKUI_ACCENT2_COLOR.with_alpha(bgalpha);
         if *int == Interaction::Pressed {
             ev_clk.write(EventButtonClicked(lbut.clone()));
         }
@@ -413,9 +413,9 @@ fn button_clicked(
                 Hand::Right => &p_gear.right_hand,
             };
 
-            if gear_to_remove.kind == GearKind::RepellentFlask {
-                if let Some(rep_data) = gear_to_remove.data.as_ref() {
-                    if let Some(rep_flask) =
+            if gear_to_remove.kind == GearKind::RepellentFlask
+                && let Some(rep_data) = gear_to_remove.data.as_ref()
+                    && let Some(rep_flask) =
                         <dyn std::any::Any>::downcast_ref::<RepellentFlask>(rep_data.as_ref())
                     {
                         // Check if it's full and unopened (qty == MAX_QTY && !active)
@@ -425,18 +425,16 @@ fn button_clicked(
                             info!("Refunded repellent craft: returned full, unopened bottle");
                         }
                     }
-                }
-            }
 
             p_gear.take_hand(&inv.hand);
         }
         LoadoutButton::InventoryNext(invnext) => {
             if let Some(idx) = invnext.idx {
                 // Check if we're returning a full, unopened repellent flask for refund
-                if let Some(gear_to_remove) = p_gear.inventory.get(idx) {
-                    if gear_to_remove.kind == GearKind::RepellentFlask {
-                        if let Some(rep_data) = gear_to_remove.data.as_ref() {
-                            if let Some(rep_flask) = <dyn std::any::Any>::downcast_ref::<
+                if let Some(gear_to_remove) = p_gear.inventory.get(idx)
+                    && gear_to_remove.kind == GearKind::RepellentFlask
+                        && let Some(rep_data) = gear_to_remove.data.as_ref()
+                            && let Some(rep_flask) = <dyn std::any::Any>::downcast_ref::<
                                 RepellentFlask,
                             >(rep_data.as_ref())
                             {
@@ -449,9 +447,6 @@ fn button_clicked(
                                     );
                                 }
                             }
-                        }
-                    }
-                }
 
                 p_gear.take_next(idx);
             }

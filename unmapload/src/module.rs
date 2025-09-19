@@ -5,25 +5,25 @@
 //! * Loading TMX map data and setting up game environments
 //! * Spawning Bevy entities for map tiles, players, ghosts, and other game objects
 //! * Initializing entity components based on TMX data and game logic
-//! * Managing room-related events and states (lighting conditions, interactive behavior)
+//! * Managing room-related events and states (lighting conditions, interactive behaviour)
 //! * Handling post-load processing like prebaked lighting and ghost influence assignment
 //!
-//! The module is organised into several submodules with specialised responsibilities:
+//! The module is organised into several submodules with specialized responsibilities:
 //!
 //! * `sprite_db` - Handles population of sprite database with tile data
 //! * `tile_spawning` - Manages individual tile entity spawning and configuration
 //! * `entity_spawning` - Handles player, ghost and ambient entity creation
 //! * `level_setup` - Core level initialisation and field setup
-//! * `level_finalization` - Post-load processing and environment preparation
+//! * `level_finalisation` - Post-load processing and environment preparation
 //! * `influence_system` - Ghost influence assignment to objects
 
 pub use crate::level_setup::LoadLevelSystemParam;
 
-use crate::level_finalization;
+use crate::level_finalisation;
 use crate::level_setup;
 use bevy::prelude::App;
 
 pub(crate) fn app_setup(app: &mut App) {
-    level_finalization::app_setup(app);
+    level_finalisation::app_setup(app);
     level_setup::app_setup(app);
 }

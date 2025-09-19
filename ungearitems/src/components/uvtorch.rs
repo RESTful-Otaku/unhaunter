@@ -19,7 +19,7 @@ impl Default for UVTorch {
             enabled: false,
             display_glitch_timer: 0.0,
             output_power: 0.0,
-            battery_level: 1.0, // Initialize battery to 100%
+            battery_level: 1.0, // Initialise battery to 100%
         }
     }
 }
@@ -144,13 +144,13 @@ impl GearUsable for UVTorch {
 
     fn color(&self) -> Color {
         if self.display_glitch_timer > 0.0 {
-            // Flicker to a different color when glitching
+            // Flicker to a different colour when glitching
             let flicker = random_seed::rng().random_range(0.0..1.0);
             if flicker < 0.3 {
                 return Color::srgb(0.3, 0.1, 0.5); // Dimmer purple
             }
         }
-        // Normal color - Violet
+        // Normal colour - Violet
         Color::srgb(0.60, 0.25, 1.00)
     }
 

@@ -3,7 +3,7 @@ use bevy::time::Stopwatch;
 use bevy_persistent::Persistent;
 
 use uncore::behaviour::component::Door;
-use uncore::behaviour::{Behavior, TileState};
+use uncore::behaviour::{Behaviour, TileState};
 use uncore::components::board::position::Position;
 use uncore::components::player::Hiding;
 use uncore::components::player_sprite::PlayerSprite;
@@ -161,7 +161,7 @@ fn check_door_interaction_hesitation(
     app_state: Res<State<AppState>>,
     roomdb: Res<RoomDB>,
     player_query: Query<(&Position, &PlayerSprite)>,
-    door_query: Query<(&Position, &Behavior), With<Door>>,
+    door_query: Query<(&Position, &Behaviour), With<Door>>,
     mut walkie_play: ResMut<WalkiePlay>,
     mut hesitation_timer: Local<Stopwatch>,
 ) {
@@ -197,12 +197,12 @@ fn check_door_interaction_hesitation(
             .unwrap_or(std::cmp::Ordering::Equal)
     });
 
-    let Some((door_position, door_behavior)) = closest_door else {
+    let Some((door_position, door_behaviour)) = closest_door else {
         return;
     };
 
     let distance_to_door = player_position.distance(door_position);
-    if distance_to_door > 1.5 || door_behavior.state() != TileState::Closed {
+    if distance_to_door > 1.5 || door_behaviour.state() != TileState::Closed {
         hesitation_timer.reset();
         return;
     }
@@ -416,7 +416,7 @@ fn trigger_hunt_active_near_hiding_spot_no_hide(
     game_state: Res<State<GameState>>,
     mut walkie_play: ResMut<WalkiePlay>,
     player_query: Query<(&Position, Entity), Without<Hiding>>,
-    hiding_spots: Query<(&Position, &Behavior)>,
+    hiding_spots: Query<(&Position, &Behaviour)>,
     ghost_query: Query<&uncore::components::ghost_sprite::GhostSprite>,
     mut near_hiding_timer: Local<Option<f32>>,
 ) {
@@ -442,7 +442,7 @@ fn trigger_hunt_active_near_hiding_spot_no_hide(
     // Find a hiding spot within 1.5 units
     let near_hiding = hiding_spots
         .iter()
-        .filter(|(_, behavior)| behavior.p.object.hidingspot)
+        .filter(|(_, behaviour)| behaviour.p.object.hidingspot)
         .any(|(spot_pos, _)| player_pos.distance(spot_pos) < 1.5);
     if near_hiding {
         let now = time.elapsed_secs_f64() as f32;

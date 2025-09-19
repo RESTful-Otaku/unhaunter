@@ -1,6 +1,6 @@
 use crate::materials::CustomMaterial1;
 use bevy::prelude::*;
-use uncore::behaviour::Behavior;
+use uncore::behaviour::Behaviour;
 
 #[derive(Component, Clone)]
 pub enum PreMesh {
@@ -22,5 +22,5 @@ pub struct TileSpriteBundle {
 #[derive(Clone)]
 pub struct MapTileComponents {
     pub bundle: TileSpriteBundle,
-    pub behavior: Behavior,
+    pub behaviour: Behaviour,
 }

@@ -1,4 +1,4 @@
-use crate::colors;
+use crate::colours;
 use bevy::{color::palettes::css, prelude::*};
 
 use super::{evidence::Evidence, truck_button::TruckButtonState};
@@ -19,7 +19,7 @@ impl EvidenceStatus {
                 title: "".into(),
                 status_game: "".into(),
                 status_desc: "".into(),
-                status_color: colors::INVENTORY_STATS_COLOR,
+                status_color: crate::colours::INVENTORY_STATS_COLOR,
                 help_text: "No evidence for selected gear.".into(),
             };
         };
@@ -38,7 +38,7 @@ impl EvidenceStatus {
         }
         .into();
         let status_color: Color = match ev_state {
-            TruckButtonState::Off => colors::INVENTORY_STATS_COLOR.with_alpha(1.0),
+            TruckButtonState::Off => colours::INVENTORY_STATS_COLOR.with_alpha(1.0),
             TruckButtonState::Pressed => css::GREEN.with_alpha(1.0).into(),
             TruckButtonState::Discard => css::RED.with_alpha(0.8).into(),
         };

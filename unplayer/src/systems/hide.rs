@@ -1,9 +1,9 @@
 use bevy::color::palettes::css;
 use bevy::prelude::*;
 use bevy_platform::collections::HashMap;
-use uncore::behaviour::Behavior;
+use uncore::behaviour::Behaviour;
 use uncore::components::animation::AnimationTimer;
-use uncore::components::board::mapcolor::MapColor;
+use uncore::components::board::mapcolour::MapColour;
 use uncore::components::board::position::Position;
 use uncore::components::player::Hiding;
 use uncore::components::player_sprite::PlayerSprite;
@@ -21,9 +21,9 @@ fn hide_player(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut players: Query<
         (Entity, &mut PlayerSprite, &mut Position, &PlayerGear),
-        (Without<Hiding>, Without<Behavior>),
+        (Without<Hiding>, Without<Behaviour>),
     >,
-    hiding_spots: Query<(Entity, &Position, &Behavior), Without<PlayerSprite>>,
+    hiding_spots: Query<(Entity, &Position, &Behaviour), Without<PlayerSprite>>,
     asset_server: Res<AssetServer>,
     mut gs: GearStuff,
     time: Res<Time>,
@@ -44,7 +44,7 @@ fn hide_player(
             if let Some((hiding_spot_entity, hiding_spot_pos, _)) = hiding_spots
                 .iter()
                 // Manually filter for hiding spots
-                .filter(|(_, _, behavior)| behavior.p.object.hidingspot)
+                .filter(|(_, _, behaviour)| behaviour.p.object.hidingspot)
                 .find(|(_, hiding_spot_pos, _)| player_pos.distance(hiding_spot_pos) < 1.3)
             {
                 // Key is held down, tick the timer
@@ -60,8 +60,8 @@ fn hide_player(
                     .insert(Hiding {
                         hiding_spot: hiding_spot_entity,
                     })
-                    .insert(MapColor {
-                        color: css::DARK_GRAY.with_alpha(0.5).into(),
+                    .insert(MapColour {
+                        color: css::DARK_GREY.with_alpha(0.5).into(),
                     });
                 player_pos.x = (player_pos.x + hiding_spot_pos.x) / 2.0;
                 player_pos.y = (player_pos.y + hiding_spot_pos.y) / 2.0;
@@ -117,7 +117,7 @@ fn unhide_player(
                     Timer::from_seconds(0.20, TimerMode::Repeating),
                     vec![32],
                 ))
-                .insert(MapColor {
+                .insert(MapColour {
                     color: Color::WHITE.with_alpha(1.0),
                 });
 

@@ -38,7 +38,7 @@ use uncore::types::gear::equipmentposition::EquipmentPosition;
 use uncore::types::gear_kind::GearKind;
 use uncore::utils::light::{compute_color_exposure, lerp_color};
 use uncore::{
-    behaviour::{Behavior, Orientation},
+    behaviour::{Behaviour, Orientation},
     components::{game_config::GameConfig, sprite_type::SpriteType},
     kelvin_to_celsius,
 };
@@ -49,7 +49,7 @@ use ungear::components::playergear::PlayerGear;
 use ungearitems::components::salt::UVReactive;
 use unstd::materials::CustomMaterial1;
 
-pub use uncore::components::board::mapcolor::MapColor;
+pub use uncore::components::board::mapcolour::MapColour;
 pub use uncore::types::board::light::{LightData, LightType};
 
 use crate::metrics::{APPLY_LIGHTING, COMPUTE_VISIBILITY, PLAYER_VISIBILITY};
@@ -222,7 +222,7 @@ fn apply_lighting(
         (
             &Position,
             &MeshMaterial2d<CustomMaterial1>,
-            &Behavior,
+            &Behaviour,
             &mut Visibility,
             Option<&GhostInfluence>,
             Option<&Interactive>,
@@ -242,7 +242,7 @@ fn apply_lighting(
             &mut Sprite,
             &SpriteType,
             Option<&GhostSprite>,
-            Option<&MapColor>,
+            Option<&MapColour>,
             Option<&UVReactive>,
             Option<&MiasmaSprite>,
             Option<&GhostOrbParticle>,
@@ -268,10 +268,10 @@ fn apply_lighting(
     let light_gamma: f32 = difficulty.0.environment_gamma.recip();
 
     // Higher values, less blinding light.
-    let center_exp: f32 = 6.0 - difficulty.0.environment_gamma;
+    let centre_exp: f32 = 6.0 - difficulty.0.environment_gamma;
 
     // Above 1.0, higher the less night vision.
-    let center_exp_gamma: f32 = 1.0 + difficulty.0.darkness_intensity;
+    let centre_exp_gamma: f32 = 1.0 + difficulty.0.darkness_intensity;
 
     // Lower values create an HDR effect, bringing blinding lights back to normal.
     let brightness_harsh: f32 = 3.0 * difficulty.0.darkness_intensity;
@@ -299,7 +299,7 @@ fn apply_lighting(
         let Some(t) = gear_data.gear.data.as_ref() else {
             continue;
         };
-        let Some((power, color, _p, light_type)) = (match &gear_data.gear.kind {
+        let Some((power, colour, _p, light_type)) = (match &gear_data.gear.kind {
             GearKind::Flashlight => Some((t.power(), t.color(), p, LightType::Visible)),
             GearKind::UVTorch => Some((t.power(), t.color(), p, LightType::UltraViolet)),
             GearKind::RedTorch => Some((t.power(), t.color(), p, LightType::Red)),
@@ -314,7 +314,7 @@ fn apply_lighting(
                 pos,
                 deployed_gear.direction,
                 power,
-                color,
+                colour,
                 light_type,
                 vis_field,
             ));
@@ -332,7 +332,7 @@ fn apply_lighting(
                 _ => None,
             }
         });
-        for (power, color, p, light_type) in player_flashlight {
+        for (power, colour, p, light_type) in player_flashlight {
             if power > 0.0 {
                 use EquipmentPosition::*;
 
@@ -345,7 +345,7 @@ fn apply_lighting(
                     };
                 }
                 let vis_field: Array3<f32> = Array3::from_elem(board_dim, -0.001_f32);
-                flashlights.push((pos, fldir, power, color, light_type, vis_field));
+                flashlights.push((pos, fldir, power, colour, light_type, vis_field));
             }
         }
         if player.id != gc.player_id {
@@ -387,9 +387,9 @@ fn apply_lighting(
             // Only highlight if the player is holding an object
             let target_tile = player_pos.to_board_position();
             for (tile_pos, mut sprite) in tile_sprites.iter_mut() {
-                // Removed 'behavior' from the loop
+                // Removed 'behaviour' from the loop
                 if tile_pos.to_board_position() == target_tile {
-                    // Removed walkable check Adjust highlight color and intensity as needed
+                    // Removed walkable check Adjust highlight colour and intensity as needed
                     let highlight_color = Color::srgba(0.0, 1.0, 0.0, 0.3);
                     sprite.color = lerp_color(sprite.color, highlight_color, 0.5);
                 }
@@ -418,8 +418,8 @@ fn apply_lighting(
     let f_e1 = 0.1;
     bf.exposure_lux = bf.exposure_lux * (1.0 - f_e1) + cursor_exp * f_e1;
     // Ensure the base is not negative before applying the power function
-    let normalized_exp = (cursor_exp / center_exp.clamp(0.00001, 10000.0)).clamp(-10.0, 10.0);
-    cursor_exp = normalized_exp.powf(center_exp_gamma.recip()) * center_exp + 0.00001;
+    let normalised_exp = (cursor_exp / centre_exp.clamp(0.00001, 10000.0)).clamp(-10.0, 10.0);
+    cursor_exp = normalised_exp.powf(centre_exp_gamma.recip()) * centre_exp + 0.00001;
 
     // Minimum exp - controls how dark we can see
     cursor_exp += 0.001 / difficulty.0.environment_gamma + difficulty.0.darkness_intensity;
@@ -479,11 +479,10 @@ fn apply_lighting(
                     continue;
                 }
                 // Check bounds before accessing visibility field
-                if x < vf.visibility_field.dim().0 && y < vf.visibility_field.dim().1 && z < vf.visibility_field.dim().2 {
-                    if vf.visibility_field[(x, y, z)] > 0.00001 {
+                if x < vf.visibility_field.dim().0 && y < vf.visibility_field.dim().1 && z < vf.visibility_field.dim().2
+                    && vf.visibility_field[(x, y, z)] > 0.00001 {
                         entities.extend_from_slice(&bf.map_entity_field[(x, y, z)]);
                     }
-                }
             }
         }
     }
@@ -491,7 +490,7 @@ fn apply_lighting(
     for e in visible.iter() {
         if rng.random_range(0..100) < 15 {
             entities.push(e.to_owned());
-        } else if let Ok((_pos, _mat, _behavior, _vis, _o_ghost_influence, o_interactive)) =
+        } else if let Ok((_pos, _mat, _behaviour, _vis, _o_ghost_influence, o_interactive)) =
             qt2.get(*e)
         {
             // Ensure entities with hover state changes are always processed
@@ -503,12 +502,12 @@ fn apply_lighting(
 
     for entity in entities.iter() {
         let min_threshold: f32 = rng.random::<f32>() / 10.0;
-        if let Ok((pos, mat, behavior, mut vis, o_ghost_influence, o_interactive)) =
+        if let Ok((pos, mat, behaviour, mut vis, o_ghost_influence, o_interactive)) =
             qt2.get_mut(*entity)
         {
             let on_hover = o_interactive.map(|x| x.hovered).unwrap_or_default();
             let mut opacity: f32 = 1.0;
-            if behavior.p.display.auto_hide {
+            if behaviour.p.display.auto_hide {
                 // Make big objects semitransparent when the player is behind them
                 const MAX_DIST: f32 = 8.0;
                 let dist = pos.distance(&player_pos);
@@ -521,8 +520,8 @@ fn apply_lighting(
             }
 
             let mut bpos = pos.to_board_position();
-            bpos.x += behavior.p.display.light_recv_offset.0;
-            bpos.y += behavior.p.display.light_recv_offset.1;
+            bpos.x += behaviour.p.display.light_recv_offset.0;
+            bpos.y += behaviour.p.display.light_recv_offset.1;
 
             // Use a margin (that should be baked on the map) to avoid negative access.
             if bpos.x < 2 || bpos.y < 2 {
@@ -536,13 +535,13 @@ fn apply_lighting(
             // minimum distance for flashlight
             const FL_MIN_DST: f32 = 0.1;
 
-            // behavior.p.movement.walkable
+            // behaviour.p.movement.walkable
             let fpos_gamma_color = |bpos: &BoardPosition| -> Option<((f32, f32, f32), LightData)> {
                 let rpos = bpos.to_position();
                 let p = bpos.ndidx_checked(bf.map_size)?;
                 let mut lux_fl = [0_f32; 3];
                 let mut lightdata = LightData::default();
-                for (flpos, fldir, flpower, flcolor, fltype, flvismap) in flashlights.iter() {
+                for (flpos, fldir, flpower, flcolour, fltype, flvismap) in flashlights.iter() {
                     let fldir = fldir.with_max_dist(200.0);
                     let focus = (fldir.distance() + 0.1).max(6.0) / 20.0;
                     let lpos = *flpos + fldir / (100.0 / focus + 20.0);
@@ -568,7 +567,7 @@ fn apply_lighting(
                     let fl = flpower / (dist + FL_MIN_DST)
                         * flvis.clamp(0.0001, 1.0)
                         * (focus + 0.5).clamp(0.5, 8.0);
-                    let flsrgba = flcolor.to_srgba();
+                    let flsrgba = flcolour.to_srgba();
                     lux_fl[0] += fl * flsrgba.red;
                     lux_fl[1] += fl * flsrgba.green;
                     lux_fl[2] += fl * flsrgba.blue;
@@ -591,8 +590,8 @@ fn apply_lighting(
                 })
             };
             let fpos_gamma = |bpos: &BoardPosition| -> Option<f32> {
-                let gcolor = fpos_gamma_color(bpos);
-                gcolor
+                let gcolour = fpos_gamma_color(bpos);
+                gcolour
                     .map(|((r, g, b), _)| (r + g + b) / 3.0)
                     .map(|l| (l / brightness_harsh).tanh() * brightness_harsh)
             };
@@ -615,7 +614,7 @@ fn apply_lighting(
             b /= 1.0
                 + light_data.infrared * (att_charge + rep_charge) * 10.0 * rgbl
                 + light_data.ultraviolet * att_charge * 12.0 * rgbl;
-            if behavior.p.movement.walkable {
+            if behaviour.p.movement.walkable {
                 lightdata_map.insert(bpos.clone(), light_data);
             }
             let max_color = r.max(g).max(b).max(0.005);
@@ -626,7 +625,7 @@ fn apply_lighting(
             let mut lux_tl = fpos_gamma(&bpos_tl).unwrap_or(lux_c);
             let mut lux_br = fpos_gamma(&bpos_br).unwrap_or(lux_c);
             let mut lux_bl = fpos_gamma(&bpos_bl).unwrap_or(lux_c);
-            match behavior.obsolete_occlusion_type() {
+            match behaviour.obsolete_occlusion_type() {
                 Orientation::None => {}
                 Orientation::XAxis => {
                     lux_tl = lux_c;
@@ -679,10 +678,10 @@ fn apply_lighting(
             };
             const K_COLD: f32 = 0.6;
             let cold_f = (1.0 - (lux_c / K_COLD).tanh()) * 2.0;
-            const DARK_COLOR: Color = Color::srgba(0.247 / 1.5, 0.714 / 1.5, 0.878, 1.0);
-            const DARK_COLOR2: Color = Color::srgba(0.03, 0.336, 0.444, 1.0);
+            const DARK_COLOUR: Color = Color::srgba(0.247 / 1.5, 0.714 / 1.5, 0.878, 1.0);
+            const DARK_COLOUR2: Color = Color::srgba(0.03, 0.336, 0.444, 1.0);
             let dark_color2 = lerp_color(
-                DARK_COLOR2,
+                DARK_COLOUR2,
                 Color::BLACK,
                 (dark_gamma / 4.0 + exposure * dark_gamma)
                     .tanh()
@@ -690,7 +689,7 @@ fn apply_lighting(
             );
             let exp_color =
                 ((-(exposure + 0.0001).ln() / 2.0 - 1.5 + cold_f).tanh() + 0.5).clamp(0.0, 1.0);
-            let dark = lerp_color(Color::BLACK, DARK_COLOR, exp_color / 16.0);
+            let dark = lerp_color(Color::BLACK, DARK_COLOUR, exp_color / 16.0);
             let dark2 = lerp_color(
                 Color::WHITE,
                 dark_color2,
@@ -698,20 +697,20 @@ fn apply_lighting(
             );
             new_mat.data.ambient_color = dark.with_alpha(0.0).into();
 
-            // Convert both colors to LinearRgba for multiplication
+            // Convert both colours to LinearRgba for multiplication
             let linear_dst_color = LinearRgba::from(dst_color);
             let linear_dark2_color = LinearRgba::from(dark2);
 
             // Perform the multiplication in the LinearRgba space
             let new_color = linear_dst_color.to_vec4() * linear_dark2_color.to_vec4();
 
-            // Convert back to Color
+            // Convert back to colour
             let new_color = LinearRgba::from_vec4(new_color);
 
             let src_a = new_mat.data.color.alpha();
 
             new_mat.data.color = new_color;
-            // new_mat.data.color = Srgba::rgb(1.0, 1.0, 1.0).into(); // --- debug for no color but gamma
+            // new_mat.data.color = Srgba::rgb(1.0, 1.0, 1.0).into(); // --- debug for no colour but gamma
 
             const BRIGHTNESS: f32 = 1.01;
             let tint_comp = (1.0 - src_color_base.luminance()).clamp(0.0, 1.0);
@@ -726,7 +725,7 @@ fn apply_lighting(
                     + exp_color / 40.0)
                     / (1.0 + smooth_f)
             };
-            // let gamma_mean = |_a: f32, _b: f32| 1.0; // --- debug for color but no gamma.
+            // let gamma_mean = |_a: f32, _b: f32| 1.0; // --- debug for colour but no gamma.
             lux_c = (lux_c * 4.0 + lux_tl + lux_tr + lux_bl + lux_br) / 8.0;
             if on_hover {
                 lux_c += 1.0;
@@ -744,44 +743,43 @@ fn apply_lighting(
             new_mat.data.gbl = gamma_mean(new_mat.data.gbl, (lux_bl + lux_c) / 2.0);
             new_mat.data.gbr = gamma_mean(new_mat.data.gbr, (lux_br + lux_c) / 2.0);
             const DEBUG_SOUND: bool = false;
-            if DEBUG_SOUND {
-                if let Some(sf) = bf.sound_field.get(&bpos) {
+            if DEBUG_SOUND
+                && let Some(sf) = bf.sound_field.get(&bpos) {
                     let l: f32 = sf.iter().map(|x| x.length() + 0.01).sum();
                     if l > 0.0001 {
                         new_mat.data.gamma = 2.0;
                         new_mat.data.color = Color::srgb(1.0, l / 4.0, l / 16.0).into();
                     }
                 }
-            }
             const DEBUG_TEMPERATURE: bool = false;
             if DEBUG_TEMPERATURE {
                 let temp_celsius = kelvin_to_celsius(bf.temperature_field[bpos.ndidx()]);
-                // Map temperature to continuous color gradient: 0°C to 16°C -> blue-cyan-green-yellow-red
-                let normalized_temp = (temp_celsius / 16.0).clamp(0.0, 1.0);
+                // Map temperature to continuous colour gradient: 0°C to 16°C -> blue-cyan-green-yellow-red
+                let normalised_temp = (temp_celsius / 16.0).clamp(0.0, 1.0);
 
-                // Create smooth color transition using HSV-like interpolation
-                let (r, g, b) = if normalized_temp <= 0.25 {
+                // Create smooth colour transition using HSV-like interpolation
+                let (r, g, b) = if normalised_temp <= 0.25 {
                     // Blue to Cyan (0.0 to 0.25)
-                    let t = normalized_temp / 0.25;
+                    let t = normalised_temp / 0.25;
                     (0.0, t, 1.0)
-                } else if normalized_temp <= 0.5 {
+                } else if normalised_temp <= 0.5 {
                     // Cyan to Green (0.25 to 0.5)
-                    let t = (normalized_temp - 0.25) / 0.25;
+                    let t = (normalised_temp - 0.25) / 0.25;
                     (0.0, 1.0, 1.0 - t)
-                } else if normalized_temp <= 0.75 {
+                } else if normalised_temp <= 0.75 {
                     // Green to Yellow (0.5 to 0.75)
-                    let t = (normalized_temp - 0.5) / 0.25;
+                    let t = (normalised_temp - 0.5) / 0.25;
                     (t, 1.0, 0.0)
                 } else {
                     // Yellow to Red (0.75 to 1.0)
-                    let t = (normalized_temp - 0.75) / 0.25;
+                    let t = (normalised_temp - 0.75) / 0.25;
                     (1.0, 1.0 - t, 0.0)
                 };
                 new_mat.data.ambient_color = Color::srgb(r / 3.0, g / 3.0, b / 3.0).into();
                 new_mat.data.gamma = 2.5;
                 new_mat.data.color = Color::srgba(r, g, b, new_mat.data.color.alpha()).into();
             }
-            let invisible = new_mat.data.color.alpha() < 0.005 || behavior.p.display.disable;
+            let invisible = new_mat.data.color.alpha() < 0.005 || behaviour.p.display.disable;
             let new_vis = if invisible {
                 Visibility::Hidden
             } else {
@@ -797,7 +795,7 @@ fn apply_lighting(
             }
             let delta = orig_mat.data.delta(&new_mat.data);
             let thr = if IS_WASM { 0.2 } else { 0.02 };
-            if behavior.p.display.auto_hide || delta > thr + min_threshold {
+            if behaviour.p.display.auto_hide || delta > thr + min_threshold {
                 let mat = materials1.get_mut(mat).unwrap();
                 mat.data = new_mat.data;
                 // change_count += 1;
@@ -842,7 +840,7 @@ fn apply_lighting(
         };
 
         let ld_mag = ld_abs.magnitude();
-        let ld = ld_abs.normalize();
+        let ld = ld_abs.normalise();
 
         if light_sz < 3.0 && opacity > 0.0001 {
             // Skip updating if it was not selected for update
@@ -1025,8 +1023,8 @@ fn apply_lighting(
                             // Calculate distance from sprite's *actual* position to the
                             // *centre* of the neighbour tile. This is important for smooth
                             // weighting.
-                            let neighbour_center = neighbour_pos.to_position_center();
-                            let distance = pos.distance(&neighbour_center); // Euclidean distance
+                            let neighbour_centre = neighbour_pos.to_position_centre();
+                            let distance = pos.distance(&neighbour_centre); // Euclidean distance
                             let weight = (distance + 0.1).recip(); // Avoid division by zero
 
                             total_pressure += neighbour_pressure * weight;

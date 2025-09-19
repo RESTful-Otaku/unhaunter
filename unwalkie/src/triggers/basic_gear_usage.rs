@@ -121,7 +121,7 @@ fn trigger_gear_selected_not_activated_system(
             }
         }
         None => {
-            // No tracker existed, or it was reset. Initialize for the current gear.
+            // No tracker existed, or it was reset. Initialise for the current gear.
             // Don't start timer if [R] was just pressed.
             if !reset_timer_this_frame {
                 *tracker = Some(RightHandGearStateTracker {
@@ -153,7 +153,7 @@ const HOTSPOT_PROXIMITY_THRESHOLD: f32 = 5.0; // Game units for "near ghost"
 
 #[derive(PartialEq, Clone, Debug)]
 struct IneffectiveToolInHotspotTracker {
-    tool_in_hand: GearKind, // Thermometer or EMFMeter
+    tool_in_hand: GearKind, // Thermometer or EMFMetre
     duration_in_hotspot_with_ineffective_tool_active: f32,
 }
 
@@ -214,12 +214,11 @@ fn trigger_did_not_switch_starting_gear_in_hotspot_system(
             // In breach room
             in_hotspot = true;
         }
-        if let Some(ghost_live_pos) = current_ghost_live_pos_opt {
-            if player_room == roomdb.room_tiles.get(&ghost_live_pos.to_board_position()) {
+        if let Some(ghost_live_pos) = current_ghost_live_pos_opt
+            && player_room == roomdb.room_tiles.get(&ghost_live_pos.to_board_position()) {
                 // In live ghost's current room
                 in_hotspot = true;
             }
-        }
     }
     if !in_hotspot {
         // Proximity check if not in same room by definition
@@ -229,7 +228,7 @@ fn trigger_did_not_switch_starting_gear_in_hotspot_system(
             }
         } else {
             // If no live ghost, check proximity to breach
-            if player_pos.distance(&ghost_spawn_bpos.to_position_center())
+            if player_pos.distance(&ghost_spawn_bpos.to_position_centre())
                 < HOTSPOT_PROXIMITY_THRESHOLD
             {
                 in_hotspot = true;
@@ -315,8 +314,8 @@ fn trigger_did_not_switch_starting_gear_in_hotspot_system(
         }
     }
 
-    if let Some(current_tracker_ref) = tracker.as_ref() {
-        if current_tracker_ref.duration_in_hotspot_with_ineffective_tool_active
+    if let Some(current_tracker_ref) = tracker.as_ref()
+        && current_tracker_ref.duration_in_hotspot_with_ineffective_tool_active
             > HOTSPOT_DURATION_THRESHOLD
             && walkie_play.set(
                 WalkieEvent::DidNotSwitchStartingGearInHotspot,
@@ -325,7 +324,6 @@ fn trigger_did_not_switch_starting_gear_in_hotspot_system(
         {
             *tracker = None; // Reset after triggering
         }
-    }
 }
 
 const MIN_CHAPTER_FOR_CYCLE_HINT: ManualChapterIndex = ManualChapterIndex::Chapter2;
@@ -400,13 +398,10 @@ fn trigger_did_not_cycle_to_other_gear_system(
 
     if current_right_tool_kind != GearKind::None
         && Evidence::try_from(&current_right_tool_kind).is_ok()
-    {
-        if let Some(gear_data) = player_gear.right_hand.data.as_ref() {
-            if gear_data.is_enabled() {
+        && let Some(gear_data) = player_gear.right_hand.data.as_ref()
+            && gear_data.is_enabled() {
                 is_current_tool_an_active_evidence_tool = true;
             }
-        }
-    }
 
     if is_current_tool_an_active_evidence_tool {
         if tracker.right_hand_tool_active == Some(current_right_tool_kind) {
@@ -433,26 +428,22 @@ fn trigger_did_not_cycle_to_other_gear_system(
     if player_gear.left_hand.kind != GearKind::None &&
        player_gear.left_hand.kind != current_right_tool_kind && // Different tool
        Evidence::try_from(&player_gear.left_hand.kind).is_ok()
-    {
-        if let Some(lh_data) = player_gear.left_hand.data.as_ref()
+        && let Some(lh_data) = player_gear.left_hand.data.as_ref()
             && lh_data.can_enable() {
             // Check if it *can* be enabled
             has_other_usable_evidence_tools = true;
         }
-    }
     // Check inventory if still no other tool found
     if !has_other_usable_evidence_tools {
         for gear_in_inv in &player_gear.inventory {
             if gear_in_inv.kind != GearKind::None &&
                gear_in_inv.kind != current_right_tool_kind && // Different tool
                Evidence::try_from(&gear_in_inv.kind).is_ok()
-            {
-                if let Some(inv_data) = gear_in_inv.data.as_ref()
+                && let Some(inv_data) = gear_in_inv.data.as_ref()
                     && inv_data.can_enable() {
                     has_other_usable_evidence_tools = true;
                     break;
                 }
-            }
         }
     }
 

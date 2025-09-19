@@ -308,7 +308,7 @@ fn perform_detailed_comparison(sets: &[(String, HashSet<GhostType>)]) {
         }
     } else {
         println!(
-            "  • For {} sets, consider analyzing pairwise similarities above",
+                  "  • For {} sets, consider analysing pairwise similarities above",
             sets.len()
         );
 
@@ -319,14 +319,13 @@ fn perform_detailed_comparison(sets: &[(String, HashSet<GhostType>)]) {
             .collect();
         balance_scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
 
-        if let (Some(best), Some(worst)) = (balance_scores.first(), balance_scores.last()) {
-            if balance_scores.len() > 1 && best.1 != worst.1 {
+        if let (Some(best), Some(worst)) = (balance_scores.first(), balance_scores.last())
+            && balance_scores.len() > 1 && best.1 != worst.1 {
                 println!(
                     "  • Most balanced: {} ({:.1}), Least balanced: {} ({:.1})",
                     best.0, best.1, worst.0, worst.1
                 );
             }
-        }
     }
 }
 
@@ -406,7 +405,7 @@ fn perform_multi_set_overlap_analysis(sets: &[(String, HashSet<GhostType>)]) {
     println!("\n## Multi-Set Overlap Analysis");
 
     if sets.is_empty() {
-        println!("No sets to analyze.");
+        println!("No sets to analyse.");
         return;
     }
 
@@ -501,8 +500,8 @@ fn perform_multi_set_overlap_analysis(sets: &[(String, HashSet<GhostType>)]) {
     }
 
     for membership_count in (1..=sets.len()).rev() {
-        if let Some(ghosts_in_n_sets) = by_membership_count.get(&membership_count) {
-            if !ghosts_in_n_sets.is_empty() {
+        if let Some(ghosts_in_n_sets) = by_membership_count.get(&membership_count)
+            && !ghosts_in_n_sets.is_empty() {
                 let ghost_names: Vec<&str> =
                     ghosts_in_n_sets.iter().map(|g| g.name()).sorted().collect();
 
@@ -528,7 +527,6 @@ fn perform_multi_set_overlap_analysis(sets: &[(String, HashSet<GhostType>)]) {
                     );
                 }
             }
-        }
     }
 
     // Jaccard similarity matrix
@@ -607,21 +605,19 @@ fn perform_multi_set_overlap_analysis(sets: &[(String, HashSet<GhostType>)]) {
 
     similarities.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
 
-    if let Some(((most_sim_a, most_sim_b), max_sim)) = similarities.first() {
-        if *max_sim > 0.5 {
+    if let Some(((most_sim_a, most_sim_b), max_sim)) = similarities.first()
+        && *max_sim > 0.5 {
             println!(
                 "  • Most similar pair: {} & {} (Jaccard: {:.2})",
                 most_sim_a, most_sim_b, max_sim
             );
         }
-    }
 
-    if let Some(((least_sim_a, least_sim_b), min_sim)) = similarities.last() {
-        if *min_sim < 0.1 {
+    if let Some(((least_sim_a, least_sim_b), min_sim)) = similarities.last()
+        && *min_sim < 0.1 {
             println!(
                 "  • Most independent pair: {} & {} (Jaccard: {:.2})",
                 least_sim_a, least_sim_b, min_sim
             );
         }
-    }
 }

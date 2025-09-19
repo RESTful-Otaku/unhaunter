@@ -5,13 +5,13 @@ use crate::components::player_sprite::PlayerSprite;
 use crate::resources::board_data::BoardData;
 use bevy::prelude::*;
 
-/// Synchronizes the map entity field with the current positions of entities.
+/// synchronises the map entity field with the current positions of entities.
 ///
 /// This system updates the `BoardData` resource to reflect the current positions
 /// of entities that have moved. It ensures that entities are correctly added to
 /// and removed from the map entity field based on their new positions.
 ///
-/// Optimized to only process entities within a reasonable radius of the player
+/// optimised to only process entities within a reasonable radius of the player
 /// using the map_entity_field for efficient entity lookup.
 fn sync_map_entity_field(
     mut board_data: ResMut<BoardData>,
@@ -51,8 +51,8 @@ fn sync_map_entity_field(
                     let current_bpos = current_pos.to_board_position();
 
                     // Only update if the entity has a MapEntityFieldBPos component
-                    if let Ok(mut old_bpos) = map_entity_bpos_query.get_mut(entity) {
-                        if old_bpos.0 != current_bpos {
+                    if let Ok(mut old_bpos) = map_entity_bpos_query.get_mut(entity)
+                        && old_bpos.0 != current_bpos {
                             to_update.push((entity, current_bpos.clone(), old_bpos.0.clone()));
 
                             // info!(
@@ -64,7 +64,6 @@ fn sync_map_entity_field(
                             // Update the stored BoardPosition
                             old_bpos.0 = current_bpos;
                         }
-                    }
                 }
             }
         }

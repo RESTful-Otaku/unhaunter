@@ -6,7 +6,7 @@
 //! manual's interface.  The functions utilise Bevy's UI system to create the
 //! visual elements of the manual efficiently.
 use bevy::prelude::*;
-use uncore::colors;
+use uncore::colours;
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
 use uncore::types::root::game_assets::GameAssets;
 
@@ -27,8 +27,8 @@ pub fn grid_img_text2(
         font_size: 16.0 * FONT_SCALE,
         ..default()
     };
-    let color_regular = TextColor(colors::DIALOG_TEXT_COLOR);
-    let color_bold = TextColor(colors::DIALOG_BOLD_TEXT_COLOR);
+    let colour_regular = TextColor(colours::DIALOGUE_TEXT_COLOR);
+    let colour_bold = TextColor(colours::DIALOGUE_BOLD_TEXT_COLOR);
 
     let mut rows = vec![];
 
@@ -85,12 +85,12 @@ pub fn grid_img_text2(
                     }
                     let mut layout = parent.spawn((TextLayout::default(), Text::default()));
                     for (n, subtext) in text.split('*').enumerate() {
-                        let (font, color) = if n % 2 == 0 {
-                            (font_regular.clone(), color_regular)
+                        let (font, colour) = if n % 2 == 0 {
+                            (font_regular.clone(), colour_regular)
                         } else {
-                            (font_bold.clone(), color_bold)
+                            (font_bold.clone(), colour_bold)
                         };
-                        layout.with_child((TextSpan::new(subtext), font, color));
+                        layout.with_child((TextSpan::new(subtext), font, colour));
                     }
                 }
             }

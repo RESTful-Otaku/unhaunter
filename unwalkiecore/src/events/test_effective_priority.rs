@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::events::{WalkieEvent, WalkieEventPriority, WalkieRepeatBehavior};
+    use crate::events::{WalkieEvent, WalkieEventPriority, WalkieRepeatbehaviour};
 
     #[test]
     fn test_effective_priority_downgrading() {
@@ -9,7 +9,7 @@ mod tests {
 
         // Initial priority should be VeryHigh
         assert_eq!(event.priority(), WalkieEventPriority::VeryHigh);
-        assert_eq!(event.repeat_behavior(), WalkieRepeatBehavior::VeryLowRepeat);
+        assert_eq!(event.repeat_behaviour(), WalkieRepeatbehaviour::VeryLowRepeat);
 
         // After 0 plays, effective priority should be the same
         assert_eq!(event.effective_priority(0), WalkieEventPriority::VeryHigh);
@@ -31,9 +31,9 @@ mod tests {
         let event =
             WalkieEvent::IncorrectRepellentHint(uncore::types::evidence::Evidence::FreezingTemp);
 
-        // Should be VeryHigh priority with AlwaysRepeat behavior
+        // Should be VeryHigh priority with AlwaysRepeat behaviour
         assert_eq!(event.priority(), WalkieEventPriority::VeryHigh);
-        assert_eq!(event.repeat_behavior(), WalkieRepeatBehavior::AlwaysRepeat);
+        assert_eq!(event.repeat_behaviour(), WalkieRepeatbehaviour::AlwaysRepeat);
 
         // Should maintain priority regardless of play count
         assert_eq!(event.effective_priority(0), WalkieEventPriority::VeryHigh);
@@ -47,9 +47,9 @@ mod tests {
         // Test that NormalRepeat events get gradually downgraded
         let event = WalkieEvent::PlayerStuckAtStart;
 
-        // Should be Medium priority with NormalRepeat behavior
+        // Should be Medium priority with NormalRepeat behaviour
         assert_eq!(event.priority(), WalkieEventPriority::Medium);
-        assert_eq!(event.repeat_behavior(), WalkieRepeatBehavior::NormalRepeat);
+        assert_eq!(event.repeat_behaviour(), WalkieRepeatbehaviour::NormalRepeat);
 
         // Should maintain priority for first few plays
         assert_eq!(event.effective_priority(0), WalkieEventPriority::Medium);
@@ -72,9 +72,9 @@ mod tests {
         // Test that HighRepeat events get minimally downgraded
         let event = WalkieEvent::FreezingTempsEvidenceConfirmed;
 
-        // Should be VeryHigh priority with HighRepeat behavior
+        // Should be VeryHigh priority with HighRepeat behaviour
         assert_eq!(event.priority(), WalkieEventPriority::VeryHigh);
-        assert_eq!(event.repeat_behavior(), WalkieRepeatBehavior::HighRepeat);
+        assert_eq!(event.repeat_behaviour(), WalkieRepeatbehaviour::HighRepeat);
 
         // Should maintain priority for first several plays
         assert_eq!(event.effective_priority(0), WalkieEventPriority::VeryHigh);

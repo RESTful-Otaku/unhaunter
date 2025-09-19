@@ -28,7 +28,7 @@ pub fn heavy_rng_seed() -> u64 {
     hasher.finish()
 }
 
-/// Initializes a `SmallRng` instance with a seed based on the current system time.
+/// initialises a `SmallRng` instance with a seed based on the current system time.
 ///
 /// This function is used when a thread needs a new random number generator
 /// without requiring high-quality entropy from the OS.

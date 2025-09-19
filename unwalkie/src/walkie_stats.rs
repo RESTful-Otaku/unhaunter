@@ -11,8 +11,8 @@ pub fn update_walkie_stats(
     time: Res<Time>,
 ) {
     // If a walkie event finished playing (event exists but state is None)
-    if let Some(event) = &walkie_play.event {
-        if walkie_play.state == Some(WalkieSoundState::Intro) {
+    if let Some(event) = &walkie_play.event
+        && walkie_play.state == Some(WalkieSoundState::Intro) {
             // Convert the event enum to a string representation
             let event_id = format!("{:?}", event);
             let now =
@@ -33,7 +33,6 @@ pub fn update_walkie_stats(
             // Mark the profile as modified so it will be saved
             player_profile.set_changed();
         }
-    }
 }
 
 // Register the system with the app

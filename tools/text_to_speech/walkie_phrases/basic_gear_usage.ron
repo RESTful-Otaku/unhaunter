@@ -69,8 +69,8 @@ WalkiePhraseFile(
           tags: [Guidance, Questioning, MediumLength, SuggestStopThermometer],
         ),
         WalkieLineEntry(
-          tts_text: "Cool, yes. Arctic, no. Keep that thermometer handy, but maybe see what the EMF meter says about this spot too.",
-          subtitle_text: "Cool, yes. Arctic, no. Keep that thermometer handy, but maybe see what the EMF meter says about this spot too.",
+          tts_text: "Cool, yes. Arctic, no. Keep that thermometer handy, but maybe see what the EMF metre says about this spot too.",
+          subtitle_text: "Cool, yes. Arctic, no. Keep that thermometer handy, but maybe see what the EMF metre says about this spot too.",
           tags: [NeutralObservation, Guidance, MediumLength, SuggestStopThermometer, SuggestUseEMFMeter],
         ),
         WalkieLineEntry(
@@ -84,8 +84,8 @@ WalkiePhraseFile(
           tags: [DirectHint, Guidance, MediumLength, SuggestStopThermometer],
         ),
         WalkieLineEntry(
-          tts_text: "If you are not seeing freezing temperatures after a good look, perhaps this ghost does not cause them. Time to try the EMF meter.",
-          subtitle_text: "If you're not seeing freezing temperatures after a good look, perhaps this ghost doesn't cause them. Time to try the EMF meter.",
+          tts_text: "If you are not seeing freezing temperatures after a good look, perhaps this ghost does not cause them. Time to try the EMF metre.",
+          subtitle_text: "If you're not seeing freezing temperatures after a good look, perhaps this ghost doesn't cause them. Time to try the EMF metre.",
           tags: [Guidance, PlayerStruggling, MediumLength, SuggestStopThermometer, SuggestUseEMFMeter],
         ),
         WalkieLineEntry(
@@ -104,8 +104,8 @@ WalkiePhraseFile(
           tags: [Guidance, NeutralObservation, MediumLength, SuggestStopThermometer],
         ),
         WalkieLineEntry(
-          tts_text: "Still watching that thermometer? If it is not hitting freezing, that specific clue is a no show. How about the EMF meter readings?",
-          subtitle_text: "Still watching that thermometer? If it's not hitting freezing, that specific clue is a no-show. How about the EMF meter readings?",
+          tts_text: "Still watching that thermometer? If it is not hitting freezing, that specific clue is a no show. How about the EMF metre readings?",
+          subtitle_text: "Still watching that thermometer? If it's not hitting freezing, that specific clue is a no-show. How about the EMF metre readings?",
           tags: [SlightlyImpatient, Guidance, PlayerStruggling, MediumLength, SuggestStopThermometer, SuggestUseEMFMeter],
         ),
       ],
@@ -124,8 +124,8 @@ WalkiePhraseFile(
           tags: [Guidance, Questioning, MediumLength, SuggestStopEMFMeter],
         ),
         WalkieLineEntry(
-          tts_text: "The EMF meter is definitely interested in this spot. Keep watching it, sometimes they build up to a bigger spike, or see what the thermometer says.",
-          subtitle_text: "The EMF meter is definitely interested in this spot. Keep watching it, sometimes they build up to a bigger spike, or see what the thermometer says.",
+          tts_text: "The EMF metre is definitely interested in this spot. Keep watching it, sometimes they build up to a bigger spike, or see what the thermometer says.",
+          subtitle_text: "The EMF metre is definitely interested in this spot. Keep watching it, sometimes they build up to a bigger spike, or see what the thermometer says.",
           tags: [Encouraging, Guidance, DelayedObservation, MediumLength, SuggestStopEMFMeter, SuggestUseThermometer],
         ),
         WalkieLineEntry(
@@ -134,8 +134,8 @@ WalkiePhraseFile(
           tags: [Guidance, NeutralObservation, MediumLength, SuggestStopEMFMeter],
         ),
         WalkieLineEntry(
-          tts_text: "We are looking for that top light on the EMF meter. Anything less suggests the ghost is around, but not that specific evidence.",
-          subtitle_text: "We're looking for that top light on the EMF meter. Anything less suggests the ghost is around, but not that specific evidence.",
+          tts_text: "We are looking for that top light on the EMF metre. Anything less suggests the ghost is around, but not that specific evidence.",
+          subtitle_text: "We're looking for that top light on the EMF metre. Anything less suggests the ghost is around, but not that specific evidence.",
           tags: [DirectHint, Guidance, MediumLength, SuggestStopEMFMeter],
         ),
         WalkieLineEntry(
@@ -154,8 +154,8 @@ WalkiePhraseFile(
           tags: [Guidance, NeutralObservation, MediumLength, SuggestStopEMFMeter],
         ),
         WalkieLineEntry(
-          tts_text: "It is definitely making the EMF meter jumpy. See if it will give you that full level five reading. Sometimes you have to wait for it.",
-          subtitle_text: "It's definitely making the EMF meter jumpy. See if it will give you that full level five reading. Sometimes you have to wait for it.",
+          tts_text: "It is definitely making the EMF metre jumpy. See if it will give you that full level five reading. Sometimes you have to wait for it.",
+          subtitle_text: "It's definitely making the EMF metre jumpy. See if it will give you that full level five reading. Sometimes you have to wait for it.",
           tags: [Encouraging, Guidance, DelayedObservation, MediumLength, SuggestStopEMFMeter],
         ),
         WalkieLineEntry(
@@ -171,24 +171,24 @@ WalkiePhraseFile(
       lines: [
         // From Thermometer to EMF
         WalkieLineEntry(
-          tts_text: "You have got a temperature reading there. Might be worth trying your EMF meter in the same spot, see if it picks up anything too.",
-          subtitle_text: "You've got a temperature reading there. Might be worth trying your EMF meter in the same spot, see if it picks up anything too.",
+          tts_text: "You have got a temperature reading there. Might be worth trying your EMF metre in the same spot, see if it picks up anything too.",
+          subtitle_text: "You've got a temperature reading there. Might be worth trying your EMF metre in the same spot, see if it picks up anything too.",
           tags: [Guidance, ContextualHint, MediumLength, Encouraging, SuggestStopThermometer, SuggestUseEMFMeter],
         ),
         WalkieLineEntry(
-          tts_text: "That spot is definitely cold. Before you move on, quickly check that area with your EMF meter as well.",
-          subtitle_text: "That spot is definitely cold. Before you move on, quickly check that area with your EMF meter as well.",
+          tts_text: "That spot is definitely cold. Before you move on, quickly check that area with your EMF metre as well.",
+          subtitle_text: "That spot is definitely cold. Before you move on, quickly check that area with your EMF metre as well.",
           tags: [PositiveReinforcement, Guidance, MediumLength, SuggestStopThermometer, SuggestUseEMFMeter],
         ),
         // From EMF to Thermometer
         WalkieLineEntry(
-          tts_text: "The EMF meter likes that area. Wonder if the thermometer feels the same way? Worth a quick check for cold spots.",
-          subtitle_text: "The EMF meter likes that area. Wonder if the thermometer feels the same way? Worth a quick check for cold spots.",
+          tts_text: "The EMF metre likes that area. Wonder if the thermometer feels the same way? Worth a quick check for cold spots.",
+          subtitle_text: "The EMF metre likes that area. Wonder if the thermometer feels the same way? Worth a quick check for cold spots.",
           tags: [Humorous, Guidance, Questioning, MediumLength, SuggestStopEMFMeter, SuggestUseThermometer],
         ),
         WalkieLineEntry(
-          tts_text: "Since the EMF meter showed something, might as well give the thermometer a go in the same place. Just to be thorough.",
-          subtitle_text: "Since the EMF meter showed something, might as well give the thermometer a go in the same place. Just to be thorough.",
+          tts_text: "Since the EMF metre showed something, might as well give the thermometer a go in the same place. Just to be thorough.",
+          subtitle_text: "Since the EMF metre showed something, might as well give the thermometer a go in the same place. Just to be thorough.",
           tags: [NeutralObservation, Guidance, MediumLength, SuggestStopEMFMeter, SuggestUseThermometer],
         ),
         // More generic if already tried both or if state is less clear
@@ -198,8 +198,8 @@ WalkiePhraseFile(
           tags: [Guidance, ReminderLow, MediumLength],
         ),
         WalkieLineEntry(
-          tts_text: "Do not just rely on one tool if an area feels promising. Make sure you have tried both your thermometer and EMF meter there.",
-          subtitle_text: "Don't just rely on one tool if an area feels promising. Make sure you've tried both your thermometer and EMF meter there.",
+          tts_text: "Do not just rely on one tool if an area feels promising. Make sure you have tried both your thermometer and EMF metre there.",
+          subtitle_text: "Don't just rely on one tool if an area feels promising. Make sure you've tried both your thermometer and EMF metre there.",
           tags: [DirectHint, Guidance, MediumLength],
         ),
         WalkieLineEntry(

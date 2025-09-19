@@ -12,17 +12,17 @@ use uncore::types::{evidence::Evidence, ghost::types::GhostType};
 
 pub fn handle_conflicts_command(evidence_filter_str: Option<&str>, show_all: bool) {
     if let Some(filter_str) = evidence_filter_str {
-        println!("Analyzing conflicts for evidence subset: {}", filter_str);
-        analyze_subset_conflicts(filter_str);
+        println!("Analysing conflicts for evidence subset: {}", filter_str);
+        analyse_subset_conflicts(filter_str);
     } else if show_all {
-        println!("Analyzing all potential evidence conflicts in the ghost database...");
-        analyze_all_conflicts();
+        println!("Analysing all potential evidence conflicts in the ghost database...");
+        analyse_all_conflicts();
     } else {
         println!("Please specify an evidence subset with --evidence or use --show-all.");
     }
 }
 
-fn analyze_subset_conflicts(evidence_filter_str: &str) {
+fn analyse_subset_conflicts(evidence_filter_str: &str) {
     let filter_evidence = parse_evidence_list(evidence_filter_str);
     if filter_evidence.is_empty() {
         eprintln!(
@@ -95,7 +95,7 @@ fn analyze_subset_conflicts(evidence_filter_str: &str) {
     }
 }
 
-fn analyze_all_conflicts() {
+fn analyse_all_conflicts() {
     let all_ghosts: Vec<GhostType> = all::<GhostType>().collect();
     let mut issues_found = false;
 

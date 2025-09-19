@@ -147,7 +147,7 @@ impl TutorialGearExplanationsConcept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/tutorial_gear_explanations/redtorchenabledintro_04.ogg".to_string(),
-                    subtitle_text: "The Red Torch is for specialised observation. Not all ghosts will react to it, but for those that do, an orange glow confirms 'RL Presence'.".to_string(),
+                    subtitle_text: "The Red Torch is for specialized observation. Not all ghosts will react to it, but for those that do, an orange glow confirms 'RL Presence'.".to_string(),
                     tags: vec![WalkieTag::Encouraging, WalkieTag::FirstTimeHint, WalkieTag::MediumLength],
                     length_seconds: 10,
                 },
@@ -183,7 +183,7 @@ impl TutorialGearExplanationsConcept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/tutorial_gear_explanations/redtorchenabledintro_10.ogg".to_string(),
-                    subtitle_text: "The Red Torch's purpose is clear: reveal 'RL Presence'. Look for the ghost to change color to orange under its light. Log it as evidence.".to_string(),
+                    subtitle_text: "The Red Torch's purpose is clear: reveal 'RL Presence'. Look for the ghost to change colour to orange under its light. Log it as evidence.".to_string(),
                     tags: vec![WalkieTag::Encouraging, WalkieTag::FirstTimeHint, WalkieTag::MediumLength],
                     length_seconds: 10,
                 },

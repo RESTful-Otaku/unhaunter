@@ -100,7 +100,7 @@ pub(crate) fn setup_ui_main_cat(
                                 .insert(MenuItem::new(idx, event.clone()));
                                 idx += 1;
                             } else {
-                                // Add disabled item with gray color
+                                // Add disabled item with grey colour
                                 templates::create_content_item_disabled(
                                     menu_list,
                                     item_text,

@@ -152,7 +152,7 @@ impl Position {
     }
 
     pub fn rotate_by_dir(&self, dir: &Direction) -> Self {
-        let dir = dir.normalized();
+        let dir = dir.normalised();
 
         // CAUTION: This is not possible with a single vector. Most likely wrong.
         let x_axis = Direction {

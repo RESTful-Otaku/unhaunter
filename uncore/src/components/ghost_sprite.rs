@@ -36,7 +36,7 @@ pub struct GhostSprite {
     pub repellent_misses_delta: f32,
     /// The entity ID of the ghost's visual breach effect.
     pub breach_id: Option<Entity>,
-    /// The ghost's current rage level, which influences its hunting behavior. Higher
+    /// The ghost's current rage level, which influences its hunting behaviour. Higher
     /// rage increases the likelihood of a hunt.
     pub rage: f32,
     /// Export of the rage limit for other systems to consider.

@@ -1,6 +1,6 @@
 use super::uibutton::TruckButtonType; // Assuming TruckUIGhostGuess and uibutton are still relevant here
 use bevy::prelude::*;
-use uncore::colors;
+use uncore::colours;
 use uncore::components::truck::TruckUIGhostGuess;
 use uncore::difficulty::CurrentDifficulty; // Use CurrentDifficulty
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
@@ -17,7 +17,7 @@ pub fn setup_journal_ui(
     // Journal contents
     p.spawn((
         Text::new("Select evidence:"),
-        TextColor(colors::TRUCKUI_TEXT_COLOR),
+        TextColor(colours::TRUCKUI_TEXT_COLOR),
         TextFont {
             font: handles.fonts.chakra.w300_light.clone(),
             font_size: 25.0 * FONT_SCALE,
@@ -72,7 +72,7 @@ pub fn setup_journal_ui(
                             font_size: 18.0 * FONT_SCALE,
                             ..default()
                         },
-                        TextColor(colors::TRUCKUI_TEXT_COLOR),
+                        TextColor(colours::TRUCKUI_TEXT_COLOR),
                         TextLayout::default(), // Ensure TextLayout is added
                     ));
                 });
@@ -98,7 +98,7 @@ pub fn setup_journal_ui(
                 font_size: 25.0 * FONT_SCALE,
                 ..default()
             },
-            TextColor(colors::TRUCKUI_TEXT_COLOR),
+            TextColor(colours::TRUCKUI_TEXT_COLOR),
             Node {
                 flex_grow: 1.0,
                 flex_shrink: 1.0,
@@ -126,7 +126,7 @@ pub fn setup_journal_ui(
         padding: UiRect::all(Val::Px(2.0 * UI_SCALE)), // Added padding
         ..default()
     })
-    .insert(BackgroundColor(colors::TRUCKUI_BGCOLOR))
+    .insert(BackgroundColor(colours::TRUCKUI_BGCOLOR))
     .with_children(|ghost_selection| {
         // Use difficulty.0 (DifficultyStruct) to get the ghost_set
         for ghost_type in difficulty.0.ghost_set.as_vec() {
@@ -155,7 +155,7 @@ pub fn setup_journal_ui(
                             font_size: 18.0 * FONT_SCALE,
                             ..default()
                         },
-                        TextColor(colors::TRUCKUI_TEXT_COLOR),
+                        TextColor(colours::TRUCKUI_TEXT_COLOR),
                         TextLayout::default(), // Ensure TextLayout is added
                     ));
                 });
@@ -181,7 +181,7 @@ pub fn setup_journal_ui(
                 font_size: 25.0 * FONT_SCALE,
                 ..default()
             },
-            TextColor(colors::TRUCKUI_TEXT_COLOR),
+            TextColor(colours::TRUCKUI_TEXT_COLOR),
             Node {
                 flex_grow: 1.0,
                 flex_shrink: 1.0,
@@ -195,7 +195,7 @@ pub fn setup_journal_ui(
                 font_size: 20.0 * FONT_SCALE,
                 ..default()
             },
-            TextColor(colors::TRUCKUI_TEXT_COLOR),
+            TextColor(colours::TRUCKUI_TEXT_COLOR),
         );
         guess
             .spawn(Node {
@@ -206,7 +206,7 @@ pub fn setup_journal_ui(
                 justify_content: JustifyContent::Center,
                 ..default()
             })
-            .insert(BackgroundColor(colors::TRUCKUI_BGCOLOR))
+            .insert(BackgroundColor(colours::TRUCKUI_BGCOLOR))
             .with_children(|node| {
                 node.spawn(ghost_guess).insert(TruckUIGhostGuess);
             });
@@ -239,7 +239,7 @@ pub fn setup_journal_ui(
                     font_size: 23.0 * FONT_SCALE,
                     ..default()
                 },
-                TextColor(colors::TRUCKUI_TEXT_COLOR),
+                TextColor(colours::TRUCKUI_TEXT_COLOR),
                 TextLayout::default(),
                 Node {
                     margin: UiRect::px(

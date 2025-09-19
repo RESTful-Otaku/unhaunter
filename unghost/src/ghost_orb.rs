@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use rand::Rng; // Import the Rng trait
 use uncore::{
     components::{
-        board::{mapcolor::MapColor, position::Position},
+        board::{mapcolour::MapColour, position::Position},
         game::GameSprite,
         ghost_breach::GhostBreach,
         ghost_orb_particle::GhostOrbParticle,
@@ -71,7 +71,7 @@ pub fn spawn_ghost_orb_particles(
                 global_z: breach_pos.global_z,
             })
             .insert(GameSprite)
-            .insert(MapColor {
+            .insert(MapColour {
                 color: Color::WHITE,
             })
             .insert(SpriteType::GhostOrb)

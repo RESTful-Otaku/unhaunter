@@ -20,7 +20,7 @@ use bevy::ui::ComputedNode;
 use bevy::ui::ScrollPosition;
 use bevy_persistent::Persistent;
 
-use uncore::colors;
+use uncore::colours;
 use uncore::difficulty::CurrentDifficulty;
 use uncore::events::loadlevel::LoadLevelEvent;
 use uncore::platform::plt::FONT_SCALE;
@@ -136,11 +136,10 @@ fn handle_selection_input(
 
     ev_menu_clicks.clear();
 
-    if selected_identifier.is_none() && keyboard_input.just_pressed(KeyCode::Enter) {
-        if let Ok(root) = menu_root.single() {
+    if selected_identifier.is_none() && keyboard_input.just_pressed(KeyCode::Enter)
+        && let Ok(root) = menu_root.single() {
             selected_identifier = Some(root.selected_item);
         }
-    }
 
     let mut go_back = false;
     if ev_escape.read().last().is_some() {
@@ -397,7 +396,7 @@ pub fn setup_ui(
                         font_size: 24.0 * FONT_SCALE,
                         ..default()
                     })
-                    .insert(TextColor(colors::MENU_ITEM_COLOR_OFF));
+                    .insert(TextColor(colours::MENU_ITEM_COLOR_OFF));
 
                 parent
                     .spawn(Node {
@@ -709,7 +708,7 @@ pub fn setup_ui(
                                     image: asset_server.load(&initial_preview_image_path),
                                     ..default()
                                 },
-                                BorderColor(colors::TRUCKUI_ACCENT2_COLOR),
+                                BorderColor(colours::TRUCKUI_ACCENT2_COLOR),
                                 MissionPreviewImage,
                             ));
 
@@ -719,7 +718,7 @@ pub fn setup_ui(
                                 padding: UiRect::all(Val::Px(10.0)),
                                 ..default()
                             })
-                            .insert(BackgroundColor(colors::PANEL_BGCOLOR.with_alpha(0.95)))
+                            .insert(BackgroundColor(colours::PANEL_BGCOLOR.with_alpha(0.95)))
                             .with_children(|text_container| {
                                 text_container
                                     .spawn(Text::new(initial_desc))
@@ -728,7 +727,7 @@ pub fn setup_ui(
                                         font_size: 19.0 * FONT_SCALE,
                                         ..default()
                                     })
-                                    .insert(TextColor(colors::MENU_DESC_TEXT_COLOR))
+                                    .insert(TextColor(colours::MENU_DESC_TEXT_COLOR))
                                     .insert(TextLayout {
                                         justify: JustifyText::Left,
                                         ..default()
@@ -820,9 +819,9 @@ fn create_mission_list_item(
                             ..default()
                         },
                         TextColor(if !is_selected {
-                            colors::MENU_ITEM_COLOR_OFF
+                            colours::MENU_ITEM_COLOR_OFF
                         } else {
-                            colors::MENU_ITEM_COLOR_ON
+                            colours::MENU_ITEM_COLOR_ON
                         }),
                         // Add the PrincipalMenuText marker for visual state updates
                         uncoremenu::components::PrincipalMenuText,

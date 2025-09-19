@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use uncore::behaviour::Behavior;
+use uncore::behaviour::Behaviour;
 use uncore::components::board::position::Position;
 use uncore::events::board_data_rebuild::BoardDataToRebuild;
 use uncore::resources::board_data::BoardData;
@@ -12,11 +12,11 @@ use unstd::plugins::board::rebuild_collision_data;
 ///
 /// * `bf` - A mutable reference to the `BoardData` resource.
 /// * `ev_bdr` - An event reader for `BoardDataToRebuild` events.
-/// * `qt` - A query for entities with `Position` and `Behavior` components.
+/// * `qt` - A query for entities with `Position` and `Behaviour` components.
 fn boardfield_update(
     mut bf: ResMut<BoardData>,
     mut ev_bdr: EventReader<BoardDataToRebuild>,
-    mut qt: Query<(Entity, &Position, &Behavior)>,
+    mut qt: Query<(Entity, &Position, &Behaviour)>,
     mut avg_time: Local<(f32, f32)>,
 ) {
     if ev_bdr.is_empty() {
@@ -40,7 +40,7 @@ fn boardfield_update(
     }
 
     if bdr.lighting {
-        let mut lens = qt.transmute_lens::<(&Position, &Behavior)>();
+        let mut lens = qt.transmute_lens::<(&Position, &Behaviour)>();
         rebuild_lighting_field(&mut bf, &lens.query(), &mut avg_time);
     }
 }

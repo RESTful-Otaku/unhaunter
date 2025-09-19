@@ -163,7 +163,7 @@ impl WalkieEvent {
             WalkieEvent::SanityDroppedBelowThresholdGhost => {
                 Box::new(PlayerWellbeingConcept::SanityDroppedBelowThresholdGhost)
             }
-            // --- Consumables and Defense ---
+            // --- Consumables and defence ---
             WalkieEvent::QuartzCrackedFeedback => {
                 Box::new(ConsumablesAndDefenceConcept::QuartzCrackedFeedback)
             }
@@ -182,7 +182,7 @@ impl WalkieEvent {
             WalkieEvent::SageUnusedDefensivelyDuringHunt => {
                 Box::new(ConsumablesAndDefenceConcept::SageUnusedDefensivelyDuringHunt)
             }
-            // --- Ghost Behavior and Hunting ---
+            // --- Ghost Behaviour and Hunting ---
             WalkieEvent::PlayerStaysHiddenTooLong => {
                 Box::new(GhostBehaviourAndHuntingConcept::PlayerStaysHiddenTooLong)
             }
@@ -342,7 +342,7 @@ impl WalkieEvent {
                 "The shimmering distortion is the Ghost Breach, its entry point."
             }
             WalkieEvent::GhostShowcase => {
-                "That was the ghost! Observe its appearance and behavior."
+                "That was the ghost! Observe its appearance and behaviour."
             }
             WalkieEvent::RoomLightsOnGearNeedsDark => {
                 "This gear works best in darkness. Turn off room lights."
@@ -364,7 +364,7 @@ impl WalkieEvent {
                 "Sanity dropping near ghost! Increase distance or use Quartz."
             }
 
-            // --- Consumables and Defense ---
+            // --- Consumables and defence ---
             WalkieEvent::QuartzCrackedFeedback => {
                 "Quartz took damage protecting you! It has limited uses."
             }

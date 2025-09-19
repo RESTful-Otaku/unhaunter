@@ -1,4 +1,4 @@
-use super::{Behavior, Orientation};
+use super::{Behaviour, Orientation};
 use crate::components::board::boardposition::BoardPosition;
 use crate::types::tiledmap::map::MapLayer;
 use bevy::{ecs::component::Component, log::warn, math::Vec3};
@@ -74,8 +74,8 @@ impl Interactive {
         }
     }
 
-    pub fn sound_for_moving_into_state(&self, behavior: &Behavior) -> String {
-        match behavior.cfg.state {
+    pub fn sound_for_moving_into_state(&self, behaviour: &Behaviour) -> String {
+        match behaviour.cfg.state {
             super::TileState::On => self.on_activate_sound_file.clone(),
             super::TileState::Off => self.on_deactivate_sound_file.clone(),
             super::TileState::Open => self.on_activate_sound_file.clone(),
@@ -87,9 +87,9 @@ impl Interactive {
         }
     }
 
-    pub fn control_point_delta(&self, behavior: &Behavior) -> Vec3 {
-        match behavior.cfg.class {
-            super::Class::Door => match behavior.cfg.orientation {
+    pub fn control_point_delta(&self, behaviour: &Behaviour) -> Vec3 {
+        match behaviour.cfg.class {
+            super::Class::Door => match behaviour.cfg.orientation {
                 super::Orientation::XAxis => Vec3::new(0.0, -0.25, 0.0),
                 super::Orientation::YAxis => Vec3::new(0.25, 0.0, 0.0),
                 _ => Vec3::ZERO,
@@ -100,34 +100,34 @@ impl Interactive {
 }
 
 #[derive(Component, Debug, Clone, PartialEq)]
-pub struct NpcHelpDialog {
-    pub dialog: String,
+pub struct NpcHelpdialogue {
+    pub dialogueue: String,
     pub seen: bool,
     pub trigger: f32,
 }
 
-impl NpcHelpDialog {
+impl NpcHelpdialogue {
     pub fn new(classname: &str, variant: &str, layer: &MapLayer) -> Self {
-        let key = format!("{classname}:{variant}:dialog");
-        let dialog = match layer.user_properties.get(&key) {
+        let key = format!("{classname}:{variant}:dialogueue");
+        let dialogueue = match layer.user_properties.get(&key) {
             Some(p) => match p {
                 tiled::PropertyValue::StringValue(v) => v.to_string(),
                 _ => {
                     warn!(
-                        "NPCHelpDialog was expecting a user property named {key:?} in the layer but it had an unsupported type - it must be text"
+                        "NPCHelpdialogueue was expecting a user property named {key:?} in the layer but it had an unsupported type - it must be text"
                     );
                     "".to_string()
                 }
             },
             None => {
                 warn!(
-                    "NPCHelpDialog was expecting a user property named {key:?} in the layer but was not present"
+                    "NPCHelpdialogueue was expecting a user property named {key:?} in the layer but was not present"
                 );
                 "".to_string()
             }
         };
         Self {
-            dialog,
+            dialogueue,
             seen: false,
             trigger: 0.0,
         }

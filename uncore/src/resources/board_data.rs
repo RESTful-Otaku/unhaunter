@@ -267,8 +267,8 @@ impl FromWorld for BoardData {
                 ghost_attracting_objects: HashMap::new(),
                 ghost_repelling_objects: HashMap::new(),
             },
-            map_path: String::new(), // Initialize map_path with an empty string
-            level_ready_time: 0.0,   // Initialize level_ready_time
+            map_path: String::new(), // Initialise map_path with an empty string
+            level_ready_time: 0.0,   // Initialise level_ready_time
             ghost_dynamics: GhostBehaviourDynamics::default(),
         }
     }

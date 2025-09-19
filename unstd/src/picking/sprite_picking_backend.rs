@@ -1,7 +1,7 @@
 //! Custom sprite picking backend for map sprites using custom materials
 //!
 //! This backend enables mouse picking for map sprites that use `MeshMaterial2d<CustomMaterial1>`
-//! instead of the standard `Sprite` component. It mimics the behavior of Bevy's built-in
+//! instead of the standard `Sprite` component. It mimics the behaviour of Bevy's built-in
 //! `SpritePickingPlugin` but works with custom materials and mesh-based sprites.
 //!
 //! ## Architecture
@@ -250,10 +250,10 @@ fn custom_sprite_picking(
                 let hit = match settings.picking_mode {
                     CustomSpritePickingMode::BoundingBox => {
                         // Simple bounding box intersection using tile_size
-                        let sprite_center = sprite_transform.translation().truncate();
+                        let sprite_centre = sprite_transform.translation().truncate();
                         let half_tile = settings.tile_size * 0.5;
-                        let min_bounds = sprite_center - half_tile;
-                        let max_bounds = sprite_center + half_tile;
+                        let min_bounds = sprite_centre - half_tile;
+                        let max_bounds = sprite_centre + half_tile;
 
                         cursor_2d.x >= min_bounds.x
                             && cursor_2d.x <= max_bounds.x
@@ -362,11 +362,11 @@ fn pixel_perfect_hit_test(
     let sprite_anchor = Vec2::new(sprite_size.x / 2.0, sprite_size.y * (0.5 - y_anchor));
 
     // Calculate sprite bounds in world space (similar to QuadCC logic)
-    let sprite_center = sprite_transform.translation().truncate();
-    let left_x = sprite_center.x - sprite_anchor.x;
-    let right_x = sprite_center.x + (sprite_size.x - sprite_anchor.x);
-    let bottom_y = sprite_center.y + (sprite_anchor.y - sprite_size.y);
-    let top_y = sprite_center.y + sprite_anchor.y;
+    let sprite_centre = sprite_transform.translation().truncate();
+    let left_x = sprite_centre.x - sprite_anchor.x;
+    let right_x = sprite_centre.x + (sprite_size.x - sprite_anchor.x);
+    let bottom_y = sprite_centre.y + (sprite_anchor.y - sprite_size.y);
+    let top_y = sprite_centre.y + sprite_anchor.y;
 
     // Check if cursor is within sprite bounds
     if cursor_world_pos.x < left_x
@@ -419,8 +419,8 @@ fn pixel_perfect_hit_test(
     let final_v = base_v + margin_v * cell_height;
 
     // Sample the texture at the calculated UV coordinates
-    let center_tex_x = (final_u * image.width() as f32) as i32;
-    let center_tex_y = (final_v * image.height() as f32) as i32;
+    let centre_tex_x = (final_u * image.width() as f32) as i32;
+    let centre_tex_y = (final_v * image.height() as f32) as i32;
 
     // Helper function to check alpha at specific texture coordinates
     let check_pixel_alpha = |tex_x: i32, tex_y: i32| -> bool {
@@ -457,7 +457,7 @@ fn pixel_perfect_hit_test(
     };
 
     // Check the centre pixel first
-    if check_pixel_alpha(center_tex_x, center_tex_y) {
+    if check_pixel_alpha(centre_tex_x, centre_tex_y) {
         return true;
     }
 
@@ -488,8 +488,8 @@ fn pixel_perfect_hit_test(
 
     // Check each neighbour pixel
     for (dx, dy) in neighbour_offsets {
-        let neighbour_x = center_tex_x + dx;
-        let neighbour_y = center_tex_y + dy;
+        let neighbour_x = centre_tex_x + dx;
+        let neighbour_y = centre_tex_y + dy;
 
         if check_pixel_alpha(neighbour_x, neighbour_y) {
             return true;

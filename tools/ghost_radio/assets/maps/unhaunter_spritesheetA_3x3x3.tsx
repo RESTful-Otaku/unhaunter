@@ -1128,7 +1128,7 @@
  </tile>
  <tile id="118" type="RoomDef">
   <properties>
-   <property name="sprite:variant" value="Home theater"/>
+   <property name="sprite:variant" value="Home theatre"/>
   </properties>
  </tile>
  <tile id="119" type="RoomDef">
@@ -1708,9 +1708,9 @@
  </tile>
  <wangsets>
   <wangset name="Unnamed Set" type="corner" tile="-1">
-   <wangcolor name="stones" color="#ff0000" tile="-1" probability="1"/>
-   <wangcolor name="grass" color="#00ff00" tile="-1" probability="1"/>
-   <wangcolor name="asphalt" color="#0000ff" tile="-1" probability="1"/>
+   <wangcolour name="stones" colour="#ff0000" tile="-1" probability="1"/>
+   <wangcolour name="grass" colour="#00ff00" tile="-1" probability="1"/>
+   <wangcolour name="asphalt" colour="#0000ff" tile="-1" probability="1"/>
    <wangtile tileid="0" wangid="0,1,0,1,0,1,0,1"/>
    <wangtile tileid="1" wangid="0,1,0,1,0,1,0,1"/>
    <wangtile tileid="2" wangid="0,1,0,1,0,1,0,1"/>
@@ -1725,7 +1725,7 @@
    <wangtile tileid="11" wangid="0,3,0,3,0,3,0,3"/>
   </wangset>
   <wangset name="Unnamed Set" type="edge" tile="-1">
-   <wangcolor name="" color="#ff0000" tile="-1" probability="1"/>
+   <wangcolour name="" colour="#ff0000" tile="-1" probability="1"/>
   </wangset>
  </wangsets>
 </tileset>

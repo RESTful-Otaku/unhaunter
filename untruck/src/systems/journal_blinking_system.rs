@@ -6,7 +6,7 @@ use uncore::resources::ghost_guess::GhostGuess;
 use uncore::states::GameState;
 use uncore::types::ghost::types::GhostType;
 use uncore::{
-    colors,
+    colours,
     components::truck_ui_button::TruckUIButton,
     events::loadlevel::LevelLoadedEvent,
     resources::current_evidence_readings::CurrentEvidenceReadings,
@@ -132,7 +132,7 @@ fn update_journal_button_blinking_system(
                     (time.elapsed_secs_f64() * std::f64::consts::PI * 2.0).sin() * 0.5 + 0.5; // Varies 0.0 to 1.0
                 let normal_color = truck_button.border_color(bevy::ui::Interaction::None);
                 border_color.0 = normal_color.mix(
-                    &colors::JOURNAL_BUTTON_BLINK_BORDER_COLOR,
+                    &colours::JOURNAL_BUTTON_BLINK_BORDER_COLOR,
                     pulse_factor as f32,
                 );
             } else if truck_button.blinking_hint_active {
@@ -224,18 +224,18 @@ fn update_journal_ghost_blinking_system(
                 let pulse_factor =
                     (time.elapsed_secs_f64() * std::f64::consts::PI * 2.0).sin() * 0.5 + 0.5; // Varies 0.0 to 1.0
 
-                // For ghost buttons, the normal border color is Color::NONE (transparent)
-                // So we need to use a visible base color when blinking
+                // For ghost buttons, the normal border colour is Color::NONE (transparent)
+                // So we need to use a visible base colour when blinking
                 let base_color = match truck_button.class {
                     TruckButtonType::Ghost(_) => {
-                        // Use a subtle base color instead of transparent for ghost buttons
-                        colors::TRUCKUI_ACCENT2_COLOR
+                        // Use a subtle base colour instead of transparent for ghost buttons
+                        colours::TRUCKUI_ACCENT2_COLOR
                     }
                     _ => truck_button.border_color(bevy::ui::Interaction::None),
                 };
 
                 let new_border_color = base_color.mix(
-                    &colors::JOURNAL_BUTTON_BLINK_BORDER_COLOR,
+                    &colours::JOURNAL_BUTTON_BLINK_BORDER_COLOR,
                     pulse_factor as f32,
                 );
                 border_color.0 = new_border_color;

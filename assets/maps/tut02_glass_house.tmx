@@ -499,7 +499,7 @@
   </layer>
   <layer id="12" name="NPC" width="30" height="50">
    <properties>
-    <property name="NPC:L:dialog">Hi, and welcome to our paranormal training camp, The Glass House.
+    <property name="NPC:L:dialogue">Hi, and welcome to our paranormal training camp, The Glass House.
 
 We have prepared a ghost inside, your job is to experiment on the different tools and see if you can collect the evidence of the ghost.
 

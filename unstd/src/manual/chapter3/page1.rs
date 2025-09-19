@@ -6,7 +6,7 @@ use uncore::types::root::game_assets::GameAssets;
 pub fn draw(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
     let title = "Mastering Advanced Investigation";
     let subtitle = "
-        Delve deeper into the paranormal, utilising advanced techniques and specialised gear to uncover the unseen.
+        Delve deeper into the paranormal, utilising advanced techniques and specialized gear to uncover the unseen.
         "
     .trim();
     let grid = vec![
@@ -32,7 +32,7 @@ pub fn draw(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
         ),
         (
             &handles.images.manual_emf_fluctuations,
-            "*6. Ghost Behavior: EMF Fluctuations:* Ghosts can cause fluctuations in the EMF even when not giving an EMF5 reading. Watch for sudden spikes or changes in the EMF reading, it could indicate the ghost's presence or movement, even if it doesn't reach level 5.",
+            "*6. Ghost behaviour: EMF Fluctuations:* Ghosts can cause fluctuations in the EMF even when not giving an EMF5 reading. Watch for sudden spikes or changes in the EMF reading, it could indicate the ghost's presence or movement, even if it doesn't reach level 5.",
         ),
     ];
     let summary = "Master these techniques, manage your sanity, and learn to interpret the subtle signs. You're ready to face the challenges ahead. Good luck, Senior Investigator!";
@@ -53,7 +53,7 @@ pub fn draw(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
 pub fn create_manual_page() -> ManualPageData {
     ManualPageData {
         title: "Mastering Advanced Investigation".into(),
-        subtitle: "Delve deeper into the paranormal, utilising advanced techniques and specialised gear to uncover the unseen.".into(),
+        subtitle: "Delve deeper into the paranormal, utilising advanced techniques and specialized gear to uncover the unseen.".into(),
         draw_fn: draw,
     }
 }

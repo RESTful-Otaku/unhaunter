@@ -1,8 +1,8 @@
 use super::gear_ui::{setup_ui_gear_inv_left, setup_ui_gear_inv_right};
 use bevy::{color::palettes::css, prelude::*};
 use bevy_persistent::Persistent;
-use uncore::behaviour::Behavior;
-use uncore::colors;
+use uncore::behaviour::Behaviour;
+use uncore::colours;
 use uncore::components::game_ui::{
     DamageBackground, ElementObjectUI, EvidenceUI, GameUI, RightSideGearUI, WalkieText,
     WalkieTextUIRoot,
@@ -71,7 +71,7 @@ fn setup_ui(
                 })
                 .insert(TextLayout::new_with_justify(JustifyText::Center))
                 .insert(BackgroundColor(css::BLACK.with_alpha(0.6).into()))
-                .insert(TextColor(colors::WALKIE_TALKIE_COLOR))
+                .insert(TextColor(colours::WALKIE_TALKIE_COLOR))
                 .insert(Node {
                     padding: UiRect::axes(Val::Px(10.0 * UI_SCALE), Val::Px(1.0 * UI_SCALE)),
                     ..default()
@@ -140,7 +140,7 @@ fn setup_ui(
                         ..default()
                     })
                     .insert(TextLayout::new_with_justify(JustifyText::Center))
-                    .insert(TextColor(colors::INVENTORY_STATS_COLOR))
+                    .insert(TextColor(colours::INVENTORY_STATS_COLOR))
                     .insert(Node {
                         align_self: AlignSelf::Center,
                         justify_self: JustifySelf::Center,
@@ -170,8 +170,8 @@ fn setup_ui(
             flex_shrink: 0.0,
             ..Default::default()
         })
-        .insert(colors::DEBUG_BCOLOR)
-        .insert(BackgroundColor(colors::PANEL_BGCOLOR))
+        .insert(colours::DEBUG_BCOLOR)
+        .insert(BackgroundColor(colours::PANEL_BGCOLOR))
         .with_children(inv_left);
 
         // Mid side
@@ -181,8 +181,8 @@ fn setup_ui(
             flex_grow: 1.0,
             ..Default::default()
         })
-        .insert(colors::DEBUG_BCOLOR)
-        .insert(BackgroundColor(colors::PANEL_BGCOLOR))
+        .insert(colours::DEBUG_BCOLOR)
+        .insert(BackgroundColor(colours::PANEL_BGCOLOR))
         .with_children(evidence);
 
         // Right side
@@ -196,8 +196,8 @@ fn setup_ui(
             flex_grow: 0.01,
             ..Default::default()
         })
-        .insert(colors::DEBUG_BCOLOR)
-        .insert(BackgroundColor(colors::PANEL_BGCOLOR))
+        .insert(colours::DEBUG_BCOLOR)
+        .insert(BackgroundColor(colours::PANEL_BGCOLOR))
         .with_children(|p| {
             p.spawn(Node {
                 align_items: AlignItems::Start,
@@ -219,8 +219,8 @@ fn setup_ui(
             //     flex_grow: 1.0,
             //     ..Default::default()
             // })
-            // .insert(colors::DEBUG_BCOLOR)
-            // .insert(BackgroundColor(colors::PANEL_BGCOLOR))
+            // .insert(colours::DEBUG_BCOLOR)
+            // .insert(BackgroundColor(colours::PANEL_BGCOLOR))
             // .insert(HeldObjectUI)
             // .with_children(|parent| setup_ui_held_object(parent, &handles));
         });
@@ -234,7 +234,7 @@ fn setup_ui(
             align_items: AlignItems::FlexStart,
             ..default()
         })
-        .insert(colors::DEBUG_BCOLOR)
+        .insert(colours::DEBUG_BCOLOR)
         .insert(Pickable::IGNORE)
         .with_children(|parent| {
             // logo
@@ -268,7 +268,7 @@ fn setup_ui(
             ..Default::default()
         })
         .insert(Pickable::IGNORE)
-        .insert(colors::DEBUG_BCOLOR);
+        .insert(colours::DEBUG_BCOLOR);
 
         p.spawn(Node {
             align_content: AlignContent::Start,
@@ -279,7 +279,7 @@ fn setup_ui(
             flex_grow: 0.0,
             ..Default::default()
         })
-        .insert(BackgroundColor(colors::PANEL_BGCOLOR))
+        .insert(BackgroundColor(colours::PANEL_BGCOLOR))
         .with_children(key_legend);
 
         // Bottom side - inventory and stats
@@ -292,8 +292,8 @@ fn setup_ui(
             padding: UiRect::all(Val::Px(1.0)),
             ..Default::default()
         })
-        .insert(colors::DEBUG_BCOLOR)
-        .insert(BackgroundColor(colors::PANEL_BGCOLOR))
+        .insert(colours::DEBUG_BCOLOR)
+        .insert(BackgroundColor(colours::PANEL_BGCOLOR))
         .with_children(bottom_panel);
     };
 
@@ -309,7 +309,7 @@ fn setup_ui(
             ..default()
         })
         .insert(Pickable::IGNORE)
-        .insert(colors::DEBUG_BCOLOR)
+        .insert(colours::DEBUG_BCOLOR)
         .insert(GameUI)
         .with_children(game_ui);
     info!("Game UI loaded");
@@ -324,7 +324,7 @@ fn setup_ui_evidence(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
                 font_size: 22.0 * FONT_SCALE,
                 ..default()
             },
-            TextColor(colors::INVENTORY_STATS_COLOR.with_alpha(1.0)),
+            TextColor(colours::INVENTORY_STATS_COLOR.with_alpha(1.0)),
             TextLayout::default(),
             Node::default(),
             EvidenceUI,
@@ -337,7 +337,7 @@ fn setup_ui_evidence(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
                     font_size: 22.0 * FONT_SCALE,
                     ..default()
                  })
-                .insert(TextColor(colors::INVENTORY_STATS_COLOR.with_alpha(1.0)));
+                .insert(TextColor(colours::INVENTORY_STATS_COLOR.with_alpha(1.0)));
             parent
                 .spawn(TextSpan::new(" [+] Evidence Found\n"))
                 .insert(TextFont {
@@ -355,7 +355,7 @@ fn setup_ui_evidence(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
                     font_size: 20.0 * FONT_SCALE,
                     ..default()
                  })
-                .insert(TextColor(colors::INVENTORY_STATS_COLOR));
+                .insert(TextColor(colours::INVENTORY_STATS_COLOR));
         });
 }
 
@@ -369,7 +369,7 @@ fn _setup_ui_held_object(parent: &mut ChildSpawnerCommands, handles: &GameAssets
             font_size: 20.0 * FONT_SCALE,
             ..default()
         })
-        .insert(TextColor(colors::INVENTORY_STATS_COLOR))
+        .insert(TextColor(colours::INVENTORY_STATS_COLOR))
         .insert(ElementObjectUI::Name);
 
     // --- Object Description ---
@@ -380,7 +380,7 @@ fn _setup_ui_held_object(parent: &mut ChildSpawnerCommands, handles: &GameAssets
             font_size: 16.0 * FONT_SCALE,
             ..default()
         })
-        .insert(TextColor(colors::INVENTORY_STATS_COLOR))
+        .insert(TextColor(colours::INVENTORY_STATS_COLOR))
         .insert(ElementObjectUI::Description);
 
     // --- Control Actions ---
@@ -391,7 +391,7 @@ fn _setup_ui_held_object(parent: &mut ChildSpawnerCommands, handles: &GameAssets
             font_size: 16.0 * FONT_SCALE,
             ..default()
         })
-        .insert(TextColor(colors::INVENTORY_STATS_COLOR))
+        .insert(TextColor(colours::INVENTORY_STATS_COLOR))
         .insert(ElementObjectUI::Grab);
 }
 
@@ -412,7 +412,7 @@ fn toggle_held_object_ui(
     // >,
     mut text_query: Query<(&mut Text, &mut TextColor, &ElementObjectUI)>,
     players: Query<&PlayerGear, With<PlayerSprite>>,
-    objects: Query<&Behavior>,
+    objects: Query<&Behaviour>,
 ) {
     // let is_holding_object = players
     //     .iter()
@@ -448,15 +448,15 @@ fn toggle_held_object_ui(
     // }
 
     // --- Retrieve Object Data ---
-    if let Ok(player_gear) = players.single() {
-        if let Some(held_object) = &player_gear.held_item {
-            if let Ok(behavior) = objects.get(held_object.entity) {
+    if let Ok(player_gear) = players.single()
+        && let Some(held_object) = &player_gear.held_item
+            && let Ok(behaviour) = objects.get(held_object.entity) {
                 // --- Set Object Name ---
                 for (mut text, _, _) in text_query
                     .iter_mut()
                     .filter(|(_, _, e)| **e == ElementObjectUI::Name)
                 {
-                    text.0.clone_from(&behavior.p.object.name);
+                    text.0.clone_from(&behaviour.p.object.name);
                 }
 
                 // --- Set Object Description ---
@@ -468,21 +468,19 @@ fn toggle_held_object_ui(
                 }
 
                 // --- Dynamic "Move" Action ---
-                for (mut text, mut color, _) in text_query
+                for (mut text, mut colour, _) in text_query
                     .iter_mut()
                     .filter(|(_, _, e)| **e == ElementObjectUI::Grab)
                 {
-                    if behavior.p.object.movable {
+                    if behaviour.p.object.movable {
                         text.0 = "[Grab]: Move Object".into();
-                        color.0 = colors::INVENTORY_STATS_COLOR;
+                        colour.0 = colours::INVENTORY_STATS_COLOR;
                     } else {
                         text.0 = "[Grab]: -".into();
-                        color.0 = colors::INVENTORY_STATS_COLOR.with_alpha(0.3);
+                        colour.0 = colours::INVENTORY_STATS_COLOR.with_alpha(0.3);
                     }
                 }
             }
-        }
-    }
 }
 
 pub(crate) fn app_setup(app: &mut App) {

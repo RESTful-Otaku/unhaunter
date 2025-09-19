@@ -73,8 +73,8 @@ impl WalkiePlay {
             }
         }
         let min_delay_mult = effective_priority.time_factor() as f64;
-        let repeat_behavior = event.repeat_behavior();
-        let timing_mult = repeat_behavior.timing_multiplier();
+        let repeat_behaviour = event.repeat_behaviour();
+        let timing_mult = repeat_behaviour.timing_multiplier();
 
         if time - self.last_message_time
             < (20.0 + count as f64 * 30.0 + saved_count as f64 * 10.0)
@@ -92,7 +92,7 @@ impl WalkiePlay {
         count += 1;
         let mut rng = random_seed::rng();
         let max_dice_value = saved_count * saved_count.clamp(0, 4);
-        let dice_threshold = repeat_behavior.dice_threshold();
+        let dice_threshold = repeat_behaviour.dice_threshold();
         let dice = rng.random_range(0..=max_dice_value);
         if dice > dice_threshold {
             // Skip playing this event, played too many times.

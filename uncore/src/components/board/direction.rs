@@ -64,7 +64,7 @@ impl Direction {
             dz: self.dz * max_dist / dst,
         }
     }
-    pub fn normalized(&self) -> Self {
+    pub fn normalised(&self) -> Self {
         let dst = self.distance() + 0.000000001;
         Self {
             dx: self.dx / dst,

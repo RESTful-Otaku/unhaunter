@@ -7,26 +7,26 @@ use bevy_platform::collections::HashSet;
 use bevy_platform::time::Instant;
 use ndarray::Array3;
 use uncore::{
-    behaviour::{Behavior, Orientation},
+    behaviour::{Behaviour, Orientation},
     components::board::position::Position,
     resources::board_data::BoardData,
     types::board::fielddata::LightFieldData,
 };
 
-/// Rebuilds the lighting field based on the current state of the board and behaviors
+/// Rebuilds the lighting field based on the current state of the board and behaviours
 /// by switching between legacy and new implementations.
 ///
-/// This function iterates through all entities with `Position` and `Behavior` components,
+/// This function iterates through all entities with `Position` and `Behaviour` components,
 /// calculates the light emitted and transmitted by each entity, and then propagates
 /// the light throughout the board using a multi-step process.
 ///
 /// # Arguments
 ///
 /// * `bf` - A mutable reference to the `BoardData` resource, which stores the lighting field.
-/// * `qt` - A query for entities with `Position` and `Behavior` components.
+/// * `qt` - A query for entities with `Position` and `Behaviour` components.
 pub fn rebuild_lighting_field(
     bf: &mut BoardData,
-    qt: &Query<(&Position, &Behavior)>,
+    qt: &Query<(&Position, &Behaviour)>,
     avg_time: &mut Local<(f32, f32)>,
 ) {
     // info!("Starting rebuild_lighting_field using prebaked data");
@@ -241,7 +241,7 @@ fn apply_ambient_light_to_walls(bf: &BoardData, lfs: &mut Array3<LightFieldData>
 
         // Only update if we found lit neighbours
         if weight_sum > 0.0 {
-            // Calculate average color
+            // Calculate average colour
             let avg_color = (
                 weighted_color_sum.0 / weight_sum,
                 weighted_color_sum.1 / weight_sum,

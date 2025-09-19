@@ -6,7 +6,7 @@ use uncore::behaviour::SpriteCVOKey;
 /// The `SpriteDB` resource stores a database of pre-built Bevy components and
 /// sprites for map tiles.
 ///
-/// This resource optimizes map loading and manipulation by:
+/// This resource optimises map loading and manipulation by:
 ///
 /// * Pre-building Bevy components for each tile type, avoiding redundant entity
 ///   creation during map loading.
@@ -18,7 +18,7 @@ use uncore::behaviour::SpriteCVOKey;
 #[derive(Clone, Default, Resource)]
 pub struct SpriteDB {
     /// Maps a unique tile identifier (tileset name + tile UID) to its pre-built Bevy
-    /// components, including the `Bdl` (bundle) and the `Behavior`. This enables
+    /// components, including the `Bdl` (bundle) and the `behaviour`. This enables
     /// efficient lookup of components during map loading and interaction events.
     pub map_tile: HashMap<(String, u32), MapTileComponents>,
     /// Indexes tile identifiers based on their visual characteristics:

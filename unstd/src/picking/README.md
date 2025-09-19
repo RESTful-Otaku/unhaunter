@@ -30,7 +30,7 @@ For entities to be pickable, they need:
 
 ## Settings
 
-Configure the picking behavior with `CustomSpritePickingSettings`:
+Configure the picking behaviour with `CustomSpritePickingSettings`:
 
 ```rust
 // Default settings (1x1 logical unit bounding box)

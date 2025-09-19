@@ -2,7 +2,7 @@ use enum_iterator::all;
 use std::collections::HashMap;
 use uncore::types::{evidence::Evidence, ghost::types::GhostType};
 
-// This command will analyze how often two evidences appear together.
+// This command will analyse how often two evidences appear together.
 // DESIGN.md mentions:
 // ghost_list correlate --evidence "Freezing Temps" --with "EMF Level 5"
 
@@ -32,7 +32,7 @@ pub fn handle_correlation_command(evidence1_str: &str, evidence2_str: Option<&st
             }
         };
         println!(
-            "Analyzing correlation between '{}' and '{}':",
+            "Analysing correlation between '{}' and '{}':",
             evidence1.name(),
             evidence2.name()
         );
@@ -66,7 +66,7 @@ pub fn handle_correlation_command(evidence1_str: &str, evidence2_str: Option<&st
             }
         }
 
-        println!("\nTotal ghosts analyzed: {}", total_ghosts);
+        println!("\nTotal ghosts analysed: {}", total_ghosts);
         println!(
             "Ghosts with '{}': {} ({:.1}%)",
             evidence1.name(),
@@ -131,7 +131,7 @@ pub fn handle_correlation_command(evidence1_str: &str, evidence2_str: Option<&st
     } else {
         // Correlate evidence1 with all other evidences
         println!(
-            "Analyzing correlation of '{}' with all other evidences:",
+            "Analysing correlation of '{}' with all other evidences:",
             evidence1.name()
         );
 

@@ -31,10 +31,10 @@ These properties are typically already present for map identification and flavou
     *   **Purpose:** The human-readable name of the map/mission as it will appear in UI lists (e.g., Campaign Mission list, Custom Mission map list).
     *   **Example XML:** `<property name="display_name" value="Stage 1A: The Whispering Shed"/>`
 
-2.  **`flavor_text`**
+2.  **`flavour_text`**
     *   **Type:** `string` (can be multiline in Tiled)
     *   **Purpose:** A descriptive text or briefing for the mission. Displayed when the mission is highlighted in the Campaign selection UI.
-    *   **Example XML:** `<property name="flavor_text" value="A chilling presence has been reported... Your first official case."/>`
+    *   **Example XML:** `<property name="flavour_text" value="A chilling presence has been reported... Your first official case."/>`
 
 3.  **`map_preview_image`**
     *   **Type:** `string`
@@ -59,7 +59,7 @@ These are standard Tiled properties or existing custom properties that provide g
  <properties>
   <property name="author" value="deavidsedice"/>
   <property name="display_name" value="Stage 1A: The Whispering Shed"/>
-  <property name="flavor_text" value="A chilling presence has been reported in this seemingly innocuous shed. Locals say tools move on their own. Your first official case."/>
+  <property name="flavour_text" value="A chilling presence has been reported in this seemingly innocuous shed. Locals say tools move on their own. Your first official case."/>
   <property name="is_campaign_mission" type="bool" value="true"/>
   <property name="campaign_order" type="string" value="01A"/>
   <property name="campaign_difficulty" type="string" value="TutorialChapter1"/>

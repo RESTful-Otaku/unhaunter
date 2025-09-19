@@ -5,7 +5,7 @@ use crate::metrics;
 use super::{Gear, GearKind, GearSpriteID, GearStuff, GearUsable};
 use bevy::prelude::*;
 use rand::Rng;
-use uncore::components::board::mapcolor::MapColor;
+use uncore::components::board::mapcolour::MapColour;
 use uncore::metric_recorder::SendMetric;
 use uncore::random_seed;
 use uncore::{
@@ -100,7 +100,7 @@ impl GearUsable for SageBundleData {
                     .insert(SageSmokeParticle)
                     .insert(GameSprite)
                     .insert(pos)
-                    .insert(MapColor {
+                    .insert(MapColour {
                         color: Color::WHITE.with_alpha(0.00),
                     })
                     .insert(SmokeParticleTimer(Timer::from_seconds(
@@ -165,7 +165,7 @@ fn sage_smoke_system(
             &mut Position,
             &mut Transform,
             &mut SmokeParticleTimer,
-            &mut MapColor,
+            &mut MapColour,
             Option<&Direction>,
         ),
         (Without<GhostSprite>, With<SageSmokeParticle>),

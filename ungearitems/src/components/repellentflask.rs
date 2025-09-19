@@ -2,7 +2,7 @@ use bevy_platform::collections::HashSet;
 use fastapprox::faster;
 use ndarray::Array3;
 use uncore::components::board::boardposition::BoardPosition;
-use uncore::components::board::mapcolor::MapColor;
+use uncore::components::board::mapcolour::MapColour;
 use uncore::components::board::{direction::Direction, position::Position};
 use uncore::components::repellent_particle::RepellentParticle;
 use uncore::components::sprite_type::SpriteType;
@@ -21,7 +21,7 @@ use super::{Gear, GearKind, GearSpriteID, GearUsable};
 use bevy::{color::palettes::css, prelude::*};
 use rand::Rng;
 
-// Colors for repellent particles
+// colours for repellent particles
 const ELECTRIC_BLUE: Color = Color::srgba(0.0, 0.3, 1.0, 1.0);
 const BRIGHT_RED: Color = Color::srgba(1.0, 0.2, 0.0, 1.0);
 use std::ops::{Add, Mul};
@@ -97,7 +97,7 @@ impl GearUsable for RepellentFlask {
             self.active = true;
         }
         // If already active, or qty is 0, or no liquid_content, it does nothing.
-        // This maintains the "activate once to deplete" behavior.
+        // This maintains the "activate once to deplete" behaviour.
     }
 
     fn box_clone(&self) -> Box<dyn GearUsable> {
@@ -144,7 +144,7 @@ impl GearUsable for RepellentFlask {
             })
             .insert(pos)
             .insert(GameSprite)
-            .insert(MapColor {
+            .insert(MapColour {
                 color: css::YELLOW.with_alpha(0.3).with_blue(0.02).into(),
             })
             .insert(RepellentParticle::new(liquid_content))
@@ -177,7 +177,7 @@ fn repellent_update(
     mut cmd: Commands,
     mut qgs: Query<(&Position, &mut GhostSprite)>,
     mut qrp: Query<
-        (&mut Position, &mut RepellentParticle, &mut MapColor, Entity),
+        (&mut Position, &mut RepellentParticle, &mut MapColour, Entity),
         Without<GhostSprite>,
     >,
     bf: Res<BoardData>,
@@ -238,7 +238,7 @@ fn repellent_update(
         }
     }
 
-    for (mut r_pos, mut rep, mut mapcolor, entity) in &mut qrp {
+    for (mut r_pos, mut rep, mut mapcolour, entity) in &mut qrp {
         rep.life -= dt;
         if rep.life < 0.0 {
             cmd.entity(entity).despawn();
@@ -247,16 +247,16 @@ fn repellent_update(
         let life_factor = rep.life_factor();
         let rev_factor = 1.01 - life_factor;
 
-        // Handle color transition
+        // Handle colour transition
         let life_factor = rep.life_factor();
         let alpha = life_factor.cbrt() / 2.0 + 0.01;
 
         if rep.hit_correct {
-            mapcolor.color = ELECTRIC_BLUE.with_alpha(alpha.cbrt());
+            mapcolour.color = ELECTRIC_BLUE.with_alpha(alpha.cbrt());
         } else if rep.hit_incorrect {
-            mapcolor.color = BRIGHT_RED.with_alpha(alpha.cbrt());
+            mapcolour.color = BRIGHT_RED.with_alpha(alpha.cbrt());
         } else {
-            mapcolor.color = RepellentParticle::DEFAULT_COLOR.with_alpha(alpha);
+            mapcolour.color = RepellentParticle::DEFAULT_COLOR.with_alpha(alpha);
         }
         let bpos = r_pos.to_board_position();
         let rr_pos = Position {
@@ -288,7 +288,7 @@ fn repellent_update(
         total_force.dx += rng.random_range(-0.1..0.1);
         total_force.dy += rng.random_range(-0.1..0.1);
 
-        // total_force = total_force.normalized().mul(total_force.distance().sqrt());
+        // total_force = total_force.normalised().mul(total_force.distance().sqrt());
         const PRESSURE_FORCE_SCALE: f32 = 1e-5;
         rep.dir = rep
             .dir
@@ -302,7 +302,7 @@ fn repellent_update(
                 let wall_pos = nb.to_position();
                 let delta = r_pos.delta(wall_pos);
                 let dist2 = delta.distance2() + 0.2;
-                let norm = delta.normalized();
+                let norm = delta.normalised();
                 let recip = dist2.recip();
                 let force = recip * 0.001;
                 if bpos == nb {

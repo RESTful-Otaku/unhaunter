@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 use uncore::behaviour::component::Stairs;
-use uncore::behaviour::{Behavior, Orientation};
+use uncore::behaviour::{Behaviour, Orientation};
 use uncore::components::board::position::Position;
 use uncore::components::game_config::GameConfig;
 use uncore::components::player_sprite::PlayerSprite;
 
 pub fn stairs_player(
     mut players: Query<(&mut Position, &PlayerSprite)>,
-    stairs: Query<(&Position, &Stairs, &Behavior), Without<PlayerSprite>>,
+    stairs: Query<(&Position, &Stairs, &Behaviour), Without<PlayerSprite>>,
     gc: Res<GameConfig>,
 ) {
     let Some((mut player_pos, _player_sprite)) =

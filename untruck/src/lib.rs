@@ -1,6 +1,6 @@
 //! ## Truck UI Module
 //!
-//! This module defines the structure, layout, and behavior of the in-game truck
+//! This module defines the structure, layout, and behaviour of the in-game truck
 //! UI, which serves as the player's base of operations. It includes:
 //!
 //! * UI elements for managing player gear (loadout).

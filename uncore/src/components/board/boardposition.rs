@@ -18,28 +18,28 @@ impl BoardPosition {
     // Therefore, a single tile measures 60xm x 60cm x 220cm
 
     /// Size of the tile in X direction: 60cm
-    pub fn size_x_meters() -> f32 {
+    pub fn size_x_metres() -> f32 {
         0.60
     }
 
     /// Size of the tile in Y direction: 60cm
-    pub fn size_y_meters() -> f32 {
+    pub fn size_y_metres() -> f32 {
         0.60
     }
 
     /// Size of the tile in Z direction: 220cm
-    pub fn size_z_meters() -> f32 {
+    pub fn size_z_metres() -> f32 {
         2.20
     }
 
     /// Area of a tile: 0.36m² - 3600cm²
     pub fn area_per_tile_m2() -> f32 {
-        Self::size_x_meters() * Self::size_y_meters()
+        Self::size_x_metres() * Self::size_y_metres()
     }
 
     /// Volume of a tile: 0.216 m³ - 216 Liters
     pub fn volume_per_tile_m3() -> f32 {
-        Self::size_x_meters() * Self::size_y_meters() * Self::size_z_meters()
+        Self::size_x_metres() * Self::size_y_metres() * Self::size_z_metres()
     }
 
     pub fn from_ndidx(pos: (usize, usize, usize)) -> Self {
@@ -95,7 +95,7 @@ impl BoardPosition {
     }
 
     /// DEPRECATED: This is wrong. The centre of the tile is BoardPosition::to_position(). This actually gives you the bottom right edge.
-    pub fn to_position_center(&self) -> Position {
+    pub fn to_position_centre(&self) -> Position {
         Position {
             x: self.x as f32 + 0.5,
             y: self.y as f32 + 0.5,

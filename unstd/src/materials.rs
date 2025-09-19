@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! A shader and a material that uses it.
 use bevy::{
     prelude::*,
@@ -33,16 +32,16 @@ pub struct CustomMaterial1Data {
 impl CustomMaterial1Data {
     pub fn delta(&self, other: &Self) -> f32 {
         let mut delta = 0.0;
-        let color1 = self.color.to_f32_array();
-        let color2 = other.color.to_f32_array();
-        delta += (color1[0] - color2[0]).abs();
-        delta += (color1[1] - color2[1]).abs();
-        delta += (color1[2] - color2[2]).abs();
-        let acolor1 = self.ambient_color.to_f32_array();
-        let acolor2 = other.ambient_color.to_f32_array();
-        delta += (acolor1[0] - acolor2[0]).abs();
-        delta += (acolor1[1] - acolor2[1]).abs();
-        delta += (acolor1[2] - acolor2[2]).abs();
+        let colour1 = self.color.to_f32_array();
+        let colour2 = other.color.to_f32_array();
+        delta += (colour1[0] - colour2[0]).abs();
+        delta += (colour1[1] - colour2[1]).abs();
+        delta += (colour1[2] - colour2[2]).abs();
+        let acolour1 = self.ambient_color.to_f32_array();
+        let acolour2 = other.ambient_color.to_f32_array();
+        delta += (acolour1[0] - acolour2[0]).abs();
+        delta += (acolour1[1] - acolour2[1]).abs();
+        delta += (acolour1[2] - acolour2[2]).abs();
         delta += (self.gamma - other.gamma).abs();
         delta += (self.gtl - other.gtl).abs();
         delta += (self.gtr - other.gtr).abs();
@@ -51,8 +50,8 @@ impl CustomMaterial1Data {
         delta += (self.sheet_rows as f32 - other.sheet_rows as f32).abs();
         delta += (self.sheet_cols as f32 - other.sheet_cols as f32).abs();
         delta += (self.sheet_idx as f32 - other.sheet_idx as f32).abs();
-        delta *= color1[3] + color2[3] + 0.1;
-        delta += (color1[3] - color2[3]).abs() * 15.0;
+        delta *= colour1[3] + colour2[3] + 0.1;
+        delta += (colour1[3] - colour2[3]).abs() * 15.0;
         delta
     }
 }
@@ -88,20 +87,20 @@ pub struct CustomMaterial1 {
     // needed, just add the sampler attribute with a different binding index.
     #[texture(1)]
     #[sampler(2)]
-    color_texture: Handle<Image>,
+    colour_texture: Handle<Image>,
 }
 
 impl CustomMaterial1 {
     pub fn from_texture(img_handle: Handle<Image>) -> Self {
         Self {
-            color_texture: img_handle,
+            colour_texture: img_handle,
             data: default(),
         }
     }
 
     /// Get the texture handle for this material
     pub fn texture(&self) -> &Handle<Image> {
-        &self.color_texture
+        &self.colour_texture
     }
 }
 
@@ -119,12 +118,11 @@ impl Material2d for CustomMaterial1 {
         _layout: &MeshVertexBufferLayoutRef,
         _key: Material2dKey<Self>,
     ) -> Result<(), SpecializedMeshPipelineError> {
-        if let Some(fragment) = &mut descriptor.fragment {
-            if let Some(target_state) = &mut fragment.targets[0] {
+        if let Some(fragment) = &mut descriptor.fragment
+            && let Some(target_state) = &mut fragment.targets[0] {
                 target_state.blend = Some(BlendState::ALPHA_BLENDING);
                 // target_state.blend = Some(BlendState::PREMULTIPLIED_ALPHA_BLENDING);
             }
-        }
         Ok(())
     }
 }
@@ -141,7 +139,7 @@ pub struct CustomMaterial2 {
     // needed, just add the sampler attribute with a different binding index.
     #[texture(1)]
     #[sampler(2)]
-    color_texture: Handle<Image>,
+    colour_texture: Handle<Image>,
 }
 
 const BLEND_ADD: BlendState = BlendState {
@@ -167,11 +165,10 @@ impl Material2d for CustomMaterial2 {
         _layout: &MeshVertexBufferLayoutRef,
         _key: Material2dKey<Self>,
     ) -> Result<(), SpecializedMeshPipelineError> {
-        if let Some(fragment) = &mut descriptor.fragment {
-            if let Some(target_state) = &mut fragment.targets[0] {
+        if let Some(fragment) = &mut descriptor.fragment
+            && let Some(target_state) = &mut fragment.targets[0] {
                 target_state.blend = Some(BLEND_ADD);
             }
-        }
         Ok(())
     }
 }

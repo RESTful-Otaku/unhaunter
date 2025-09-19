@@ -5,7 +5,7 @@ use bevy::prelude::*;
 #[derive(Resource, Default)]
 pub struct PlayerInput {
     /// The desired movement direction and magnitude.
-    /// This is a normalized Vec2 where:
+    /// This is a normalised Vec2 where:
     /// - x represents left/right movement (-1 is left, 1 is right)
     /// - y represents up/down movement (-1 is down, 1 is up)
     ///

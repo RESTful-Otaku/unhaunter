@@ -73,7 +73,7 @@ impl LightData {
         sq_m.sqrt()
     }
 
-    pub fn normalize(&self) -> Self {
+    pub fn normalise(&self) -> Self {
         let mag = self.magnitude() + 1.0;
         Self {
             visible: self.visible / mag,

@@ -102,7 +102,7 @@ impl GearUsable for Flashlight {
         }
         // --- End EMI Effects ---
 
-        // Normal behavior only if there's no EMI or it's not significant
+        // Normal behaviour only if there's no EMI or it's not significant
         if self.flicker_timer <= 0.0 {
             self.battery_level -= self.power() / 500000.0;
             if self.battery_level < 0.0 {

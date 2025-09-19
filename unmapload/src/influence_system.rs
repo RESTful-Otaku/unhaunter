@@ -51,7 +51,7 @@ fn assign_ghost_influence_system(
             ghost_spawn_points.push(board_data.breach_pos);
         }
 
-        // Organize movable objects by floor, including positions
+        // Organise movable objects by floor, including positions
         for &entity in &marker.0 {
             if let Ok(pos) = position_query.get(entity) {
                 let board_pos = pos.to_board_position();

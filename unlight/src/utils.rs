@@ -4,7 +4,7 @@ use bevy_platform::collections::HashSet;
 use ndarray::Array3;
 use std::collections::VecDeque;
 use uncore::{
-    behaviour::{Behavior, TileState},
+    behaviour::{Behaviour, TileState},
     components::board::{boardposition::BoardPosition, position::Position},
     resources::board_data::BoardData,
     types::board::{
@@ -47,11 +47,10 @@ pub fn has_active_light_nearby(
                 let pos = (nx as usize, ny as usize, nz as usize);
                 let prebaked_data = &bf.prebaked_lighting[pos];
 
-                if let Some(source_id) = prebaked_data.light_info.source_id {
-                    if active_source_ids.contains(&source_id) {
+                if let Some(source_id) = prebaked_data.light_info.source_id
+                    && active_source_ids.contains(&source_id) {
                         return true;
                     }
-                }
             }
         }
     }
@@ -59,16 +58,16 @@ pub fn has_active_light_nearby(
     false
 }
 
-/// Determines if a light is currently active based on its position and behavior
-pub fn is_light_active(pos: &BoardPosition, behaviors: &HashMap<BoardPosition, &Behavior>) -> bool {
-    if let Some(behavior) = behaviors.get(pos) {
-        behavior.p.light.light_emission_enabled
+/// Determines if a light is currently active based on its position and behaviour
+pub fn is_light_active(pos: &BoardPosition, behaviours: &HashMap<BoardPosition, &Behaviour>) -> bool {
+    if let Some(behaviour) = behaviours.get(pos) {
+        behaviour.p.light.light_emission_enabled
     } else {
         false
     }
 }
 
-/// Blend two colors based on their intensity
+/// Blend two colours based on their intensity
 pub fn blend_colors(
     c1: (f32, f32, f32),
     lux1: f32,
@@ -89,20 +88,19 @@ pub fn blend_colors(
 /// Identifies active light sources in the scene
 pub fn identify_active_light_sources(
     bf: &BoardData,
-    qt: &Query<(&Position, &Behavior)>,
+    qt: &Query<(&Position, &Behaviour)>,
 ) -> HashSet<u32> {
     let mut active_source_ids = HashSet::new();
 
     for (entity, ndidx) in &bf.prebaked_metadata.light_sources {
-        let Ok((_pos, behavior)) = qt.get(*entity) else {
+        let Ok((_pos, behaviour)) = qt.get(*entity) else {
             continue;
         };
 
-        if behavior.p.light.light_emission_enabled {
-            if let Some(source_id) = bf.prebaked_lighting[*ndidx].light_info.source_id {
+        if behaviour.p.light.light_emission_enabled
+            && let Some(source_id) = bf.prebaked_lighting[*ndidx].light_info.source_id {
                 active_source_ids.insert(source_id);
             }
-        }
     }
     // info!(
     //     "Active light sources: {}/{} (prebaked) ",
@@ -175,17 +173,17 @@ pub fn update_exposure_and_stats(bf: &mut BoardData, lfs: &Array3<LightFieldData
     // info!("Final exposure_lux set to: {}", bf.exposure_lux);
 }
 
-/// Collects information about door states from entity behaviors
+/// Collects information about door states from entity behaviours
 pub fn collect_door_states(
     bf: &BoardData,
-    qt: &Query<(&Position, &Behavior)>,
+    qt: &Query<(&Position, &Behaviour)>,
 ) -> HashMap<(usize, usize, usize), bool> {
     let mut door_states = HashMap::new();
     for entity in &bf.prebaked_metadata.doors {
-        if let Ok((pos, behavior)) = qt.get(*entity) {
+        if let Ok((pos, behaviour)) = qt.get(*entity) {
             let board_pos = pos.to_board_position();
             let idx = board_pos.ndidx();
-            let is_open = behavior.state() == TileState::Open;
+            let is_open = behaviour.state() == TileState::Open;
 
             // Store the door's open state (true if open, false if closed)
             door_states.insert(idx, is_open);
@@ -427,7 +425,7 @@ pub fn propagate_from_wave_edges(
                     new_wave_edge.current_pos.2 - new_wave_edge.iir_mean_pos.2,
                 );
 
-                // Normalize vectors and compute dot product
+                // Normalise vectors and compute dot product
                 let old_len =
                     (old_dir.0 * old_dir.0 + old_dir.1 * old_dir.1 + old_dir.2 * old_dir.2).sqrt();
                 let recent_len = (recent_dir.0 * recent_dir.0

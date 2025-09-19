@@ -53,7 +53,7 @@ pub fn keyboard_input_system(
         }
 
         if movement != Vec2::ZERO {
-            // Normalize the movement vector if it's not zero
+            // Normalise the movement vector if it's not zero
             movement = movement.normalize();
 
             // Clear any click-to-move target and waypoint queue when using keyboard

@@ -1603,7 +1603,7 @@
   </layer>
   <layer id="14" name="NPCs" width="128" height="128">
    <properties>
-    <property name="NPC:B:dialog">Glad to see you made it. I'm Sergeant Walker. I was investigating these paranormal phenomena with Lieutenant Harris, but we got separated. I ended up here and found this book in the subterranean library. It had a ritual that I performed to make this room safe, at least for now. I'm sure Harris is safe too as he photographed the pages needed to perform the same ritual and he is the smartest person I know.
+    <property name="NPC:B:dialogue">Glad to see you made it. I'm Sergeant Walker. I was investigating these paranormal phenomena with Lieutenant Harris, but we got separated. I ended up here and found this book in the subterranean library. It had a ritual that I performed to make this room safe, at least for now. I'm sure Harris is safe too as he photographed the pages needed to perform the same ritual and he is the smartest person I know.
 
 I need to rest and heal I got injured and I told Harris to continue investigating. Explore this place, find out what we're up against, I'm sure you are better prepared for this. We can't let whatever this is get out of containment.</property>
    </properties>
@@ -3596,16 +3596,16 @@ I need to rest and heal I got injured and I told Harris to continue investigatin
   </layer>
   <layer id="30" name="NPCs" width="128" height="128">
    <properties>
-    <property name="NPC:A:dialog">Good evening, sir. I'm Sergeant Thompson. I've been briefed on your arrival and the nature of your expertise. I need to inform you that this neighbourhood has been under military quarantine due to reported paranormal activities. The incidents have escalated to the point where civilian safety is at risk, and we've had to evacuate the area.
+    <property name="NPC:A:dialogue">Good evening, sir. I'm Sergeant Thompson. I've been briefed on your arrival and the nature of your expertise. I need to inform you that this neighbourhood has been under military quarantine due to reported paranormal activities. The incidents have escalated to the point where civilian safety is at risk, and we've had to evacuate the area.
 
 The reports range from unexplained noises and apparitions to more disturbing phenomena, such as objects moving on their own and unexplained injuries. We've had several teams investigate, but none have been able to provide a concrete explanation or solution. Our priority is to ensure the safety of the public and to understand what's happening here.</property>
-    <property name="NPC:C:dialog">Good evening, sir. I'm Sergeant Harris. I managed to contain the unidentified extranatural activity and secure the perimeter.
+    <property name="NPC:C:dialogue">Good evening, sir. I'm Sergeant Harris. I managed to contain the unidentified extranatural activity and secure the perimeter.
 
 I took the opportunity to bring and store your equipment here so you don't have to endanger yourself any more than necessary.
 
 I know we are in good hands with you. Good luck.</property>
-    <property name="NPC:D:dialog" value="Sir, we had to clear all the plants from the flower shop. The entity, whatever it is, was able to possess and animate them."/>
-    <property name="NPC:E:dialog">Good evening. I'm Sergeant Thomas Harper. I've been briefed on your arrival and your expertise in paranormal investigation.
+    <property name="NPC:D:dialogue" value="Sir, we had to clear all the plants from the flower shop. The entity, whatever it is, was able to possess and animate them."/>
+    <property name="NPC:E:dialogue">Good evening. I'm Sergeant Thomas Harper. I've been briefed on your arrival and your expertise in paranormal investigation.
 
 We've moved some useful equipment near the house to assist in your investigation. I trust your expertise will help us get to the bottom of this. Stay safe.</property>
    </properties>
@@ -5598,16 +5598,16 @@ We've moved some useful equipment near the house to assist in your investigation
   </layer>
   <layer id="46" name="NPCs" width="128" height="128">
    <properties>
-    <property name="NPC:A:dialog">Good evening, sir. I'm Sergeant Thompson. I've been briefed on your arrival and the nature of your expertise. I need to inform you that this neighbourhood has been under military quarantine due to reported paranormal activities. The incidents have escalated to the point where civilian safety is at risk, and we've had to evacuate the area.
+    <property name="NPC:A:dialogue">Good evening, sir. I'm Sergeant Thompson. I've been briefed on your arrival and the nature of your expertise. I need to inform you that this neighbourhood has been under military quarantine due to reported paranormal activities. The incidents have escalated to the point where civilian safety is at risk, and we've had to evacuate the area.
 
 The reports range from unexplained noises and apparitions to more disturbing phenomena, such as objects moving on their own and unexplained injuries. We've had several teams investigate, but none have been able to provide a concrete explanation or solution. Our priority is to ensure the safety of the public and to understand what's happening here.</property>
-    <property name="NPC:C:dialog">Good evening, sir. I'm Sergeant Harris. I managed to contain the unidentified extranatural activity and secure the perimeter.
+    <property name="NPC:C:dialogue">Good evening, sir. I'm Sergeant Harris. I managed to contain the unidentified extranatural activity and secure the perimeter.
 
 I took the opportunity to bring and store your equipment here so you don't have to endanger yourself any more than necessary.
 
 I know we are in good hands with you. Good luck.</property>
-    <property name="NPC:D:dialog" value="Sir, we had to clear all the plants from the flower shop. The entity, whatever it is, was able to possess and animate them."/>
-    <property name="NPC:E:dialog">Good evening. I'm Sergeant Thomas Harper. I've been briefed on your arrival and your expertise in paranormal investigation.
+    <property name="NPC:D:dialogue" value="Sir, we had to clear all the plants from the flower shop. The entity, whatever it is, was able to possess and animate them."/>
+    <property name="NPC:E:dialogue">Good evening. I'm Sergeant Thomas Harper. I've been briefed on your arrival and your expertise in paranormal investigation.
 
 We've moved some useful equipment near the house to assist in your investigation. I trust your expertise will help us get to the bottom of this. Stay safe out there.</property>
    </properties>

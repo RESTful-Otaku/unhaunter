@@ -192,7 +192,7 @@ impl TutorialChapterIntrosConcept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/tutorial_chapter_intros/masterchallengeintro_08.ogg".to_string(),
-                    subtitle_text: "Base to Unhaunter, I'm getting chills just looking at the readings. All previous attempts to even categorize this entity have ended in disaster. You're walking into a meat grinder.".to_string(),
+                    subtitle_text: "Base to Unhaunter, I'm getting chills just looking at the readings. All previous attempts to even categorise this entity have ended in disaster. You're walking into a meat grinder.".to_string(),
                     tags: vec![WalkieTag::DirectWarning, WalkieTag::FatalisticTone, WalkieTag::GrimAtmosphere, WalkieTag::MediumLength, WalkieTag::SeriousTone],
                     length_seconds: 13,
                 },
@@ -212,7 +212,7 @@ impl TutorialChapterIntrosConcept {
             Self::StandardChallengeIntro => vec![
                 VoiceLineData {
                     ogg_path: "walkie/generated/tutorial_chapter_intros/standardchallengeintro_01.ogg".to_string(),
-                    subtitle_text: "Alright, Unhaunter, you're on site. This is a standard contract, nothing too out of the ordinary... hopefully. You've got full access to all authorized equipment in the truck. Standard protocols apply. Good hunting.".to_string(),
+                    subtitle_text: "Alright, Unhaunter, you're on site. This is a standard contract, nothing too out of the ordinary... hopefully. You've got full access to all authorised equipment in the truck. Standard protocols apply. Good hunting.".to_string(),
                     tags: vec![WalkieTag::MediumLength, WalkieTag::NeutralObservation],
                     length_seconds: 14,
                 },
@@ -266,7 +266,7 @@ impl TutorialChapterIntrosConcept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/tutorial_chapter_intros/standardchallengeintro_10.ogg".to_string(),
-                    subtitle_text: "Welcome to the mission. Standard investigation protocol applies here. Full access to equipment. Identify and neutralize the target.".to_string(),
+                    subtitle_text: "Welcome to the mission. Standard investigation protocol applies here. Full access to equipment. Identify and neutralise the target.".to_string(),
                     tags: vec![WalkieTag::DirectHint, WalkieTag::MediumLength, WalkieTag::NeutralObservation],
                     length_seconds: 10,
                 },
@@ -280,13 +280,13 @@ impl TutorialChapterIntrosConcept {
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/tutorial_chapter_intros/tutorialchapter1intro_02.ogg".to_string(),
-                    subtitle_text: "Welcome, Unhaunter. The readings here are mild, so it is an ideal place to practice your techniques safely. Focus on learning the basic gear provided, we'll give you more later.".to_string(),
+                    subtitle_text: "Welcome, Unhaunter. The readings here are mild, so it is an ideal place to practise your techniques safely. Focus on learning the basic gear provided, we'll give you more later.".to_string(),
                     tags: vec![WalkieTag::Encouraging, WalkieTag::FirstTimeHint, WalkieTag::MediumLength],
                     length_seconds: 12,
                 },
                 VoiceLineData {
                     ogg_path: "walkie/generated/tutorial_chapter_intros/tutorialchapter1intro_03.ogg".to_string(),
-                    subtitle_text: "Alright, you're at the practice facility. Everything here is set up for learning, so don't worry about making mistakes. Only EMF and Thermometer for now, focus on learning how to use them.".to_string(),
+                    subtitle_text: "Alright, you're at the practise facility. Everything here is set up for learning, so don't worry about making mistakes. Only EMF and Thermometer for now, focus on learning how to use them.".to_string(),
                     tags: vec![WalkieTag::Encouraging, WalkieTag::FirstTimeHint, WalkieTag::MediumLength],
                     length_seconds: 12,
                 },

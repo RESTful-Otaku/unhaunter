@@ -43,12 +43,11 @@ fn quartz_cracked_feedback(
             .as_ref()
             .and_then(|d| <dyn Any>::downcast_ref::<QuartzStoneData>(d.as_ref()))
         {
-            if let Some(prev) = *last_cracks {
-                if quartz.cracks > prev && quartz.cracks < 4 {
+            if let Some(prev) = *last_cracks
+                && quartz.cracks > prev && quartz.cracks < 4 {
                     // FIXME: Verification needed: Not sure if this trigger actually fires. Don't recall it having fired in testing.
                     walkie_play.set(WalkieEvent::QuartzCrackedFeedback, time.elapsed_secs_f64());
                 }
-            }
             *last_cracks = Some(quartz.cracks);
         }
     }
@@ -81,8 +80,7 @@ fn quartz_shattered_feedback(
             .data
             .as_ref()
             .and_then(|d| <dyn Any>::downcast_ref::<QuartzStoneData>(d.as_ref()))
-        {
-            if quartz.cracks >= 4 && !*shattered {
+            && quartz.cracks >= 4 && !*shattered {
                 // FIXME: Verification needed: Not sure if this trigger actually fires. Don't recall it having fired in testing.
                 walkie_play.set(
                     WalkieEvent::QuartzShatteredFeedback,
@@ -90,13 +88,12 @@ fn quartz_shattered_feedback(
                 );
                 *shattered = true;
             }
-        }
     }
 }
 
 // TODO (David): Add `times_hunted_this_mission: u32` to `GhostSprite` struct
 // in `uncore/src/components/ghost_sprite.rs` and ensure it's incremented
-// when a hunt truly begins in `unghost/src/ghost.rs`. Initialize to 0.
+// when a hunt truly begins in `unghost/src/ghost.rs`. Initialise to 0.
 
 fn trigger_quartz_unused_in_relevant_situation_system(
     time: Res<Time>,
@@ -231,15 +228,13 @@ fn trigger_sage_unused_in_relevant_situation_system(
 
     // 6. Check Player Inventory for Unconsumed Sage
     let player_has_unconsumed_sage = player_gear.as_vec().iter().any(|(gear, _epos)| {
-        if gear.kind == GearKind::SageBundle {
-            if let Some(sage_data_dyn) = gear.data.as_ref() {
-                if let Some(sage_data) =
+        if gear.kind == GearKind::SageBundle
+            && let Some(sage_data_dyn) = gear.data.as_ref()
+                && let Some(sage_data) =
                     <dyn Any>::downcast_ref::<SageBundleData>(sage_data_dyn.as_ref())
                 {
                     return !sage_data.consumed; // Player has sage and it's not consumed
                 }
-            }
-        }
         false
     });
 
@@ -322,13 +317,12 @@ fn trigger_sage_activated_ineffectively_system(
     // 3. Find Sage in Player's Gear
     let mut current_sage_data: Option<&SageBundleData> = None;
     for (gear_item, _epos) in player_gear.as_vec() {
-        if gear_item.kind == GearKind::SageBundle {
-            if let Some(sage_data_dyn) = gear_item.data.as_ref() {
+        if gear_item.kind == GearKind::SageBundle
+            && let Some(sage_data_dyn) = gear_item.data.as_ref() {
                 current_sage_data =
                     <dyn Any>::downcast_ref::<SageBundleData>(sage_data_dyn.as_ref());
                 break;
             }
-        }
     }
 
     let Some(sage_data) = current_sage_data else {
@@ -482,18 +476,14 @@ fn trigger_sage_unused_defensively_during_hunt_system(
                 // info!("Hunt ended. Sage activated during this hunt: {}", *sage_was_activated_during_this_hunt);
                 let mut player_has_unconsumed_sage_now = false;
                 for (gear_item, _epos) in player_gear.as_vec() {
-                    if gear_item.kind == GearKind::SageBundle {
-                        if let Some(sage_data_dyn) = gear_item.data.as_ref() {
-                            if let Some(sage_data) =
+                    if gear_item.kind == GearKind::SageBundle
+                        && let Some(sage_data_dyn) = gear_item.data.as_ref()
+                            && let Some(sage_data) =
                                 <dyn Any>::downcast_ref::<SageBundleData>(sage_data_dyn.as_ref())
-                            {
-                                if !sage_data.consumed {
+                                && !sage_data.consumed {
                                     player_has_unconsumed_sage_now = true;
                                     break;
                                 }
-                            }
-                        }
-                    }
                 }
 
                 if player_has_unconsumed_sage_now && !*sage_was_activated_during_this_hunt {
@@ -510,19 +500,16 @@ fn trigger_sage_unused_defensively_during_hunt_system(
                 if !*sage_was_activated_during_this_hunt {
                     // Only check if not already flagged
                     for (gear_item, _epos) in player_gear.as_vec() {
-                        if gear_item.kind == GearKind::SageBundle {
-                            if let Some(sage_data_dyn) = gear_item.data.as_ref() {
-                                if let Some(sage_data) = <dyn Any>::downcast_ref::<SageBundleData>(
+                        if gear_item.kind == GearKind::SageBundle
+                            && let Some(sage_data_dyn) = gear_item.data.as_ref()
+                                && let Some(sage_data) = <dyn Any>::downcast_ref::<SageBundleData>(
                                     sage_data_dyn.as_ref(),
-                                ) {
-                                    if sage_data.is_active {
+                                )
+                                    && sage_data.is_active {
                                         *sage_was_activated_during_this_hunt = true;
                                         // info!("Sage activated by player during current hunt.");
                                         break;
                                     }
-                                }
-                            }
-                        }
                     }
                 }
             }

@@ -1,5 +1,5 @@
 use crate::gear_stuff::GearStuff;
-use bevy::color::Color;
+use bevy::prelude::Color;
 use std::any::Any;
 use uncore::components::board::position::Position;
 use uncore::components::ghost_sprite::GhostSprite;
@@ -38,7 +38,7 @@ pub trait GearUsable: std::fmt::Debug + Sync + Send + Any {
         0.0
     }
 
-    /// Flashlight color
+    /// Flashlight colour
     fn color(&self) -> Color {
         Color::srgb(0.0, 0.0, 0.0)
     }

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_platform::time::Instant;
-use uncore::colors;
+use uncore::colours;
 use uncore::difficulty::{CurrentDifficulty, Difficulty};
 use uncore::events::map_selected::MapSelectedEvent;
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
@@ -183,7 +183,7 @@ pub fn update_difficulty_description(
         if let Ok((mut text, mut text_color)) = q_desc_text.single_mut() {
             if ev.0 == total_displayed_difficulties {
                 text.0 = "Select a challenge level for your custom mission.".to_string();
-                text_color.0 = colors::MENU_ITEM_COLOR_OFF;
+                text_color.0 = colours::MENU_ITEM_COLOR_OFF;
                 // Reset selected_difficulty to a default non-tutorial one or keep the last valid one
                 difficulty_selection_state.selected_difficulty =
                     displayed_difficulties.first().copied().unwrap_or_default();
@@ -207,7 +207,7 @@ pub fn update_difficulty_description(
                     );
 
                     text.0 = new_text;
-                    text_color.0 = colors::MENU_ITEM_COLOR_OFF;
+                    text_color.0 = colours::MENU_ITEM_COLOR_OFF;
                     difficulty_selection_state.selected_difficulty = selected_difficulty;
                 }
             }
@@ -332,7 +332,7 @@ pub fn setup_ui(
                                 font_size: 19.0 * FONT_SCALE,
                                 ..default()
                             },
-                            TextColor(colors::MENU_ITEM_COLOR_OFF),
+                            TextColor(colours::MENU_ITEM_COLOR_OFF),
                             Node {
                                 margin: UiRect::top(Val::Px(15.0 * UI_SCALE)),
                                 ..default()

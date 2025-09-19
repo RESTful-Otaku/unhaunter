@@ -15,14 +15,14 @@ The most important piece of information for any tile defined in a TSX file is it
 ```
 
 *   **Mapping:** The value of the `type` attribute directly corresponds to the `uncore::behaviour::Class` enum variant in the codebase.
-*   **Significance:** This `Class` determines the fundamental *category* of the tile and dictates which core Bevy components (`Ground`, `Collision`, `Opaque`, `Interactive`, `Light`, `Door`, `Stairs`, `NpcHelpDialog`, etc., found in `uncore::behaviour::component`) are initially added to the entity when it's spawned during level loading (`ungame/src/level.rs`). It's the primary driver of how the game treats the tile.
+*   **Significance:** This `Class` determines the fundamental *category* of the tile and dictates which core Bevy components (`Ground`, `Collision`, `Opaque`, `Interactive`, `Light`, `Door`, `Stairs`, `NpcHelpdialogue`, etc., found in `uncore::behaviour::component`) are initially added to the entity when it's spawned during level loading (`ungame/src/level.rs`). It's the primary driver of how the game treats the tile.
 
 ## 2. Key Tile Properties (`<properties>`)
 
-Within a `<tile>` definition, specific `<property>` tags encode further details that populate the `uncore::behaviour::Behavior` component, primarily within its `cfg: SpriteConfig` and `p: Properties` fields.
+Within a `<tile>` definition, specific `<property>` tags encode further details that populate the `uncore::behaviour::behaviour` component, primarily within its `cfg: SpriteConfig` and `p: Properties` fields.
 
 *   **`sprite:variant` (String)**
-    *   **Maps to:** `Behavior.cfg.variant`
+    *   **Maps to:** `behaviour.cfg.variant`
     *   **Purpose:** Differentiates tiles *within the same Class*. For `Floor`, it defines the texture (e.g., "StonePath", "Grass"). For `Wall` or `Door`, it might define material ("FlatBlue", "OakWood", "Metal"). For `Decor` or `Item`, it often identifies the specific object ("GreenChair", "RedBook", "Vase1"). This is used for visual distinction and potentially specific logic variations. If absent, a default based on tileset/ID might be used.
 *   **`sprite:orientation` (String -> Enum)**
     *   **Maps to:** `uncore::behaviour::Orientation` (`XAxis`, `YAxis`, `Both`, `None`)
@@ -32,7 +32,7 @@ Within a `<tile>` definition, specific `<property>` tags encode further details 
     *   **Purpose:** Represents the *initial* state of an interactive or multi-state object (like lamps, switches, doors, potentially complex walls).
     *   **Convention:** See Section 5.
 *   **`object:*` Properties (Boolean/Float/String)**
-    *   **Maps to:** Fields within `Behavior.p.object` (`pickable`, `movable`, `hidingspot`, `weight`, `name`).
+    *   **Maps to:** Fields within `behaviour.p.object` (`pickable`, `movable`, `hidingspot`, `weight`, `name`).
     *   **Purpose:** Define physical interactions for `Decor`, `Item`, and `Furniture`. Determines if the player can pick up, push/pull, or hide behind the object. `weight` might influence movement speed when carried. `name` provides a display name.
 *   **Other Properties:** Tiles might have other specific properties used by custom logic (though none were obvious in the examples). The `RoomDef` class uses `sprite:variant` to store the room's name.
 
@@ -65,14 +65,14 @@ For easier understanding, the tile `Class` types can be grouped:
     *   `Item`: (e.g., Book, Lamp, Candle, Pot, Vase). Usually pickable/movable.
     *   `WallDecor`: (e.g., Mirror, Clock, Picture, Bookshelf). Static wall attachments.
 5.  **Gameplay Markers (Editor Only):** Define key locations, invisible in-game.
-    *   `PlayerSpawn`, `GhostSpawn`, `VanEntry`: Define starting/transition points. Map to `Behavior.p.util`.
+    *   `PlayerSpawn`, `GhostSpawn`, `VanEntry`: Define starting/transition points. Map to `behaviour.p.util`.
     *   `RoomDef`: Define room areas for `RoomDB`. Variant is room name.
     *   `InvisibleWall`, `CornerWall`: Define collision/occlusion without visuals.
     *   `FakeGhost`, `FakeBreach`: Likely for tutorials/scripting.
-6.  **Specialized Light Sources (Editor Only):**
+6.  **specialised Light Sources (Editor Only):**
     *   `CeilingLight`, `StreetLight`: Define light source positions without a specific interactive object sprite. State likely controlled by room/time.
 7.  **NPCs:**
-    *   `NPC`: Placeholder for non-player characters. Variant likely links to dialogue/ID.
+    *   `NPC`: Placeholder for non-player characters. Variant likely links to dialogueue/ID.
 
 ## 5. Important Conventions for Map Creation
 
@@ -86,7 +86,7 @@ For easier understanding, the tile `Class` types can be grouped:
 ## 6. How to Use This Information (For AI)
 
 *   When asked about a specific tile ID from a spritesheet, refer to the corresponding TSX file to find its `<tile>` definition.
-*   Identify the `type` attribute to understand the tile's base `Class` and associated core behaviors/components.
+*   Identify the `type` attribute to understand the tile's base `Class` and associated core behaviours/components.
 *   Check the `<properties>` for `sprite:variant`, `sprite:orientation`, `sprite:state` to understand its specific visual and initial state configuration.
 *   Check `object:*` properties for physical interaction details.
 *   Remember the default state convention when interpreting map files or generating code related to interactive objects.
@@ -166,9 +166,9 @@ This section provides a description for each tile ID in the `A3x3x3` tileset, ba
 *   **ID 99 (Type: FakeGhost):** Editor marker ('fG') for placing a fake ghost (tutorial/scripting). Visually disabled in-game.
 *   **ID 100 (Type: FakeBreach):** Editor marker ('fB') for placing a fake breach (tutorial/scripting). Visually disabled in-game.
 *   **ID 101-107 (Undefined in TSX):** Visually empty.
-*   **ID 108-179 (Type: RoomDef, Variant: [RoomName]):** Colored diamond shapes used solely in the Tiled editor to define room areas. The variant property holds the room name used by `RoomDB`. Visually disabled in-game. (Covers Foyer, Living Room, ... En Suite).
+*   **ID 108-179 (Type: RoomDef, Variant: [RoomName]):** coloured diamond shapes used solely in the Tiled editor to define room areas. The variant property holds the room name used by `RoomDB`. Visually disabled in-game. (Covers Foyer, Living Room, ... En Suite).
 *   **ID 180-191 (Undefined in TSX):** Visually empty.
-*   **ID 192-203 (Type: NPC, Variant: [A-L]):** Placeholder character sprites with letters (A-L) used in the Tiled editor to place NPCs. The variant links to the specific NPC's data/dialogue.
+*   **ID 192-203 (Type: NPC, Variant: [A-L]):** Placeholder character sprites with letters (A-L) used in the Tiled editor to place NPCs. The variant links to the specific NPC's data/dialogueue.
 *   **ID 204-263 (Undefined):** Remaining tiles are not defined in the TSX and appear empty visually.
 
 

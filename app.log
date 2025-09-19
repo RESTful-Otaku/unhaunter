@@ -1,0 +1,232 @@
+   Compiling unstd v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/unstd)
+   Compiling ungearitems v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/ungearitems)
+   Compiling unfog v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/unfog)
+   Compiling unmenusettings v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/unmenusettings)
+   Compiling unplayer v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/unplayer)
+   Compiling unnpc v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/unnpc)
+   Compiling untmxmap v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/untmxmap)
+   Compiling unlight v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/unlight)
+   Compiling untruck v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/untruck)
+   Compiling unghost v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/unghost)
+   Compiling unmapload v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/unmapload)
+   Compiling uncampaign v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/uncampaign)
+   Compiling ungame v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/ungame)
+   Compiling unwalkie v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter/unwalkie)
+   Compiling unhaunter v0.3.2 (/home/restful-otaku/Dev/personal/projects/games/unhaunter)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 41.48s
+     Running `target/debug/unhaunter_game`
+[2m2025-09-17T14:04:31.922887Z[0m [32m INFO[0m [2mbevy_diagnostic::system_information_diagnostics_plugin::internal[0m[2m:[0m SystemInfo { os: "Linux (Arch Linux rolling)", kernel: "6.16.7-arch1-1", cpu: "AMD Ryzen 7 5800X 8-Core Processor", core_count: "8", memory: "62.7 GiB" }    
+[2m2025-09-17T14:04:31.978525Z[0m [31mERROR[0m [2mwgpu_hal::gles::egl[0m[2m:[0m EGL 'eglCreateSyncKHR' code 0x3004: EGL_BAD_ATTRIBUTE error: In eglCreateSyncKHR: EGL_SYNC_NATIVE_FENCE_FD_ANDROID specified valid fd butEGL_SYNC_STATUS is also being set
+    
+[2m2025-09-17T14:04:31.996797Z[0m [32m INFO[0m [2mbevy_render::renderer[0m[2m:[0m AdapterInfo { name: "NVIDIA GeForce GTX 1070", vendor: 4318, device: 7041, device_type: DiscreteGpu, driver: "NVIDIA", driver_info: "580.82.09", backend: Vulkan }
+[2m2025-09-17T14:04:32.600871Z[0m [32m INFO[0m [2muncore::noise[0m[2m:[0m Precomputed Perlin noise lookup table initialised: 4000x4000 at resolution 0.01 (~64 MB)
+[2m2025-09-17T14:04:32.602943Z[0m [32m INFO[0m [2mbevy_persistent::persistent[0m[2m:[0m loaded gameplay_settings from /home/restful-otaku/.config/unhaunter-game/config/gameplay_settings.ron
+[2m2025-09-17T14:04:32.603042Z[0m [32m INFO[0m [2mbevy_persistent::persistent[0m[2m:[0m loaded video_settings from /home/restful-otaku/.config/unhaunter-game/config/video_settings.ron
+[2m2025-09-17T14:04:32.603100Z[0m [32m INFO[0m [2mbevy_persistent::persistent[0m[2m:[0m loaded audio_settings from /home/restful-otaku/.config/unhaunter-game/config/audio_settings.ron
+[2m2025-09-17T14:04:32.603148Z[0m [32m INFO[0m [2mbevy_persistent::persistent[0m[2m:[0m loaded profile_settings from /home/restful-otaku/.config/unhaunter-game/config/profile_settings.ron
+[2m2025-09-17T14:04:32.603223Z[0m [32m INFO[0m [2mbevy_persistent::persistent[0m[2m:[0m loaded control_settings from /home/restful-otaku/.config/unhaunter-game/config/control_settings.ron
+[2m2025-09-17T14:04:32.604105Z[0m [32m INFO[0m [2muncampaign::plugin[0m[2m:[0m UnhaunterCampaignPlugin loaded.
+[2m2025-09-17T14:04:32.604739Z[0m [32m INFO[0m [2mbevy_persistent::persistent[0m[2m:[0m loaded player_profile from /home/restful-otaku/.config/unhaunter-game/config/player_profile.ron
+[2m2025-09-17T14:04:32.617324Z[0m [32m INFO[0m [2mbevy_render::batching::gpu_preprocessing[0m[2m:[0m GPU preprocessing is fully supported on this device.
+[2m2025-09-17T14:04:32.660124Z[0m [32m INFO[0m [2mbevy_winit::system[0m[2m:[0m Creating new window Unhaunter 0.3.2 - by J M Harrison (0v1)
+[2m2025-09-17T14:04:32.663001Z[0m [33m WARN[0m [2munprofile::dev_tools[0m[2m:[0m Fixture directory not found. Skipping schema snapshot.
+[2m2025-09-17T14:04:32.663009Z[0m [33m WARN[0m [2munprofile::dev_tools[0m[2m:[0m Fixture directory not found. Skipping schema validation.
+[2m2025-09-17T14:04:32.663090Z[0m [32m INFO[0m [2munsettings::video::display[0m[2m:[0m Detected display info: 22 resolutions, 7 aspect ratios, 9 refresh rates
+[2m2025-09-17T14:04:32.666727Z[0m [33m WARN[0m [2munmenu::mainmenu[0m[2m:[0m Setting up main menu with items: [(Campaign, "Story Campaign"), (CustomMission, "Free Play"), (Manual, "User Manual"), (Settings, "Game Settings"), (Quit, "Exit Game")]
+[2m2025-09-17T14:04:32.666761Z[0m [33m WARN[0m [2muncoremenu::templates[0m[2m:[0m Creating standard menu layout with 5 items
+[2m2025-09-17T14:04:32.666795Z[0m [33m WARN[0m [2muncoremenu::templates[0m[2m:[0m Creating menu item Story Campaign with idx 0
+[2m2025-09-17T14:04:32.666816Z[0m [33m WARN[0m [2muncoremenu::templates[0m[2m:[0m Creating menu item Free Play with idx 1
+[2m2025-09-17T14:04:32.666825Z[0m [33m WARN[0m [2muncoremenu::templates[0m[2m:[0m Creating menu item User Manual with idx 2
+[2m2025-09-17T14:04:32.666835Z[0m [33m WARN[0m [2muncoremenu::templates[0m[2m:[0m Creating menu item Game Settings with idx 3
+[2m2025-09-17T14:04:32.666843Z[0m [33m WARN[0m [2muncoremenu::templates[0m[2m:[0m Creating menu item Exit Game with idx 4
+[2m2025-09-17T14:04:32.666877Z[0m [33m WARN[0m [2munmenu::mainmenu[0m[2m:[0m Main menu created with root entity: 7v1#4294967303
+[2m2025-09-17T14:04:32.679925Z[0m [32m INFO[0m [2mbevy_persistent::persistent[0m[2m:[0m saved new player_profile to /home/restful-otaku/.config/unhaunter-game/config/player_profile.ron
+[2m2025-09-17T14:04:32.680021Z[0m [32m INFO[0m [2munmenu::mainmenu[0m[2m:[0m Main menu camera setup and player level updated
+[2m2025-09-17T14:04:32.699008Z[0m [32m INFO[0m [2munsettings::video::video_system[0m[2m:[0m Applied resolution: 1920x1080
+[2m2025-09-17T14:04:32.699049Z[0m [32m INFO[0m [2munsettings::video::video_system[0m[2m:[0m Applied UI zoom: 100%
+[2m2025-09-17T14:04:32.699397Z[0m [32m INFO[0m [2mbevy_framepace[0m[2m:[0m Frametime limit changed to: 16.666667ms
+[2m2025-09-17T14:04:32.747322Z[0m [31mERROR[0m [2mwgpu_hal::gles::egl[0m[2m:[0m EGL 'eglCreateSyncKHR' code 0x3004: EGL_BAD_ATTRIBUTE error: In eglCreateSyncKHR: EGL_SYNC_NATIVE_FENCE_FD_ANDROID specified valid fd butEGL_SYNC_STATUS is also being set
+    
+[2m2025-09-17T14:04:32.855607Z[0m [33m WARN[0m [2muntmxmap::init_maps[0m[2m:[0m Skipping draft map "Neighbourhood" at path "maps/map_neighbourhood1.tmx" (use --draft-maps to include)
+[2m2025-09-17T14:04:32.855680Z[0m [33m WARN[0m [2muntmxmap::init_maps[0m[2m:[0m Unrecognized Class "" for map "maps/topdown_test_128.tmx" (Should be 'UnhaunterMap1')
+[2m2025-09-17T14:05:32.686465Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.02 
+[2m2025-09-17T14:05:32.686528Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:05:32.686538Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:06:32.689298Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.78 
+[2m2025-09-17T14:06:32.689346Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.41%
+[2m2025-09-17T14:06:32.689355Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:07:32.692159Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.37 
+[2m2025-09-17T14:07:32.692213Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:07:32.692223Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:08:32.695087Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.11 
+[2m2025-09-17T14:08:32.695180Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:08:32.695199Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:09:32.697853Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.02 
+[2m2025-09-17T14:09:32.697904Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:09:32.697914Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:10:32.683998Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.09 
+[2m2025-09-17T14:10:32.684049Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:10:32.684057Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:11:32.686757Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.41 
+[2m2025-09-17T14:11:32.686812Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:11:32.686823Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:12:32.689722Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.79 
+[2m2025-09-17T14:12:32.689769Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:12:32.689779Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:13:32.692695Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.68 
+[2m2025-09-17T14:13:32.692746Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.40%
+[2m2025-09-17T14:13:32.692757Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:14:32.695579Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.07 
+[2m2025-09-17T14:14:32.695633Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:14:32.695646Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:15:32.681531Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.40 
+[2m2025-09-17T14:15:32.681574Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.44%
+[2m2025-09-17T14:15:32.681582Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:16:32.684362Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.02 
+[2m2025-09-17T14:16:32.684405Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.44%
+[2m2025-09-17T14:16:32.684413Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:17:32.687483Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.31 
+[2m2025-09-17T14:17:32.687542Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.45%
+[2m2025-09-17T14:17:32.687550Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:18:32.690301Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.78 
+[2m2025-09-17T14:18:32.690360Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.45%
+[2m2025-09-17T14:18:32.690373Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:19:32.693027Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.41 
+[2m2025-09-17T14:19:32.693084Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.46%
+[2m2025-09-17T14:19:32.693092Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:20:32.696161Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.85 
+[2m2025-09-17T14:20:32.696234Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.44%
+[2m2025-09-17T14:20:32.696260Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:21:32.683362Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.35 
+[2m2025-09-17T14:21:32.683415Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.45%
+[2m2025-09-17T14:21:32.683425Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:22:32.686223Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.03 
+[2m2025-09-17T14:22:32.686279Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:22:32.686288Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:23:32.688908Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.23 
+[2m2025-09-17T14:23:32.688962Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.41%
+[2m2025-09-17T14:23:32.688973Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:24:32.691875Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.02 
+[2m2025-09-17T14:24:32.691931Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:24:32.691940Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:25:32.694558Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.81 
+[2m2025-09-17T14:25:32.694616Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:25:32.694627Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:26:32.697303Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.05 
+[2m2025-09-17T14:26:32.697356Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:26:32.697367Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:27:32.683658Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.37 
+[2m2025-09-17T14:27:32.683729Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.44%
+[2m2025-09-17T14:27:32.683742Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:28:32.686351Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.42 
+[2m2025-09-17T14:28:32.686391Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.44%
+[2m2025-09-17T14:28:32.686401Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:29:32.689066Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.83 
+[2m2025-09-17T14:29:32.689114Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:29:32.689123Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:30:32.691945Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.42 
+[2m2025-09-17T14:30:32.692001Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.45%
+[2m2025-09-17T14:30:32.692013Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:31:32.694484Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.91 
+[2m2025-09-17T14:31:32.694530Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.44%
+[2m2025-09-17T14:31:32.694539Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:32:32.697600Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.52 
+[2m2025-09-17T14:32:32.697665Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:32:32.697688Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:33:32.683640Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.41 
+[2m2025-09-17T14:33:32.683694Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:33:32.683704Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:34:32.686441Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.78 
+[2m2025-09-17T14:34:32.686493Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:34:32.686503Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:35:32.689585Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.15 
+[2m2025-09-17T14:35:32.689638Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:35:32.689650Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:36:32.692472Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.17 
+[2m2025-09-17T14:36:32.692525Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:36:32.692535Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:37:32.695147Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.80 
+[2m2025-09-17T14:37:32.695199Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:37:32.695209Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:38:32.697995Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.37 
+[2m2025-09-17T14:38:32.698053Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:38:32.698066Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:39:32.684213Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.86 
+[2m2025-09-17T14:39:32.684267Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:39:32.684277Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:40:32.686895Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.44 
+[2m2025-09-17T14:40:32.686955Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:40:32.686967Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:41:32.689617Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.02 
+[2m2025-09-17T14:41:32.689668Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:41:32.689683Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:42:32.692606Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.05 
+[2m2025-09-17T14:42:32.692666Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:42:32.692678Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:43:32.695444Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.55 
+[2m2025-09-17T14:43:32.695499Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:43:32.695507Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:44:32.697993Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.79 
+[2m2025-09-17T14:44:32.698054Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.41%
+[2m2025-09-17T14:44:32.698075Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:45:32.684204Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.13 
+[2m2025-09-17T14:45:32.684258Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:45:32.684270Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:46:32.687128Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.03 
+[2m2025-09-17T14:46:32.687190Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.44%
+[2m2025-09-17T14:46:32.687199Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:47:32.689892Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.45 
+[2m2025-09-17T14:47:32.689941Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:47:32.689951Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:48:32.692665Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.13 
+[2m2025-09-17T14:48:32.692723Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.44%
+[2m2025-09-17T14:48:32.692734Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:49:32.695468Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.54 
+[2m2025-09-17T14:49:32.695525Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:49:32.695537Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:50:32.681538Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.41 
+[2m2025-09-17T14:50:32.681586Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:50:32.681597Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:51:32.684506Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.82 
+[2m2025-09-17T14:51:32.684557Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:51:32.684567Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:52:32.687208Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.02 
+[2m2025-09-17T14:52:32.687260Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:52:32.687270Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:53:32.690353Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.13 
+[2m2025-09-17T14:53:32.690415Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:53:32.690428Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:54:32.693287Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.03 
+[2m2025-09-17T14:54:32.693343Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:54:32.693356Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:55:32.696000Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.45 
+[2m2025-09-17T14:55:32.696050Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.44%
+[2m2025-09-17T14:55:32.696060Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:56:32.682276Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.83 
+[2m2025-09-17T14:56:32.682334Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T14:56:32.682359Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:57:32.685018Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.80 
+[2m2025-09-17T14:57:32.685070Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:57:32.685082Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:58:32.687677Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.25 
+[2m2025-09-17T14:58:32.687727Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.45%
+[2m2025-09-17T14:58:32.687738Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T14:59:32.690568Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.06 
+[2m2025-09-17T14:59:32.690616Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.42%
+[2m2025-09-17T14:59:32.690626Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T15:00:32.693548Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.39 
+[2m2025-09-17T15:00:32.693625Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T15:00:32.693643Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T15:01:32.696211Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.22 
+[2m2025-09-17T15:01:32.696266Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T15:01:32.696277Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T15:02:32.682347Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 61.14 
+[2m2025-09-17T15:02:32.682399Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.43%
+[2m2025-09-17T15:02:32.682408Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T15:03:32.685318Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m fps: 60.02 
+[2m2025-09-17T15:03:32.685372Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m systems: 0.41%
+[2m2025-09-17T15:03:32.685381Z[0m [32m INFO[0m [2munhaunter::report_timer[0m[2m:[0m App State: MainMenu - Game State: None
+[2m2025-09-17T15:03:45.035763Z[0m [32m INFO[0m [2munmenu::mainmenu[0m[2m:[0m Transitioning to SettingsMenu state
+[2m2025-09-17T15:03:45.052721Z[0m [32m INFO[0m [2munmenusettings::menu_ui[0m[2m:[0m Settings UI initialised with entity: 27v2#8589934619
+[2m2025-09-17T15:03:57.253948Z[0m [32m INFO[0m [2mbevy_window::system[0m[2m:[0m No windows are open, exiting    
+[2m2025-09-17T15:03:57.254364Z[0m [32m INFO[0m [2mbevy_winit::system[0m[2m:[0m Closing window 0v1

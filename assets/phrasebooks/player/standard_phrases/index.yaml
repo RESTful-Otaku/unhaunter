@@ -61,7 +61,7 @@ Farewells:
       name: Urgent 
 
 Provocations:
-  description: Phrases to intentionally provoke or antagonize the ghost (use with caution!).
+  description: Phrases to intentionally provoke or antagonise the ghost (use with caution!).
   subcategories:
     - filename: provocations_mild.yaml
       name: Mild 
