@@ -18,23 +18,46 @@ echo ""
 
 # Run Clippy lints
 echo "2. Running Clippy lints..."
-if cargo clippy --all-targets --all-features -- -D warnings; then
-    echo "   ✅ No clippy warnings found"
+if [ "${CI:-false}" = "true" ]; then
+    # In CI: Only check core library to avoid system dependency issues
+    if cargo clippy -p uncore --all-targets -- -D warnings; then
+        echo "   ✅ No clippy warnings found (core library)"
+    else
+        echo "   ❌ Clippy warnings found"
+        exit 1
+    fi
 else
-    echo "   ❌ Clippy warnings found"
-    exit 1
+    # Local: Check all targets
+    if cargo clippy --all-targets --all-features -- -D warnings; then
+        echo "   ✅ No clippy warnings found"
+    else
+        echo "   ❌ Clippy warnings found"
+        exit 1
+    fi
 fi
 
 echo ""
 
 # Check for any compilation warnings/errors
 echo "3. Checking for compilation issues..."
-if cargo check --quiet 2>&1 | grep -E 'warning|error' >/dev/null; then
-    WARNING_COUNT=$(cargo check 2>&1 | grep -E 'warning|error' | wc -l)
-    echo "   ❌ Found $WARNING_COUNT compilation warnings/errors"
-    exit 1
+if [ "${CI:-false}" = "true" ]; then
+    # In CI: Only check core library
+    if cargo check -p uncore --quiet 2>&1 | grep -E 'warning|error' >/dev/null; then
+        WARNING_COUNT=$(cargo check -p uncore 2>&1 | grep -E 'warning|error' | wc -l)
+        echo "   ❌ Found $WARNING_COUNT compilation warnings/errors in core library"
+        exit 1
+    else
+        echo "   ✅ No compilation warnings or errors (core library)"
+    fi
 else
-    echo "   ✅ No compilation warnings or errors"
+    # Local: Check all packages
+    if cargo check --quiet 2>&1 | grep -E 'warning|error' >/dev/null; then
+        WARNING_COUNT=$(cargo check 2>&1 | grep -E 'warning|error' | wc -l)
+        echo "   ❌ Found $WARNING_COUNT compilation warnings/errors"
+        exit 1
+    else
+        echo "   ✅ No compilation warnings or errors"
+    fi
 fi
 
 echo ""
