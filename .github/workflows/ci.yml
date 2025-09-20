@@ -8,4 +8,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: dtolnay/rust-toolchain@stable
-    - run: cargo fmt --all -- --check
+    - name: Install minimal dependencies
+      run: sudo apt-get update && sudo apt-get install -y libasound2-dev pkg-config
+    - name: Format check
+      run: cargo fmt --all -- --check
+    - name: Unit tests
+      run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=1
+    - name: Integration tests
+      run: cargo test --test integration_tests
