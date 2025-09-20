@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: dtolnay/rust-toolchain@stable
     - name: Install minimal dependencies
-      run: sudo apt-get update && sudo apt-get install -y libasound2-dev pkg-config
+      run: sudo apt-get update && sudo apt-get install -y libasound2-dev libudev-dev pkg-config
     - name: Format check
       run: cargo fmt --all -- --check
     - name: Unit tests
