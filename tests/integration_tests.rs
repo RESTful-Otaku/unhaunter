@@ -113,9 +113,9 @@ fn test_complete_game_flow_simulation() {
     // Simulate a complete game flow
     let ghost_types = vec![GhostType::BeanSidhe, GhostType::Dullahan];
     let difficulty = CurrentDifficulty(Difficulty::StandardChallenge.create_difficulty_struct());
-    
+
     let mut summary = SummaryData::new(ghost_types, difficulty);
-    
+
     // Simulate successful mission
     summary.mission_successful = true;
     summary.ghosts_unhaunted = 2;
@@ -124,14 +124,20 @@ fn test_complete_game_flow_simulation() {
     summary.average_sanity = 75.0;
     summary.time_taken_secs = 900.0; // 15 minutes
     summary.repellent_used_amt = 2;
-    
+
     let score = summary.calculate_score();
-    
+
     assert!(score > 0, "Successful mission should have positive score");
     assert!(score < 10000, "Score should be reasonable");
-    
+
     // Test that all components were involved
     assert!(summary.base_score > 0);
     assert!(summary.difficulty_multiplier > 0.0);
     assert_eq!(summary.full_score, score);
+}
+
+#[test]
+fn test_intentional_failure_for_workflow_verification() {
+    // This test is intentionally designed to fail to test GitHub Actions
+    panic!("🚨 INTENTIONAL FAILURE: Testing GitHub Actions rejection system!");
 }
