@@ -26,3 +26,49 @@ run:
 
 # Full CI simulation
 ci: check test-all
+
+# Cross-platform builds
+build-windows:
+    ./build.sh windows build
+
+build-android:
+    ./build.sh android build
+
+build-ios:
+    ./build.sh ios build
+
+build-all:
+    ./build.sh all build
+
+# Cross-platform runs
+run-windows:
+    ./build.sh windows run
+
+run-android:
+    ./build.sh android run
+
+run-ios:
+    ./build.sh ios run
+
+# Release builds
+release-windows:
+    ./build.sh windows release
+
+release-android:
+    ./build.sh android release
+
+release-ios:
+    ./build.sh ios release
+
+release-all:
+    ./build.sh all release
+
+# Platform testing
+test-windows:
+    ./build.sh windows test
+
+test-android:
+    ./build.sh android test
+
+test-ios:
+    ./build.sh ios test

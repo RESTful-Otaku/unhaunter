@@ -164,6 +164,31 @@ path = "unhaunter/src/lib.rs"
 winit = { workspace = true }
 image = { workspace = true }
 
+# Platform-specific configurations for cross-platform builds
+[package.metadata.android]
+app_name = "Unhaunter"
+package_name = "com.unhaunter.game"
+version_name = "0.3.2"
+version_code = 302
+min_sdk_version = 21
+target_sdk_version = 34
+compile_sdk_version = 34
+permissions = [
+    "android.permission.INTERNET",
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.RECORD_AUDIO",
+]
+features = ["android-native-activity"]
+
+[package.metadata.ios]
+app_name = "Unhaunter"
+bundle_identifier = "com.unhaunter.game"
+version = "0.3.2"
+build_number = 302
+minimum_deployment_target = "12.0"
+features = ["metal"]
+
 [profile.dev]
 opt-level = "s"
 lto = false
