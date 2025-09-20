@@ -1,17 +1,25 @@
 # Minimal Justfile for Unhaunter development
 
-# Default recipe - run tests
-default: test
+# Default recipe - run simple tests
+default: test-simple
 
-# Run all tests
+# Run simple tests (CI-safe, no ALSA issues)
+test-simple:
+    ./scripts/test_simple.sh
+
+# Run all tests (full local testing)
 test:
-    cargo test -p uncore --lib -- --skip ghost_setfinder
+    ./scripts/test.sh
+
+# Run CI-safe tests
+test-ci:
+    ./scripts/test_ci.sh
 
 # Check code quality
 check:
     cargo fmt --all -- --check
-    cargo clippy --all-targets -- -D warnings
-    cargo test -p uncore --lib -- --skip ghost_setfinder
+    cargo clippy -p uncore --lib -- -D warnings
+    ./scripts/test_simple.sh
 
 # Format code
 fmt:
@@ -29,5 +37,5 @@ run:
 clean:
     cargo clean
 
-# Quick development cycle
-dev: fmt check
+# Quick development cycle (ALSA-free)
+dev: fmt test-simple
