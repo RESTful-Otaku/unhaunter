@@ -35,33 +35,23 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cargo-
     
-    - name: Check formatting
+    - name: Make scripts executable
+      run: chmod +x scripts/*.sh
+    
+    - name: Run quality checks
       run: |
-        echo "::group::Checking code formatting"
-        cargo fmt --all -- --check
+        echo "::group::Code Quality Checks"
+        ./scripts/lint.sh
         echo "::endgroup::"
     
-    - name: Lint with Clippy
+    - name: Run tests
       run: |
-        echo "::group::Running Clippy lints"
-        cargo clippy --all-targets --all-features -- -D warnings
-        echo "::endgroup::"
-    
-    - name: Run unit tests
-      run: |
-        echo "::group::Running unit tests"
-        cargo test -p uncore --lib -- --skip ghost_setfinder
+        echo "::group::Unit Tests"
+        ./scripts/test.sh
         echo "::endgroup::"
     
     - name: Build release
       run: |
-        echo "::group::Building release"
-        cargo build --release
-        echo "::endgroup::"
-    
-    - name: Verify game binary
-      run: |
-        echo "::group::Verifying game binary"
-        ls -la target/release/unhaunter_game
-        echo "Game binary size: $(du -h target/release/unhaunter_game | cut -f1)"
+        echo "::group::Release Build"
+        ./scripts/build.sh
         echo "::endgroup::"
