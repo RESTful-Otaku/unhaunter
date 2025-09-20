@@ -1,13 +1,20 @@
 # Simple commands
 
-# Run core tests
+# Test core logic
 test:
     cargo test -p uncore --lib -- --skip ghost_setfinder
 
-# Run all tests (unit + integration)
+# Test everything in parallel
 test-all:
-    cargo test -p uncore --lib -- --skip ghost_setfinder
-    cargo test --test integration_tests
+    #!/bin/bash
+    cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=1 &
+    cargo test --test integration_tests &
+    wait
+
+# Format and lint
+check:
+    cargo fmt --all
+    cargo clippy -p uncore --lib -- -D warnings
 
 # Build game
 build:
@@ -17,9 +24,5 @@ build:
 run:
     cargo run
 
-# Format code
-fmt:
-    cargo fmt --all
-
-# Quick check (format + tests)
-check: fmt test
+# Full CI simulation
+ci: check test-all

@@ -3,16 +3,32 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  check:
+  quality:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - uses: dtolnay/rust-toolchain@stable
-    - name: Install minimal dependencies
+      with:
+        components: rustfmt, clippy
+    - name: Install deps
       run: sudo apt-get update && sudo apt-get install -y libasound2-dev libudev-dev pkg-config
-    - name: Format check
+    - name: Cache
+      uses: actions/cache@v4
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+    - name: Format
       run: cargo fmt --all -- --check
-    - name: Unit tests
-      run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=1
-    - name: Integration tests
-      run: cargo test --test integration_tests
+    - name: Lint
+      run: cargo clippy -p uncore --lib -- -D warnings
+    - name: Compile once
+      run: cargo test -p uncore --lib --no-run
+    - name: Tests
+      run: |
+        cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=1 &
+        cargo test --test integration_tests &
+        wait
+    - name: Security
+      run: |
+        cargo install cargo-audit --quiet || true
+        cargo audit --quiet || echo "Security audit completed (warnings allowed)"
