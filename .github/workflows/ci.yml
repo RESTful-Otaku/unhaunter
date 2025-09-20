@@ -2,101 +2,17 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  quality-gate:
-    name: Quality Gate
+  check:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
       with:
         components: rustfmt
-    
-    - name: Check code formatting
-      run: |
-        echo "🎯 Checking code formatting..."
-        cargo fmt --all -- --check
-        echo "✅ Code formatting verified"
-    
-    - name: Validate project structure
-      run: |
-        echo "📁 Validating project structure..."
-        
-        # Essential files check
-        [ -f "Cargo.toml" ] && echo "✅ Root Cargo.toml exists"
-        [ -f "uncore/Cargo.toml" ] && echo "✅ Core library Cargo.toml exists"
-        [ -f "uncore/src/lib.rs" ] && echo "✅ Core library entry point exists"
-        [ -d "tests" ] && echo "✅ Tests directory exists"
-        [ -f "tests/integration_tests.rs" ] && echo "✅ Integration tests exist"
-        
-        # Count Rust files
-        RUST_FILES=$(find . -name "*.rs" -not -path "./target/*" | wc -l)
-        echo "✅ Rust source files: $RUST_FILES"
-        
-        # Count test functions
-        TEST_FUNCTIONS=$(grep -r "#\[test\]" . --include="*.rs" | wc -l)
-        echo "✅ Test functions: $TEST_FUNCTIONS"
-        
-        if [ "$TEST_FUNCTIONS" -gt 60 ]; then
-          echo "✅ Excellent test coverage"
-        fi
-    
-    - name: Validate Cargo configuration
-      run: |
-        echo "📦 Validating Cargo configuration..."
-        
-        # Check that Cargo.toml is valid
-        cargo metadata --format-version 1 --no-deps >/dev/null
-        echo "✅ Cargo.toml syntax is valid"
-        
-        # Check workspace structure
-        if grep -q "workspace" Cargo.toml; then
-          echo "✅ Workspace configuration found"
-        fi
-        
-        # Verify core library dependencies
-        if grep -q "bevy" uncore/Cargo.toml; then
-          echo "✅ Core dependencies configured"
-        fi
-    
-    - name: Code quality validation
-      run: |
-        echo "🔍 Validating code quality..."
-        
-        # Check for common code quality indicators
-        if grep -r "TODO\|FIXME\|XXX" . --include="*.rs" | head -5; then
-          echo "⚠️  Found TODO/FIXME comments (review recommended)"
-        else
-          echo "✅ No pending TODO/FIXME items"
-        fi
-        
-        # Check for proper error handling
-        ERROR_HANDLING=$(grep -r "Result\|Error\|anyhow" uncore/src --include="*.rs" | wc -l)
-        echo "✅ Error handling patterns: $ERROR_HANDLING"
-        
-        # Check for documentation
-        DOC_COMMENTS=$(grep -r "///" uncore/src --include="*.rs" | wc -l)
-        echo "✅ Documentation comments: $DOC_COMMENTS"
-    
-    - name: Final validation
-      run: |
-        echo ""
-        echo "🎉 QUALITY GATE: PASSED"
-        echo "======================="
-        echo "✅ Code formatting: VERIFIED"
-        echo "✅ Project structure: VALID"
-        echo "✅ Cargo configuration: CORRECT"
-        echo "✅ Code quality: VALIDATED"
-        echo ""
-        echo "🚀 No ALSA issues - Pure validation approach!"
-        echo "💡 Full compilation testing done locally"
-        echo ""
-        echo "✨ Ready for merge!"
+    - name: Format check
+      run: cargo fmt --all -- --check

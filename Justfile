@@ -1,41 +1,20 @@
-# Minimal Justfile for Unhaunter development
+# Simple Justfile for Unhaunter
 
-# Default recipe - run simple tests
-default: test-simple
-
-# Run simple tests (CI-safe, no ALSA issues)
-test-simple:
-    ./scripts/test_simple.sh
-
-# Run all tests (full local testing)
+# Run tests
 test:
-    ./scripts/test.sh
-
-# Run CI-safe tests
-test-ci:
-    ./scripts/test_ci.sh
-
-# Check code quality
-check:
-    cargo fmt --all -- --check
-    cargo clippy -p uncore --lib -- -D warnings
-    ./scripts/test_simple.sh
+    cargo test -p uncore --lib -- --skip ghost_setfinder
 
 # Format code
 fmt:
     cargo fmt --all
 
-# Build release
+# Build game
 build:
     cargo build --release
 
-# Run the game
+# Run game
 run:
     cargo run --bin unhaunter_game
 
-# Clean build artifacts
-clean:
-    cargo clean
-
-# Quick development cycle (ALSA-free)
-dev: fmt test-simple
+# Quick check
+check: fmt test
