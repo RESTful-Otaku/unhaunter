@@ -27,18 +27,12 @@ pub fn trigger_ghost_events(
     // Query for doors, excluding lights
     q_doors: Query<
         (Entity, &Position, &Behaviour),
-        (
-            With<component::Door>,
-            Without<component::Light>,
-        ),
+        (With<component::Door>, Without<component::Light>),
     >,
     // Query for lights, excluding doors
     mut q_lights: Query<
         (Entity, &Position, &mut Behaviour),
-        (
-            With<component::Light>,
-            Without<component::Interactive>,
-        ),
+        (With<component::Light>, Without<component::Interactive>),
     >,
     mut interactive_stuff: InteractiveStuff,
     mut ev_bdr: EventWriter<BoardDataToRebuild>,
@@ -95,27 +89,38 @@ pub fn trigger_ghost_events(
                         let door_to_slam = doors_in_room[rng.random_range(0..doors_in_room.len())];
 
                         // Retrieve the door's Behaviour component
-                        if let Ok((door_entity, door_position, behaviour)) = q_doors.get(door_to_slam) {
+                        if let Ok((door_entity, door_position, behaviour)) =
+                            q_doors.get(door_to_slam)
+                        {
                             // Use proper ghost door interaction instead of player interaction system
-                            if let Some(alternative_behaviour) = find_alternative_door_state(&interactive_stuff.bf, behaviour) {
-                                let mut door_commands = interactive_stuff.commands.get_entity(door_entity).unwrap();
-                                
+                            if let Some(alternative_behaviour) =
+                                find_alternative_door_state(&interactive_stuff.bf, behaviour)
+                            {
+                                let mut door_commands =
+                                    interactive_stuff.commands.get_entity(door_entity).unwrap();
+
                                 // Update the door's behaviour to the alternative state (closed)
                                 door_commands.insert(alternative_behaviour);
-                                
+
                                 // Update the door's visual appearance
                                 let cvo = behaviour.key_cvo();
                                 if let Some(other_tuids) = interactive_stuff.bf.cvo_idx.get(&cvo) {
                                     let tuid = behaviour.key_tuid();
                                     for other_tuid in other_tuids {
                                         if *other_tuid != tuid
-                                            && let Some(other_tile) = interactive_stuff.bf.map_tile.get(other_tuid) {
-                                                let b = other_tile.bundle.clone();
-                                                let mat = interactive_stuff.materials1.get(&b.material).unwrap().clone();
-                                                let mat = interactive_stuff.materials1.add(mat);
-                                                door_commands.insert(MeshMaterial2d(mat));
-                                                break;
-                                            }
+                                            && let Some(other_tile) =
+                                                interactive_stuff.bf.map_tile.get(other_tuid)
+                                        {
+                                            let b = other_tile.bundle.clone();
+                                            let mat = interactive_stuff
+                                                .materials1
+                                                .get(&b.material)
+                                                .unwrap()
+                                                .clone();
+                                            let mat = interactive_stuff.materials1.add(mat);
+                                            door_commands.insert(MeshMaterial2d(mat));
+                                            break;
+                                        }
                                     }
                                 }
 
@@ -197,24 +202,28 @@ fn update_flicker_timers(
 
 /// Finds an alternative door state (Open -> Closed or Closed -> Open) using the SpriteDB
 /// This is a ghost-specific door interaction that doesn't use the player interaction system
-fn find_alternative_door_state(sprite_db: &SpriteDB, current_behaviour: &Behaviour) -> Option<Behaviour> {
+fn find_alternative_door_state(
+    sprite_db: &SpriteDB,
+    current_behaviour: &Behaviour,
+) -> Option<Behaviour> {
     let cvo = current_behaviour.key_cvo();
-    
+
     // Get all tiles with the same class, variant, and orientation
     if let Some(other_tuids) = sprite_db.cvo_idx.get(&cvo) {
         let current_tuid = current_behaviour.key_tuid();
-        
+
         for other_tuid in other_tuids {
             if *other_tuid != current_tuid
-                && let Some(other_tile) = sprite_db.map_tile.get(other_tuid) {
-                    let mut alternative_behaviour = other_tile.behaviour.clone();
-                    // Preserve the flip state from the original door
-                    alternative_behaviour.flip(current_behaviour.p.flip);
-                    return Some(alternative_behaviour);
-                }
+                && let Some(other_tile) = sprite_db.map_tile.get(other_tuid)
+            {
+                let mut alternative_behaviour = other_tile.behaviour.clone();
+                // Preserve the flip state from the original door
+                alternative_behaviour.flip(current_behaviour.p.flip);
+                return Some(alternative_behaviour);
+            }
         }
     }
-    
+
     None
 }
 

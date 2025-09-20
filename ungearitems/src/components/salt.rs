@@ -216,7 +216,12 @@ fn salty_trace_system(
     mut commands: Commands,
     time: Res<Time>,
     mut salty_traces: Query<
-        (Entity, &mut MapColour, &mut UVReactive, &mut SaltyTraceTimer),
+        (
+            Entity,
+            &mut MapColour,
+            &mut UVReactive,
+            &mut SaltyTraceTimer,
+        ),
         With<SaltyTrace>,
     >,
 ) {

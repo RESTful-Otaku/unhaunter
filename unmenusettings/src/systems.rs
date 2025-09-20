@@ -1,11 +1,14 @@
 use crate::components::{
-    AudioSettingSelected, GameplaySettingSelected, MenuEvBack, MenuEvent, MenuItem,
-    MenuSettingClassSelected, MenuType, SaveAudioSetting, SaveGameplaySetting, SaveVideoSetting, SettingsMenu,
-    SettingsState, SettingsStateTimer, VideoSettingSelected, ProfileSettingSelected, SaveProfileSetting,
-    CustomNameInput, TextInputField,
+    AudioSettingSelected, CustomNameInput, GameplaySettingSelected, MenuEvBack, MenuEvent,
+    MenuItem, MenuSettingClassSelected, MenuType, ProfileSettingSelected, SaveAudioSetting,
+    SaveGameplaySetting, SaveProfileSetting, SaveVideoSetting, SettingsMenu, SettingsState,
+    SettingsStateTimer, TextInputField, VideoSettingSelected,
 };
 use crate::menu_ui::setup_ui_main_cat;
-use crate::menus::{AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1, VideoSettingsMenu, ProfileSettingsMenu, ProfileSettingsValue};
+use crate::menus::{
+    AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1, ProfileSettingsMenu,
+    ProfileSettingsValue, VideoSettingsMenu,
+};
 use bevy::prelude::*;
 use bevy_persistent::Persistent;
 use uncore::colours::{MENU_ITEM_COLOR_OFF, MENU_ITEM_COLOR_ON};
@@ -16,8 +19,8 @@ use uncoremenu::systems::MenuItemClicked;
 use uncoremenu::templates;
 use unsettings::audio::AudioSettings;
 use unsettings::game::GameplaySettings;
-use unsettings::video::VideoSettings;
 use unsettings::profile::ProfileSettings;
+use unsettings::video::VideoSettings;
 
 pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(
@@ -283,22 +286,18 @@ fn menu_audio_setting_selected(
                     parent,
                     &handles,
                     "Audio Settings",
-                    ev.setting.to_string()
+                    ev.setting.to_string(),
                 );
 
                 // Create content area for settings items
                 let mut content_area = templates::create_selectable_content_area(
-                    parent,
-                    &handles,
-                    0 // Initial selection
+                    parent, &handles, 0, // Initial selection
                 );
 
                 // Add mouse tracker to prevent unwanted initial hover selection
                 content_area.insert(MenuMouseTracker::default());
 
-                content_area.insert(MenuRoot {
-                    selected_item: 0,
-                });
+                content_area.insert(MenuRoot { selected_item: 0 });
 
                 // Add a column container inside the content area for vertical layout
                 content_area.with_children(|content| {
@@ -323,20 +322,16 @@ fn menu_audio_setting_selected(
                                         item_text,
                                         idx,
                                         idx == 0, // First item selected by default
-                                        &handles
+                                        &handles,
                                     )
-                                        .insert(MenuItem::new(idx, event.clone()));
+                                    .insert(MenuItem::new(idx, event.clone()));
                                     idx += 1;
                                 }
                             }
 
                             // Add "Go Back" option
                             templates::create_content_item(
-                                menu_list,
-                                "Go Back",
-                                idx,
-                                false,
-                                &handles
+                                menu_list, "Go Back", idx, false, &handles,
                             )
                             .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
                         });
@@ -346,7 +341,7 @@ fn menu_audio_setting_selected(
                 templates::create_help_text(
                     parent,
                     &handles,
-                    Some("[↑]/[↓]: Navigate • [Enter]: Select • [Esc]: Back".to_string())
+                    Some("[↑]/[↓]: Navigate • [Enter]: Select • [Esc]: Back".to_string()),
                 );
             });
 
@@ -447,17 +442,13 @@ fn menu_gameplay_setting_selected(
 
                 // Create content area for settings items
                 let mut content_area = templates::create_selectable_content_area(
-                    parent,
-                    &handles,
-                    0 // Initial selection
+                    parent, &handles, 0, // Initial selection
                 );
 
                 // Add mouse tracker to prevent unwanted initial hover selection
                 content_area.insert(MenuMouseTracker::default());
 
-                content_area.insert(MenuRoot {
-                    selected_item: 0,
-                });
+                content_area.insert(MenuRoot { selected_item: 0 });
 
                 // Add a column container inside the content area for vertical layout
                 content_area.with_children(|content| {
@@ -482,20 +473,16 @@ fn menu_gameplay_setting_selected(
                                         item_text,
                                         idx,
                                         idx == 0, // First item selected by default
-                                        &handles
+                                        &handles,
                                     )
-                                        .insert(MenuItem::new(idx, event.clone()));
+                                    .insert(MenuItem::new(idx, event.clone()));
                                     idx += 1;
                                 }
                             }
 
                             // Add "Go Back" option
                             templates::create_content_item(
-                                menu_list,
-                                "Go Back",
-                                idx,
-                                false,
-                                &handles
+                                menu_list, "Go Back", idx, false, &handles,
                             )
                             .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
                         });
@@ -505,7 +492,7 @@ fn menu_gameplay_setting_selected(
                 templates::create_help_text(
                     parent,
                     &handles,
-                    Some("[↑]/[↓]: Navigate • [Enter]: Select • [Esc]: Back".to_string())
+                    Some("[↑]/[↓]: Navigate • [Enter]: Select • [Esc]: Back".to_string()),
                 );
             });
 
@@ -637,17 +624,13 @@ fn menu_video_setting_selected(
 
                 // Create content area for settings items
                 let mut content_area = templates::create_selectable_content_area(
-                    parent,
-                    &handles,
-                    0 // Initial selection
+                    parent, &handles, 0, // Initial selection
                 );
 
                 // Add mouse tracker to prevent unwanted initial hover selection
                 content_area.insert(MenuMouseTracker::default());
 
-                content_area.insert(MenuRoot {
-                    selected_item: 0,
-                });
+                content_area.insert(MenuRoot { selected_item: 0 });
 
                 // Add a column container inside the content area for vertical layout
                 content_area.with_children(|content| {
@@ -672,20 +655,16 @@ fn menu_video_setting_selected(
                                         item_text,
                                         idx,
                                         idx == 0, // First item selected by default
-                                        &handles
+                                        &handles,
                                     )
-                                        .insert(MenuItem::new(idx, event.clone()));
+                                    .insert(MenuItem::new(idx, event.clone()));
                                     idx += 1;
                                 }
                             }
 
                             // Add "Go Back" option
                             templates::create_content_item(
-                                menu_list,
-                                "Go Back",
-                                idx,
-                                false,
-                                &handles
+                                menu_list, "Go Back", idx, false, &handles,
                             )
                             .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
                         });
@@ -695,7 +674,7 @@ fn menu_video_setting_selected(
                 templates::create_help_text(
                     parent,
                     &handles,
-                    Some("[↑]/[↓]: Navigate • [Enter]: Select • [Esc]: Back".to_string())
+                    Some("[↑]/[↓]: Navigate • [Enter]: Select • [Esc]: Back".to_string()),
                 );
             });
 
@@ -711,7 +690,7 @@ fn menu_save_video_setting(
 ) {
     for ev in events.read() {
         warn!("Saving video setting: {:?}", ev.0);
-        
+
         match ev.0 {
             unsettings::video::VideoSettingsValue::resolution(value) => {
                 video_settings.resolution = value;
@@ -729,7 +708,7 @@ fn menu_save_video_setting(
                 video_settings.vsync = value;
             }
         }
-        
+
         if let Err(e) = video_settings.persist() {
             error!("Error persisting Video Settings: {e:?}");
         }
@@ -780,22 +759,18 @@ fn menu_profile_setting_selected(
                     parent,
                     &handles,
                     "Profile Settings",
-                    ev.setting.to_string()
+                    ev.setting.to_string(),
                 );
 
                 // Create content area for settings items
                 let mut content_area = templates::create_selectable_content_area(
-                    parent,
-                    &handles,
-                    0 // Initial selection
+                    parent, &handles, 0, // Initial selection
                 );
 
                 // Add mouse tracker to prevent unwanted initial hover selection
                 content_area.insert(MenuMouseTracker::default());
 
-                content_area.insert(MenuRoot {
-                    selected_item: 0,
-                });
+                content_area.insert(MenuRoot { selected_item: 0 });
 
                 // Add a column container inside the content area for vertical layout
                 content_area.with_children(|content| {
@@ -820,20 +795,16 @@ fn menu_profile_setting_selected(
                                         item_text,
                                         idx,
                                         idx == 0, // First item selected by default
-                                        &handles
+                                        &handles,
                                     )
-                                        .insert(MenuItem::new(idx, event.clone()));
+                                    .insert(MenuItem::new(idx, event.clone()));
                                     idx += 1;
                                 }
                             }
 
                             // Add "Go Back" option
                             templates::create_content_item(
-                                menu_list,
-                                "Go Back",
-                                idx,
-                                false,
-                                &handles
+                                menu_list, "Go Back", idx, false, &handles,
                             )
                             .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
                         });
@@ -843,7 +814,7 @@ fn menu_profile_setting_selected(
                 templates::create_help_text(
                     parent,
                     &handles,
-                    Some("[↑]/[↓]: Navigate • [Enter]: Select • [Esc]: Back".to_string())
+                    Some("[↑]/[↓]: Navigate • [Enter]: Select • [Esc]: Back".to_string()),
                 );
             });
 
@@ -859,7 +830,7 @@ fn menu_save_profile_setting(
 ) {
     for ev in events.read() {
         warn!("Saving profile setting: {:?}", ev.value);
-        
+
         match &ev.value {
             crate::menus::ProfileSettingsValue::display_name(value) => {
                 profile_settings.display_name = value.clone();
@@ -868,7 +839,7 @@ fn menu_save_profile_setting(
                 profile_settings.color = *value;
             }
         }
-        
+
         if let Err(e) = profile_settings.persist() {
             error!("Error persisting Profile Settings: {e:?}");
         }
@@ -927,19 +898,14 @@ fn custom_name_input_system(
                         parent,
                         &handles,
                         "Profile Settings > Display Name",
-                        "Custom Name Input"
+                        "Custom Name Input",
                     );
 
                     // Create content area
-                    let mut content_area = templates::create_selectable_content_area(
-                        parent,
-                        &handles,
-                        0
-                    );
+                    let mut content_area =
+                        templates::create_selectable_content_area(parent, &handles, 0);
 
-                    content_area.insert(MenuRoot {
-                        selected_item: 0,
-                    });
+                    content_area.insert(MenuRoot { selected_item: 0 });
 
                     content_area.with_children(|content| {
                         content
@@ -958,7 +924,7 @@ fn custom_name_input_system(
                                     "Type your custom display name:",
                                     0,
                                     false,
-                                    &handles
+                                    &handles,
                                 );
 
                                 // Text input field
@@ -973,7 +939,8 @@ fn custom_name_input_system(
                                     .insert(TextInputField)
                                     .insert(CustomNameInput::default())
                                     .with_children(|text_container| {
-                                        text_container.spawn(Text::new(""))
+                                        text_container
+                                            .spawn(Text::new(""))
                                             .insert(TextFont {
                                                 font: handles.fonts.titillium.w400_regular.clone(),
                                                 font_size: 24.0,
@@ -988,7 +955,7 @@ fn custom_name_input_system(
                                     "Press ENTER to save, ESC to cancel",
                                     1,
                                     false,
-                                    &handles
+                                    &handles,
                                 );
                             });
                     });
@@ -997,7 +964,10 @@ fn custom_name_input_system(
                     templates::create_help_text(
                         parent,
                         &handles,
-                        Some("Type your name and press [Enter] to save or [Escape] to cancel".to_string())
+                        Some(
+                            "Type your name and press [Enter] to save or [Escape] to cancel"
+                                .to_string(),
+                        ),
                     );
                 });
 
@@ -1023,23 +993,28 @@ fn custom_name_text_input_system(
 
     // Handle enter key - save the custom name
     if keyboard_input.just_pressed(KeyCode::Enter)
-        && let Some(custom_input) = custom_input_query.iter().next() {
-            if !custom_input.current_text.trim().is_empty() {
-                profile_settings.display_name = custom_input.current_text.trim().to_string();
-                if let Err(e) = profile_settings.persist() {
-                    error!("Error persisting Profile Settings: {e:?}");
-                }
-                // Save the setting using the proper event
-                menu_events.write(MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name(custom_input.current_text.trim().to_string())));
+        && let Some(custom_input) = custom_input_query.iter().next()
+    {
+        if !custom_input.current_text.trim().is_empty() {
+            profile_settings.display_name = custom_input.current_text.trim().to_string();
+            if let Err(e) = profile_settings.persist() {
+                error!("Error persisting Profile Settings: {e:?}");
             }
-            // Go back to profile settings
-            next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Profile));
+            // Save the setting using the proper event
+            menu_events.write(MenuEvent::SaveProfileSetting(
+                ProfileSettingsValue::display_name(custom_input.current_text.trim().to_string()),
+            ));
         }
+        // Go back to profile settings
+        next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Profile));
+    }
 
     // Handle escape key - cancel and go back
     if keyboard_input.just_pressed(KeyCode::Escape) {
         next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Profile));
-        menu_events.write(MenuEvent::EditProfileSetting(ProfileSettingsMenu::DisplayName));
+        menu_events.write(MenuEvent::EditProfileSetting(
+            ProfileSettingsMenu::DisplayName,
+        ));
     }
 
     // Handle character input for printable characters
@@ -1085,7 +1060,10 @@ fn delete_custom_name_system(
             info!("Delete custom name requested: '{}'", name_to_delete);
             // Clear the display name if it matches the one being deleted
             if profile_settings.display_name == *name_to_delete {
-                info!("Deleting custom name '{}' and resetting to default", name_to_delete);
+                info!(
+                    "Deleting custom name '{}' and resetting to default",
+                    name_to_delete
+                );
                 // Reset to default "Player" name
                 profile_settings.display_name = "Player".to_string();
                 if let Err(e) = profile_settings.persist() {
@@ -1094,9 +1072,12 @@ fn delete_custom_name_system(
                     info!("Successfully deleted custom name and reset to default");
                 }
             } else {
-                warn!("Attempted to delete '{}' but current name is '{}'", name_to_delete, profile_settings.display_name);
+                warn!(
+                    "Attempted to delete '{}' but current name is '{}'",
+                    name_to_delete, profile_settings.display_name
+                );
             }
-            
+
             // Trigger a proper menu refresh by going back to level 2 and then to level 3
             next_state.set(SettingsState::Lv2List);
             // Then immediately trigger the profile setting selected event to rebuild the menu
@@ -1110,8 +1091,9 @@ fn delete_custom_name_system(
 
 /// Helper function to convert KeyCode to character, checking for shift modifier
 fn key_code_to_char(key_code: KeyCode, keyboard_input: &ButtonInput<KeyCode>) -> Option<char> {
-    let is_shift_pressed = keyboard_input.pressed(KeyCode::ShiftLeft) || keyboard_input.pressed(KeyCode::ShiftRight);
-    
+    let is_shift_pressed =
+        keyboard_input.pressed(KeyCode::ShiftLeft) || keyboard_input.pressed(KeyCode::ShiftRight);
+
     match key_code {
         KeyCode::KeyA => Some(if is_shift_pressed { 'A' } else { 'a' }),
         KeyCode::KeyB => Some(if is_shift_pressed { 'B' } else { 'b' }),

@@ -25,22 +25,23 @@ fn acknowledge_blinking_gear_hint_system(
 
             if let Some(gear_data) = &active_gear.data
                 && gear_data.is_blinking_hint_active()
-                    && let Ok(evidence_type) = Evidence::try_from(&active_gear.kind) {
-                        const HINT_ACKNOWLEDGE_THRESHOLD: u32 = 3;
-                        let count = profile_data
-                            .times_evidence_acknowledged_on_gear
-                            .entry(evidence_type)
-                            .or_insert(0);
+                && let Ok(evidence_type) = Evidence::try_from(&active_gear.kind)
+            {
+                const HINT_ACKNOWLEDGE_THRESHOLD: u32 = 3;
+                let count = profile_data
+                    .times_evidence_acknowledged_on_gear
+                    .entry(evidence_type)
+                    .or_insert(0);
 
-                        if *count < HINT_ACKNOWLEDGE_THRESHOLD {
-                            *count += 1;
-                            info!(
-                                "Acknowledged gear hint for {:?}. New count: {}",
-                                evidence_type, *count
-                            );
-                            profile_data.set_changed();
-                        }
-                    }
+                if *count < HINT_ACKNOWLEDGE_THRESHOLD {
+                    *count += 1;
+                    info!(
+                        "Acknowledged gear hint for {:?}. New count: {}",
+                        evidence_type, *count
+                    );
+                    profile_data.set_changed();
+                }
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 use bevy::color::palettes::css;
 use bevy::prelude::*;
+use bevy_persistent::Persistent;
 use ordered_float::OrderedFloat;
 use rand::Rng;
 use std::f64::consts::PI;
@@ -18,8 +19,6 @@ use uncore::difficulty::CurrentDifficulty;
 use uncore::metric_recorder::SendMetric;
 use uncore::random_seed;
 use uncore::resources::board_data::BoardData;
-use bevy_persistent::Persistent;
-use unsettings::game::GameplaySettings;
 use uncore::resources::object_interaction::ObjectInteractionConfig;
 use uncore::resources::roomdb::RoomDB;
 use uncore::resources::summary_data::SummaryData;
@@ -27,6 +26,7 @@ use uncore::utils::{MeanValue, PrintingTimer};
 use ungear::gear_stuff::GearStuff;
 use ungearitems::components::sage::{SageSmokeParticle, SmokeParticleTimer};
 use ungearitems::components::salt::{SaltyTrace, SaltyTraceTimer, UVReactive};
+use unsettings::game::GameplaySettings;
 
 use crate::metrics::{GHOST_ENRAGE, GHOST_MOVEMENT};
 use uncore::events::ambient_sound_mute::AmbientSoundMuteEvent;
@@ -453,7 +453,7 @@ fn ghost_enrage(
                 // Apply damage based on 3D distance (unless Dev God Mode is enabled)
                 let dist2 = calculate_weighted_distance_squared(gpos, ppos) + 2.0;
                 let dmg = dist2.recip() * difficulty.0.health_drain_rate;
-                
+
                 // Check if Dev God Mode is enabled - if so, player is invincible
                 if !gameplay_settings.dev_cheat_mode.is_enabled() {
                     player.health -=
@@ -599,10 +599,11 @@ fn ghost_enrage(
             should_roar = RoarType::Snore;
         }
         if *last_roar > roar_time
-            && let Some(roar_sound) = should_roar.get_sound() {
-                gs.play_audio(roar_sound, should_roar.get_volume(), gpos);
-                *last_roar = 0.0;
-            }
+            && let Some(roar_sound) = should_roar.get_sound()
+        {
+            gs.play_audio(roar_sound, should_roar.get_volume(), gpos);
+            *last_roar = 0.0;
+        }
     }
 
     measure.end_ms();

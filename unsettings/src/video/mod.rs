@@ -4,9 +4,7 @@ use serde::{Deserialize, Serialize};
 pub mod display;
 pub mod video_system;
 
-#[derive(
-    Component, Resource, Serialize, Deserialize, Debug, Clone, PartialEq, Eq,
-)]
+#[derive(Component, Resource, Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct VideoSettings {
     pub resolution: display::Resolution,
     pub aspect_ratio: AspectRatio,

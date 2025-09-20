@@ -7,7 +7,18 @@ pub struct ProfileSettings {
     pub color: Profilecolour,
 }
 
-#[derive(Reflect, Component, Serialize, Deserialize, Debug, Default, Clone, Copy, strum::Display, strum::EnumIter)]
+#[derive(
+    Reflect,
+    Component,
+    Serialize,
+    Deserialize,
+    Debug,
+    Default,
+    Clone,
+    Copy,
+    strum::Display,
+    strum::EnumIter,
+)]
 pub enum Profilecolour {
     #[default]
     Grey,

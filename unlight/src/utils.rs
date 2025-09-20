@@ -48,9 +48,10 @@ pub fn has_active_light_nearby(
                 let prebaked_data = &bf.prebaked_lighting[pos];
 
                 if let Some(source_id) = prebaked_data.light_info.source_id
-                    && active_source_ids.contains(&source_id) {
-                        return true;
-                    }
+                    && active_source_ids.contains(&source_id)
+                {
+                    return true;
+                }
             }
         }
     }
@@ -59,7 +60,10 @@ pub fn has_active_light_nearby(
 }
 
 /// Determines if a light is currently active based on its position and behaviour
-pub fn is_light_active(pos: &BoardPosition, behaviours: &HashMap<BoardPosition, &Behaviour>) -> bool {
+pub fn is_light_active(
+    pos: &BoardPosition,
+    behaviours: &HashMap<BoardPosition, &Behaviour>,
+) -> bool {
     if let Some(behaviour) = behaviours.get(pos) {
         behaviour.p.light.light_emission_enabled
     } else {
@@ -98,9 +102,10 @@ pub fn identify_active_light_sources(
         };
 
         if behaviour.p.light.light_emission_enabled
-            && let Some(source_id) = bf.prebaked_lighting[*ndidx].light_info.source_id {
-                active_source_ids.insert(source_id);
-            }
+            && let Some(source_id) = bf.prebaked_lighting[*ndidx].light_info.source_id
+        {
+            active_source_ids.insert(source_id);
+        }
     }
     // info!(
     //     "Active light sources: {}/{} (prebaked) ",

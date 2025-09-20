@@ -9,7 +9,10 @@ mod tests {
 
         // Initial priority should be VeryHigh
         assert_eq!(event.priority(), WalkieEventPriority::VeryHigh);
-        assert_eq!(event.repeat_behaviour(), WalkieRepeatbehaviour::VeryLowRepeat);
+        assert_eq!(
+            event.repeat_behaviour(),
+            WalkieRepeatbehaviour::VeryLowRepeat
+        );
 
         // After 0 plays, effective priority should be the same
         assert_eq!(event.effective_priority(0), WalkieEventPriority::VeryHigh);
@@ -33,7 +36,10 @@ mod tests {
 
         // Should be VeryHigh priority with AlwaysRepeat behaviour
         assert_eq!(event.priority(), WalkieEventPriority::VeryHigh);
-        assert_eq!(event.repeat_behaviour(), WalkieRepeatbehaviour::AlwaysRepeat);
+        assert_eq!(
+            event.repeat_behaviour(),
+            WalkieRepeatbehaviour::AlwaysRepeat
+        );
 
         // Should maintain priority regardless of play count
         assert_eq!(event.effective_priority(0), WalkieEventPriority::VeryHigh);
@@ -49,7 +55,10 @@ mod tests {
 
         // Should be Medium priority with NormalRepeat behaviour
         assert_eq!(event.priority(), WalkieEventPriority::Medium);
-        assert_eq!(event.repeat_behaviour(), WalkieRepeatbehaviour::NormalRepeat);
+        assert_eq!(
+            event.repeat_behaviour(),
+            WalkieRepeatbehaviour::NormalRepeat
+        );
 
         // Should maintain priority for first few plays
         assert_eq!(event.effective_priority(0), WalkieEventPriority::Medium);

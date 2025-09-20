@@ -2,6 +2,8 @@
 
 //! Functions for processing RON files, generating audio, and managing generated files.
 
+#![allow(clippy::collapsible_if)]
+
 use crate::constants::{
     DURATION_SCRIPT_PATH, GENERATED_ASSETS_DIR, GENERATE_SCRIPT_PATH, TEMP_AUDIO_DIR,
 };

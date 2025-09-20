@@ -30,12 +30,14 @@ impl Resolution {
     pub fn aspect_ratio(&self) -> f32 {
         self.width as f32 / self.height as f32
     }
-
 }
 
 impl Default for Resolution {
     fn default() -> Self {
-        Self { width: 1920, height: 1080 }
+        Self {
+            width: 1920,
+            height: 1080,
+        }
     }
 }
 
@@ -47,8 +49,19 @@ impl std::fmt::Display for Resolution {
 
 /// Represents detected aspect ratios from the display
 #[derive(
-    Reflect, Component, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Default,
-    strum::Display, strum::EnumIter, Hash,
+    Reflect,
+    Component,
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Default,
+    strum::Display,
+    strum::EnumIter,
+    Hash,
 )]
 pub enum AspectRatio {
     #[strum(to_string = "4:3")]
@@ -70,16 +83,16 @@ pub enum AspectRatio {
 impl AspectRatio {
     pub fn from_ratio(ratio: f32) -> Self {
         const TOLERANCE: f32 = 0.01;
-        
-        if (ratio - 4.0/3.0).abs() < TOLERANCE {
+
+        if (ratio - 4.0 / 3.0).abs() < TOLERANCE {
             AspectRatio::Ar4_3
-        } else if (ratio - 16.0/10.0).abs() < TOLERANCE {
+        } else if (ratio - 16.0 / 10.0).abs() < TOLERANCE {
             AspectRatio::Ar16_10
-        } else if (ratio - 16.0/9.0).abs() < TOLERANCE {
+        } else if (ratio - 16.0 / 9.0).abs() < TOLERANCE {
             AspectRatio::Ar16_9
-        } else if (ratio - 21.0/9.0).abs() < TOLERANCE {
+        } else if (ratio - 21.0 / 9.0).abs() < TOLERANCE {
             AspectRatio::Ar21_9
-        } else if (ratio - 32.0/9.0).abs() < TOLERANCE {
+        } else if (ratio - 32.0 / 9.0).abs() < TOLERANCE {
             AspectRatio::Ar32_9
         } else {
             // Convert to a reasonable fraction representation
@@ -120,10 +133,7 @@ impl AspectRatio {
 // Display implementation is provided by strum::Display derive
 
 /// System to detect available display resolutions and aspect ratios
-pub fn detect_display_info(
-    mut commands: Commands,
-    windows: Query<&Window>,
-) {
+pub fn detect_display_info(mut commands: Commands, windows: Query<&Window>) {
     let mut available_resolutions = Vec::new();
     let mut aspect_ratio_set = HashSet::new();
     let mut refresh_rate_set = HashSet::new();
@@ -139,7 +149,7 @@ pub fn detect_display_info(
         primary_resolution = current_resolution;
         available_resolutions.push(current_resolution);
         aspect_ratio_set.insert(AspectRatio::from_ratio(primary_resolution.aspect_ratio()));
-        
+
         // Try to detect refresh rate from window
         // Note: Bevy doesn't directly expose refresh rate, so we'll use common values
         primary_refresh_rate = RefreshRate::Hz60; // Default assumption
@@ -147,27 +157,27 @@ pub fn detect_display_info(
 
     // Add common resolutions that are typically supported
     let common_resolutions = vec![
-        Resolution::new(640, 480),    // VGA
-        Resolution::new(800, 600),    // SVGA
-        Resolution::new(1024, 768),   // XGA
-        Resolution::new(1280, 720),   // HD
-        Resolution::new(1280, 800),   // WXGA
-        Resolution::new(1280, 1024),  // SXGA
-        Resolution::new(1366, 768),   // HD
-        Resolution::new(1440, 900),   // WXGA+
-        Resolution::new(1600, 900),   // HD+
-        Resolution::new(1600, 1200),  // UXGA
-        Resolution::new(1680, 1050),  // WSXGA+
-        Resolution::new(1920, 1080),  // Full HD
-        Resolution::new(1920, 1200),  // WUXGA
-        Resolution::new(2048, 1152),  // QWXGA
-        Resolution::new(2560, 1440),  // QHD
-        Resolution::new(2560, 1600),  // WQXGA
-        Resolution::new(3440, 1440),  // UWQHD
-        Resolution::new(3840, 2160),  // 4K UHD
-        Resolution::new(5120, 1440),  // Dual QHD
-        Resolution::new(5120, 2880),  // 5K
-        Resolution::new(7680, 4320),  // 8K UHD
+        Resolution::new(640, 480),   // VGA
+        Resolution::new(800, 600),   // SVGA
+        Resolution::new(1024, 768),  // XGA
+        Resolution::new(1280, 720),  // HD
+        Resolution::new(1280, 800),  // WXGA
+        Resolution::new(1280, 1024), // SXGA
+        Resolution::new(1366, 768),  // HD
+        Resolution::new(1440, 900),  // WXGA+
+        Resolution::new(1600, 900),  // HD+
+        Resolution::new(1600, 1200), // UXGA
+        Resolution::new(1680, 1050), // WSXGA+
+        Resolution::new(1920, 1080), // Full HD
+        Resolution::new(1920, 1200), // WUXGA
+        Resolution::new(2048, 1152), // QWXGA
+        Resolution::new(2560, 1440), // QHD
+        Resolution::new(2560, 1600), // WQXGA
+        Resolution::new(3440, 1440), // UWQHD
+        Resolution::new(3840, 2160), // 4K UHD
+        Resolution::new(5120, 1440), // Dual QHD
+        Resolution::new(5120, 2880), // 5K
+        Resolution::new(7680, 4320), // 8K UHD
     ];
 
     for resolution in common_resolutions {
@@ -208,10 +218,12 @@ pub fn detect_display_info(
         primary_monitor_refresh_rate: primary_refresh_rate,
     };
 
-    info!("Detected display info: {} resolutions, {} aspect ratios, {} refresh rates", 
-          display_info.available_resolutions.len(), 
-          display_info.available_aspect_ratios.len(),
-          display_info.available_refresh_rates.len());
+    info!(
+        "Detected display info: {} resolutions, {} aspect ratios, {} refresh rates",
+        display_info.available_resolutions.len(),
+        display_info.available_aspect_ratios.len(),
+        display_info.available_refresh_rates.len()
+    );
 
     commands.insert_resource(display_info);
 }
@@ -222,7 +234,10 @@ pub fn update_video_settings_from_display(
     mut video_settings: ResMut<bevy_persistent::Persistent<crate::video::VideoSettings>>,
 ) {
     // If the current resolution is not in the available list, set it to the primary monitor resolution
-    if !display_info.available_resolutions.contains(&video_settings.resolution) {
+    if !display_info
+        .available_resolutions
+        .contains(&video_settings.resolution)
+    {
         video_settings.resolution = display_info.primary_monitor_resolution;
     }
 }

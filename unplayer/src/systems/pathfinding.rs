@@ -57,9 +57,10 @@ fn is_visible(
     visibility_data: &VisibilityData,
 ) -> bool {
     if let Some(idx) = pos.ndidx_checked(board_data.map_size)
-        && let Some(visibility) = visibility_data.visibility_field.get(idx) {
-            return *visibility > 0.0; // Assume visibility > 0 means visible
-        }
+        && let Some(visibility) = visibility_data.visibility_field.get(idx)
+    {
+        return *visibility > 0.0; // Assume visibility > 0 means visible
+    }
     false // Out of bounds or no visibility data means not visible
 }
 
@@ -89,10 +90,11 @@ fn get_neighbours(
         // Check if the neighbour is within bounds, walkable, and visible
         if let Some(idx) = neighbour.ndidx_checked(board_data.map_size)
             && let Some(collision_data) = board_data.collision_field.get(idx)
-                && collision_data.player_free && is_visible(&neighbour, board_data, visibility_data)
-                {
-                    neighbours.push(neighbour);
-                }
+            && collision_data.player_free
+            && is_visible(&neighbour, board_data, visibility_data)
+        {
+            neighbours.push(neighbour);
+        }
     }
 
     neighbours
@@ -450,9 +452,10 @@ fn has_line_of_sight(
 /// Helper function to check if a board position is walkable
 fn is_walkable(pos: &BoardPosition, board_data: &BoardData) -> bool {
     if let Some(idx) = pos.ndidx_checked(board_data.map_size)
-        && let Some(collision_data) = board_data.collision_field.get(idx) {
-            return collision_data.player_free;
-        }
+        && let Some(collision_data) = board_data.collision_field.get(idx)
+    {
+        return collision_data.player_free;
+    }
     false
 }
 

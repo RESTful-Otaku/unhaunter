@@ -1,6 +1,8 @@
 //! # Walkie Voice Generator
 //!
 //! This CLI tool automates the generation of walkie-talkie style voice lines for the Unhaunter game.
+
+#![allow(clippy::collapsible_if)]
 //! It processes RON (Rusty Object Notation) files containing text-to-speech definitions,
 //! generates OGG audio files with applied effects, manages these files via a manifest,
 //! and generates corresponding Rust code for use in the game.

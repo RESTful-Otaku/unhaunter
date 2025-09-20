@@ -134,9 +134,10 @@ impl InteractiveStuff<'_, '_> {
                     }
                     InteractionExecutionType::ReadRoomState => {
                         if let Some(main_room_state) = self.roomdb.room_state.get(&room_name)
-                            && *main_room_state != beh.state() {
-                                continue;
-                            }
+                            && *main_room_state != beh.state()
+                        {
+                            continue;
+                        }
                     }
                 }
             }
@@ -147,14 +148,15 @@ impl InteractiveStuff<'_, '_> {
 
             e_commands.insert(beh);
             if ietype == InteractionExecutionType::ChangeState
-                && let Some(interactive) = interactive {
-                    let sound_file = interactive.sound_for_moving_into_state(&other.behaviour);
-                    self.sound_events.write(SoundEvent {
-                        sound_file,
-                        volume: 1.0,
-                        position: Some(*item_pos),
-                    });
-                }
+                && let Some(interactive) = interactive
+            {
+                let sound_file = interactive.sound_for_moving_into_state(&other.behaviour);
+                self.sound_events.write(SoundEvent {
+                    sound_file,
+                    volume: 1.0,
+                    position: Some(*item_pos),
+                });
+            }
             return true;
         }
         false

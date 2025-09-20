@@ -274,7 +274,9 @@ impl WalkieEvent {
             WalkieEvent::SanityDroppedBelowThresholdGhost => WalkieRepeatbehaviour::HighRepeat, // Upgraded from Normal to High
             WalkieEvent::HasRepellentEntersLocation => WalkieRepeatbehaviour::NormalRepeat,
             WalkieEvent::RepellentUsedTooFar => WalkieRepeatbehaviour::NormalRepeat,
-            WalkieEvent::RepellentUsedGhostEnragesPlayerFlees => WalkieRepeatbehaviour::NormalRepeat,
+            WalkieEvent::RepellentUsedGhostEnragesPlayerFlees => {
+                WalkieRepeatbehaviour::NormalRepeat
+            }
             WalkieEvent::RepellentExhaustedGhostPresentCorrectType => {
                 WalkieRepeatbehaviour::NormalRepeat
             }

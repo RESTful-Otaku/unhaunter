@@ -67,10 +67,11 @@ fn lose_sanity(
         };
         // Only apply sanity loss if Dev God Mode is not enabled
         if !gameplay_settings.dev_cheat_mode.is_enabled() {
-            ps.crazyness +=
-                (crazy.clamp(0.000000001, 10000000.0).sqrt() * 0.2 * difficulty.0.sanity_drain_rate
-                    - sanity_recover * ps.crazyness / (1.0 + mean_sound.0 * 10.0))
-                    * dt;
+            ps.crazyness += (crazy.clamp(0.000000001, 10000000.0).sqrt()
+                * 0.2
+                * difficulty.0.sanity_drain_rate
+                - sanity_recover * ps.crazyness / (1.0 + mean_sound.0 * 10.0))
+                * dt;
         } else {
             // In Dev God Mode, only allow sanity recovery
             ps.crazyness -= sanity_recover * ps.crazyness / (1.0 + mean_sound.0 * 10.0) * dt;

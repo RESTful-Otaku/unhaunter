@@ -150,7 +150,7 @@ fn fragment(
     var gbl: f32 = material.gbl;
     var gbr: f32 = material.gbr;
 
-    // Interpolate gamma values based on UV coordinates. Assume uv coordinates are normalized [0,1] within each sprite cell.
+    // Interpolate gamma values based on UV coordinates. Assume uv coordinates are normalised [0,1] within each sprite cell.
     var gamma: f32 = (gc * wct + gtl * wtl + gtr * wtr + gbl * wbl + gbr * wbr) / (wct+wtl+wtr+wbl+wbr);
     var wcf: f32 = 1.2; // <- softening effect. Higher increases the edge variability
     gamma = (gamma + gc / wcf) / (1.0 + wcf);

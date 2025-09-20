@@ -5,7 +5,7 @@ use unsettings::{
     audio::{AudioLevel, AudioSettings, AudioSettingsValue},
     game::{CameraControls, DevCheatMode, GameplaySettings, GameplaySettingsValue, MovementStyle},
     profile::{ProfileSettings, Profilecolour},
-    video::{VideoSettings, VideoSettingsValue, display::Resolution, AspectRatio, ZoomLevel},
+    video::{AspectRatio, VideoSettings, VideoSettingsValue, ZoomLevel, display::Resolution},
 };
 
 #[expect(non_camel_case_types)]
@@ -97,10 +97,16 @@ pub enum ProfileSettingsMenu {
 impl VideoSettingsMenu {
     pub fn menu_event(&self) -> MenuEvent {
         match self {
-            VideoSettingsMenu::WindowSize => MenuEvent::EditVideoSetting(VideoSettingsMenu::WindowSize),
-            VideoSettingsMenu::AspectRatio => MenuEvent::EditVideoSetting(VideoSettingsMenu::AspectRatio),
+            VideoSettingsMenu::WindowSize => {
+                MenuEvent::EditVideoSetting(VideoSettingsMenu::WindowSize)
+            }
+            VideoSettingsMenu::AspectRatio => {
+                MenuEvent::EditVideoSetting(VideoSettingsMenu::AspectRatio)
+            }
             VideoSettingsMenu::UiScale => MenuEvent::EditVideoSetting(VideoSettingsMenu::UiScale),
-            VideoSettingsMenu::FontScale => MenuEvent::EditVideoSetting(VideoSettingsMenu::FontScale),
+            VideoSettingsMenu::FontScale => {
+                MenuEvent::EditVideoSetting(VideoSettingsMenu::FontScale)
+            }
         }
     }
 
@@ -116,23 +122,44 @@ impl VideoSettingsMenu {
             VideoSettingsMenu::WindowSize => {
                 // Common resolutions that users might want to choose from
                 let common_resolutions = [
-                    Resolution::new(1280, 720),   // HD
-                    Resolution::new(1920, 1080),  // Full HD
-                    Resolution::new(2560, 1440),  // QHD
-                    Resolution::new(3840, 2160),  // 4K UHD
+                    Resolution::new(1280, 720),  // HD
+                    Resolution::new(1920, 1080), // Full HD
+                    Resolution::new(2560, 1440), // QHD
+                    Resolution::new(3840, 2160), // 4K UHD
                 ];
-                common_resolutions.iter()
-                    .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::resolution(*v))))
+                common_resolutions
+                    .iter()
+                    .map(|v| {
+                        (
+                            v.to_string(),
+                            MenuEvent::SaveVideoSetting(VideoSettingsValue::resolution(*v)),
+                        )
+                    })
                     .collect()
-            },
+            }
             VideoSettingsMenu::AspectRatio => AspectRatio::iter()
-                .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::aspect_ratio(v))))
+                .map(|v| {
+                    (
+                        v.to_string(),
+                        MenuEvent::SaveVideoSetting(VideoSettingsValue::aspect_ratio(v)),
+                    )
+                })
                 .collect(),
             VideoSettingsMenu::UiScale => ZoomLevel::iter()
-                .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::ui_zoom(v))))
+                .map(|v| {
+                    (
+                        v.to_string(),
+                        MenuEvent::SaveVideoSetting(VideoSettingsValue::ui_zoom(v)),
+                    )
+                })
                 .collect(),
             VideoSettingsMenu::FontScale => ZoomLevel::iter()
-                .map(|v| (v.to_string(), MenuEvent::SaveVideoSetting(VideoSettingsValue::ui_zoom(v))))
+                .map(|v| {
+                    (
+                        v.to_string(),
+                        MenuEvent::SaveVideoSetting(VideoSettingsValue::ui_zoom(v)),
+                    )
+                })
                 .collect(),
         }
     }
@@ -141,8 +168,12 @@ impl VideoSettingsMenu {
 impl ProfileSettingsMenu {
     pub fn menu_event(&self) -> MenuEvent {
         match self {
-            ProfileSettingsMenu::DisplayName => MenuEvent::EditProfileSetting(ProfileSettingsMenu::DisplayName),
-            ProfileSettingsMenu::Colour => MenuEvent::EditProfileSetting(ProfileSettingsMenu::Colour),
+            ProfileSettingsMenu::DisplayName => {
+                MenuEvent::EditProfileSetting(ProfileSettingsMenu::DisplayName)
+            }
+            ProfileSettingsMenu::Colour => {
+                MenuEvent::EditProfileSetting(ProfileSettingsMenu::Colour)
+            }
         }
     }
 
@@ -158,28 +189,66 @@ impl ProfileSettingsMenu {
         match self {
             ProfileSettingsMenu::DisplayName => {
                 let mut options = vec![
-                    ("Player".to_string(), MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name("Player".to_string()))),
-                    ("Ghost Hunter".to_string(), MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name("Ghost Hunter".to_string()))),
-                    ("Investigator".to_string(), MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name("Investigator".to_string()))),
-                    ("Paranormal Expert".to_string(), MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name("Paranormal Expert".to_string()))),
+                    (
+                        "Player".to_string(),
+                        MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name(
+                            "Player".to_string(),
+                        )),
+                    ),
+                    (
+                        "Ghost Hunter".to_string(),
+                        MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name(
+                            "Ghost Hunter".to_string(),
+                        )),
+                    ),
+                    (
+                        "Investigator".to_string(),
+                        MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name(
+                            "Investigator".to_string(),
+                        )),
+                    ),
+                    (
+                        "Paranormal Expert".to_string(),
+                        MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name(
+                            "Paranormal Expert".to_string(),
+                        )),
+                    ),
                 ];
-                
+
                 // Add the current custom name if it's not empty and not one of the presets
                 let current_name = profile_settings.display_name.clone();
-                if !current_name.is_empty() && !options.iter().any(|(name, _)| name == &current_name) {
+                if !current_name.is_empty()
+                    && !options.iter().any(|(name, _)| name == &current_name)
+                {
                     // Add the custom name as a selectable option
-                    options.push((format!("{} (Custom)", current_name), MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name(current_name.clone()))));
+                    options.push((
+                        format!("{} (Custom)", current_name),
+                        MenuEvent::SaveProfileSetting(ProfileSettingsValue::display_name(
+                            current_name.clone(),
+                        )),
+                    ));
                     // Add a delete option for the custom name
-                    options.push((format!("Delete '{}'", current_name), MenuEvent::DeleteCustomName(current_name)));
+                    options.push((
+                        format!("Delete '{}'", current_name),
+                        MenuEvent::DeleteCustomName(current_name),
+                    ));
                 }
-                
+
                 // Always add the custom input option at the end
-                options.push(("Custom Name...".to_string(), MenuEvent::StartCustomNameInput));
-                
+                options.push((
+                    "Custom Name...".to_string(),
+                    MenuEvent::StartCustomNameInput,
+                ));
+
                 options
             }
             ProfileSettingsMenu::Colour => Profilecolour::iter()
-                .map(|v| (v.to_string(), MenuEvent::SaveProfileSetting(ProfileSettingsValue::colour(v))))
+                .map(|v| {
+                    (
+                        v.to_string(),
+                        MenuEvent::SaveProfileSetting(ProfileSettingsValue::colour(v)),
+                    )
+                })
                 .collect(),
         }
     }
@@ -208,10 +277,9 @@ impl AudioSettingsMenu {
             | Self::VolumeMusic
             | Self::VolumeAmbient
             | Self::VolumeVoiceChat => MenuEvent::EditAudioSetting(*self),
-            Self::SoundOutput
-            | Self::AudioPositioning
-            | Self::FeedbackDelay
-            | Self::FeedbackEq => MenuEvent::EditAudioSetting(*self),
+            Self::SoundOutput | Self::AudioPositioning | Self::FeedbackDelay | Self::FeedbackEq => {
+                MenuEvent::EditAudioSetting(*self)
+            }
         }
     }
 

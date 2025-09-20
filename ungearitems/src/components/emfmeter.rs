@@ -299,9 +299,10 @@ impl GearUsable for EMFMeter {
 
     fn is_status_text_showing_evidence(&self) -> f32 {
         if self.is_enabled()
-            && let EMFLevel::EMF5 = self.emf_level {
-                return 1.0;
-            }
+            && let EMFLevel::EMF5 = self.emf_level
+        {
+            return 1.0;
+        }
         0.0
     }
 
@@ -309,12 +310,13 @@ impl GearUsable for EMFMeter {
         // The icon shows evidence if it's the EMF5 sprite (EMFMeter4)
         // and the device is truly enabled (not glitching).
         if self.is_enabled()
-            && let EMFLevel::EMF5 = self.emf_level {
-                // Check if current sprite is indeed the EMF5 sprite.
-                // get_sprite_idx() already considers glitches for visual representation.
-                // However, for "evidence signal", we care about the underlying data if not glitching.
-                return 1.0;
-            }
+            && let EMFLevel::EMF5 = self.emf_level
+        {
+            // Check if current sprite is indeed the EMF5 sprite.
+            // get_sprite_idx() already considers glitches for visual representation.
+            // However, for "evidence signal", we care about the underlying data if not glitching.
+            return 1.0;
+        }
         0.0
     }
 

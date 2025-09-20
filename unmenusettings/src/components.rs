@@ -1,10 +1,15 @@
 use bevy::prelude::*;
 use bevy_platform::time::Instant;
-use unsettings::{audio::AudioSettingsValue, game::GameplaySettingsValue, video::VideoSettingsValue};
+use unsettings::{
+    audio::AudioSettingsValue, game::GameplaySettingsValue, video::VideoSettingsValue,
+};
 
 use crate::menus::ProfileSettingsValue;
 
-use crate::menus::{AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1, VideoSettingsMenu, ProfileSettingsMenu};
+use crate::menus::{
+    AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1, ProfileSettingsMenu,
+    VideoSettingsMenu,
+};
 
 #[derive(Component, Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum MenuType {
@@ -23,12 +28,10 @@ pub struct SettingsMenu {
 #[derive(Component)]
 pub struct SCamera;
 
-#[derive(Component)]
-#[derive(Default)]
+#[derive(Component, Default)]
 pub struct CustomNameInput {
     pub current_text: String,
 }
-
 
 #[derive(Component)]
 pub struct TextInputField;

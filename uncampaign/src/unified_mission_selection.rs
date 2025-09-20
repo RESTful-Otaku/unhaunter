@@ -136,10 +136,12 @@ fn handle_selection_input(
 
     ev_menu_clicks.clear();
 
-    if selected_identifier.is_none() && keyboard_input.just_pressed(KeyCode::Enter)
-        && let Ok(root) = menu_root.single() {
-            selected_identifier = Some(root.selected_item);
-        }
+    if selected_identifier.is_none()
+        && keyboard_input.just_pressed(KeyCode::Enter)
+        && let Ok(root) = menu_root.single()
+    {
+        selected_identifier = Some(root.selected_item);
+    }
 
     let mut go_back = false;
     if ev_escape.read().last().is_some() {
@@ -184,7 +186,8 @@ fn handle_selection_input(
                         std::cmp::Ordering::Greater => {
                             if player_profile.progression.bank >= additional_bank_needed {
                                 player_profile.progression.bank -= additional_bank_needed;
-                                player_profile.progression.insurance_deposit += additional_bank_needed;
+                                player_profile.progression.insurance_deposit +=
+                                    additional_bank_needed;
                             } else {
                                 warn!(
                                     "Insufficient money in bank for deposit. Required: ${}, Available: ${}",
@@ -208,7 +211,10 @@ fn handle_selection_input(
                     }
                 } else {
                     // In Dev God Mode, bypass deposit requirements entirely
-                    info!("Dev God Mode: Bypassing deposit requirement of ${}", desired_total_deposit);
+                    info!(
+                        "Dev God Mode: Bypassing deposit requirement of ${}",
+                        desired_total_deposit
+                    );
                 }
 
                 if let Err(e) = player_profile.persist() {
@@ -350,9 +356,8 @@ pub fn setup_ui(
         })
         .collect();
 
-    let (available_maps, locked_maps): (Vec<_>, Vec<_>) = filtered_maps
-        .into_iter()
-        .partition(|(_, map)| {
+    let (available_maps, locked_maps): (Vec<_>, Vec<_>) =
+        filtered_maps.into_iter().partition(|(_, map)| {
             // Check if dev cheat mode is enabled
             if gameplay_settings.dev_cheat_mode.is_enabled() {
                 return true; // Unlock all missions in cheat mode
@@ -935,14 +940,17 @@ fn refresh_ui_on_dev_mode_change(
 ) {
     for ev in ev_save_gameplay_setting.read() {
         // Check if this is a Dev God Mode change
-        if matches!(ev.value, unsettings::game::GameplaySettingsValue::dev_cheat_mode(_)) {
+        if matches!(
+            ev.value,
+            unsettings::game::GameplaySettingsValue::dev_cheat_mode(_)
+        ) {
             info!("Dev God Mode setting changed - refreshing mission selection UI");
-            
+
             // Clean up existing UI
             for entity in ui_query.iter() {
                 commands.entity(entity).despawn();
             }
-            
+
             // The setup_ui system will be called automatically on the next frame
             // because we're still in the MissionSelect state
         }

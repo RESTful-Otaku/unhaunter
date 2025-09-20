@@ -4,6 +4,10 @@ pub mod direction;
 pub mod mapcolour;
 pub mod position;
 
+// Test modules
+#[cfg(test)]
+mod position_tests;
+
 pub const EPSILON: f32 = 0.0001;
 
 // old perspective (9x20cm) const SUBTL: f32 = 9.0; new perspective (3x20cm)

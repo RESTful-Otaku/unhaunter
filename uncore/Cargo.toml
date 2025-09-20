@@ -25,3 +25,17 @@ ndarray = { workspace = true }
 noise = { workspace = true }
 
 unsettings = { path = "../unsettings" }
+
+[dev-dependencies]
+quickcheck = { workspace = true }
+quickcheck_macros = { workspace = true }
+proptest = { workspace = true }
+mockall = { workspace = true }
+criterion = { workspace = true }
+rstest = { workspace = true }
+serial_test = { workspace = true }
+tokio-test = { workspace = true }
+
+[[bench]]
+name = "core_benchmarks"
+harness = false

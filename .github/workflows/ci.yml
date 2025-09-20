@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+    
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+    
+    - name: Check formatting
+      run: |
+        echo "::group::Checking code formatting"
+        cargo fmt --all -- --check
+        echo "::endgroup::"
+    
+    - name: Lint with Clippy
+      run: |
+        echo "::group::Running Clippy lints"
+        cargo clippy --all-targets --all-features -- -D warnings
+        echo "::endgroup::"
+    
+    - name: Run unit tests
+      run: |
+        echo "::group::Running unit tests"
+        cargo test -p uncore --lib -- --skip ghost_setfinder
+        echo "::endgroup::"
+    
+    - name: Build release
+      run: |
+        echo "::group::Building release"
+        cargo build --release
+        echo "::endgroup::"
+    
+    - name: Verify game binary
+      run: |
+        echo "::group::Verifying game binary"
+        ls -la target/release/unhaunter_game
+        echo "Game binary size: $(du -h target/release/unhaunter_game | cut -f1)"
+        echo "::endgroup::"

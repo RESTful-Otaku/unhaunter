@@ -287,7 +287,7 @@ fn apply_lighting(
         // If we don't have a valid map, skip this
         return;
     }
-    
+
     // Check if visibility field is properly initialised
     if vf.visibility_field.is_empty() || vf.visibility_field.dim() != board_dim {
         // Skip lighting calculation if visibility field is not ready
@@ -479,10 +479,13 @@ fn apply_lighting(
                     continue;
                 }
                 // Check bounds before accessing visibility field
-                if x < vf.visibility_field.dim().0 && y < vf.visibility_field.dim().1 && z < vf.visibility_field.dim().2
-                    && vf.visibility_field[(x, y, z)] > 0.00001 {
-                        entities.extend_from_slice(&bf.map_entity_field[(x, y, z)]);
-                    }
+                if x < vf.visibility_field.dim().0
+                    && y < vf.visibility_field.dim().1
+                    && z < vf.visibility_field.dim().2
+                    && vf.visibility_field[(x, y, z)] > 0.00001
+                {
+                    entities.extend_from_slice(&bf.map_entity_field[(x, y, z)]);
+                }
             }
         }
     }
@@ -643,16 +646,15 @@ fn apply_lighting(
                 }
             }
             // Check bounds before accessing visibility field
-            let visibility = if bpos.ndidx().0 < vf.visibility_field.dim().0 
-                && bpos.ndidx().1 < vf.visibility_field.dim().1 
-                && bpos.ndidx().2 < vf.visibility_field.dim().2 {
+            let visibility = if bpos.ndidx().0 < vf.visibility_field.dim().0
+                && bpos.ndidx().1 < vf.visibility_field.dim().1
+                && bpos.ndidx().2 < vf.visibility_field.dim().2
+            {
                 vf.visibility_field[bpos.ndidx()]
             } else {
                 1.0 // Default visibility if out of bounds
             };
-            opacity = opacity
-                .min(visibility * 2.0)
-                .clamp(0.0, 1.0);
+            opacity = opacity.min(visibility * 2.0).clamp(0.0, 1.0);
             let mut new_mat = materials1.get(mat).unwrap().clone();
             let orig_mat = new_mat.clone();
 
@@ -743,14 +745,13 @@ fn apply_lighting(
             new_mat.data.gbl = gamma_mean(new_mat.data.gbl, (lux_bl + lux_c) / 2.0);
             new_mat.data.gbr = gamma_mean(new_mat.data.gbr, (lux_br + lux_c) / 2.0);
             const DEBUG_SOUND: bool = false;
-            if DEBUG_SOUND
-                && let Some(sf) = bf.sound_field.get(&bpos) {
-                    let l: f32 = sf.iter().map(|x| x.length() + 0.01).sum();
-                    if l > 0.0001 {
-                        new_mat.data.gamma = 2.0;
-                        new_mat.data.color = Color::srgb(1.0, l / 4.0, l / 16.0).into();
-                    }
+            if DEBUG_SOUND && let Some(sf) = bf.sound_field.get(&bpos) {
+                let l: f32 = sf.iter().map(|x| x.length() + 0.01).sum();
+                if l > 0.0001 {
+                    new_mat.data.gamma = 2.0;
+                    new_mat.data.color = Color::srgb(1.0, l / 4.0, l / 16.0).into();
                 }
+            }
             const DEBUG_TEMPERATURE: bool = false;
             if DEBUG_TEMPERATURE {
                 let temp_celsius = kelvin_to_celsius(bf.temperature_field[bpos.ndidx()]);
@@ -810,9 +811,10 @@ fn apply_lighting(
         let bpos = pos.to_board_position_size(bf.map_size);
         let map_color = o_color.map(|x| x.color).unwrap_or_default();
         // Check bounds before accessing visibility field
-        let visibility: f32 = if bpos.ndidx().0 < vf.visibility_field.dim().0 
-            && bpos.ndidx().1 < vf.visibility_field.dim().1 
-            && bpos.ndidx().2 < vf.visibility_field.dim().2 {
+        let visibility: f32 = if bpos.ndidx().0 < vf.visibility_field.dim().0
+            && bpos.ndidx().1 < vf.visibility_field.dim().1
+            && bpos.ndidx().2 < vf.visibility_field.dim().2
+        {
             vf.visibility_field[bpos.ndidx()].clamp(0.0, 1.0)
         } else {
             1.0 // Default visibility if out of bounds

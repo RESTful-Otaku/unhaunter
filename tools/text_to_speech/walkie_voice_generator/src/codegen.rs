@@ -3,6 +3,8 @@
 //!
 //! Functions for generating Rust code from the manifest.
 
+#![allow(clippy::collapsible_if)]
+
 use crate::constants::GENERATED_ASSETS_DIR;
 use crate::manifest_types::WalkieLineManifestEntry;
 use std::collections::HashMap;

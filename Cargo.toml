@@ -76,6 +76,16 @@ ndarray = "0.16.1"
 sha2 = "0.10"
 rayon = "1.7"
 
+# Testing dependencies
+quickcheck = "1.0"
+quickcheck_macros = "1.0"
+proptest = "1.0"
+mockall = "0.13"
+criterion = "0.5"
+rstest = "0.18"
+serial_test = "3.0"
+tokio-test = "0.4"
+
 # winit is not for WASM, and needs to be in sync with bevy version
 winit = "0.30"
 
@@ -119,6 +129,8 @@ serde = { workspace = true, features = ["derive"] }
 ron = { workspace = true }
 sha2 = { workspace = true }
 rayon = { workspace = true }
+
+enum-iterator = { workspace = true }
 
 wasm-bindgen = { workspace = true }
 bevy = { workspace = true }

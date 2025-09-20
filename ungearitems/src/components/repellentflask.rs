@@ -177,7 +177,12 @@ fn repellent_update(
     mut cmd: Commands,
     mut qgs: Query<(&Position, &mut GhostSprite)>,
     mut qrp: Query<
-        (&mut Position, &mut RepellentParticle, &mut MapColour, Entity),
+        (
+            &mut Position,
+            &mut RepellentParticle,
+            &mut MapColour,
+            Entity,
+        ),
         Without<GhostSprite>,
     >,
     bf: Res<BoardData>,

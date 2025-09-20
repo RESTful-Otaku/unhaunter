@@ -17,6 +17,12 @@ pub mod traits;
 pub mod types;
 pub mod utils;
 
+// Test modules
+#[cfg(test)]
+mod difficulty_tests;
+#[cfg(test)]
+mod scoring_tests;
+
 /// Enables/disables debug logs related to the player.
 pub const DEBUG_PLAYER: bool = false;
 

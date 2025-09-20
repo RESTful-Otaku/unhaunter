@@ -20,7 +20,9 @@ pub fn resolve_tiled_image_path(img_path: &Path) -> PathBuf {
     img_path
         .strip_prefix("assets/")
         .unwrap_or(img_path)
-        .normalize().to_path_buf().to_path_buf()
+        .normalize()
+        .to_path_buf()
+        .to_path_buf()
         .to_owned()
 }
 

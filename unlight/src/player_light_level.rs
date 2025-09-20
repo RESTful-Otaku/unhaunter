@@ -6,11 +6,7 @@
 
 use bevy::prelude::*;
 use uncore::{
-    components::{
-        board::position::Position,
-        light::LightLevel,
-        player_sprite::PlayerSprite,
-    },
+    components::{board::position::Position, light::LightLevel, player_sprite::PlayerSprite},
     resources::board_data::BoardData,
     states::{AppState, GameState},
 };
@@ -30,7 +26,7 @@ pub fn update_player_light_level_system(
     for (position, mut light_level) in player_query.iter_mut() {
         let board_pos = position.to_board_position();
         let idx = board_pos.ndidx();
-        
+
         // Get the light level from the board's light field
         if let Some(light_field_data) = board_data.light_field.get(idx) {
             light_level.lux = light_field_data.lux;
@@ -62,5 +58,3 @@ pub(crate) fn app_setup(app: &mut App) {
             .run_if(in_state(AppState::InGame).and(in_state(GameState::None))),
     );
 }
-
-

@@ -119,10 +119,11 @@ impl Material2d for CustomMaterial1 {
         _key: Material2dKey<Self>,
     ) -> Result<(), SpecializedMeshPipelineError> {
         if let Some(fragment) = &mut descriptor.fragment
-            && let Some(target_state) = &mut fragment.targets[0] {
-                target_state.blend = Some(BlendState::ALPHA_BLENDING);
-                // target_state.blend = Some(BlendState::PREMULTIPLIED_ALPHA_BLENDING);
-            }
+            && let Some(target_state) = &mut fragment.targets[0]
+        {
+            target_state.blend = Some(BlendState::ALPHA_BLENDING);
+            // target_state.blend = Some(BlendState::PREMULTIPLIED_ALPHA_BLENDING);
+        }
         Ok(())
     }
 }
@@ -166,9 +167,10 @@ impl Material2d for CustomMaterial2 {
         _key: Material2dKey<Self>,
     ) -> Result<(), SpecializedMeshPipelineError> {
         if let Some(fragment) = &mut descriptor.fragment
-            && let Some(target_state) = &mut fragment.targets[0] {
-                target_state.blend = Some(BLEND_ADD);
-            }
+            && let Some(target_state) = &mut fragment.targets[0]
+        {
+            target_state.blend = Some(BLEND_ADD);
+        }
         Ok(())
     }
 }

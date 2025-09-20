@@ -171,9 +171,10 @@ fn is_path_clear(start_pos: &Position, end_pos: &Position, board_data: &BoardDat
         }
 
         if let Some(collision) = board_data.collision_field.get(board_pos.ndidx())
-            && !collision.player_free {
-                return false;
-            }
+            && !collision.player_free
+        {
+            return false;
+        }
     }
 
     true

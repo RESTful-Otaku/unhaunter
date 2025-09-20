@@ -26,10 +26,11 @@ pub fn apply_video_settings(
     // Check if settings actually changed
     let current_settings = (**video_settings).clone();
     if let Some(last) = last_settings.as_ref()
-        && *last == current_settings {
-            settings_changed.0 = false;
-            return;
-        }
+        && *last == current_settings
+    {
+        settings_changed.0 = false;
+        return;
+    }
 
     // Apply resolution changes
     let target_resolution = WindowResolution::new(
@@ -39,7 +40,10 @@ pub fn apply_video_settings(
 
     if window.resolution != target_resolution {
         window.resolution = target_resolution;
-        info!("Applied resolution: {}x{}", video_settings.resolution.width, video_settings.resolution.height);
+        info!(
+            "Applied resolution: {}x{}",
+            video_settings.resolution.width, video_settings.resolution.height
+        );
     }
 
     // Apply VSync changes
@@ -51,7 +55,7 @@ pub fn apply_video_settings(
     // Apply UI zoom scaling
     let zoom_factor = video_settings.ui_zoom.as_f32();
     info!("Applied UI zoom: {}%", (zoom_factor * 100.0) as u32);
-    
+
     // Note: UI scaling should be handled by the UI system, not here
     // This is just for logging purposes
 
@@ -72,11 +76,13 @@ pub fn apply_aspect_ratio_settings(
 
     if let Some(target_ratio) = video_settings.aspect_ratio.ratio() {
         let current_ratio = video_settings.resolution.aspect_ratio();
-        
+
         if (current_ratio - target_ratio).abs() > 0.01 {
             // In a real implementation, this would adjust the viewport or letterboxing
-            info!("Aspect ratio setting: {} (current: {:.2})", 
-                  video_settings.aspect_ratio, current_ratio);
+            info!(
+                "Aspect ratio setting: {} (current: {:.2})",
+                video_settings.aspect_ratio, current_ratio
+            );
         }
     }
 }
@@ -88,7 +94,7 @@ pub fn detect_video_settings_changes(
     mut last_settings: Local<Option<crate::video::VideoSettings>>,
 ) {
     let current_settings = (**video_settings).clone();
-    
+
     if let Some(last) = last_settings.as_ref() {
         if *last != current_settings {
             info!("Video settings changed, marking for reapplication");
@@ -98,7 +104,7 @@ pub fn detect_video_settings_changes(
         // First run, mark for initial application
         settings_changed.0 = true;
     }
-    
+
     *last_settings = Some(current_settings);
 }
 
