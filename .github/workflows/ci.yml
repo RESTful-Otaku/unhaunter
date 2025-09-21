@@ -200,7 +200,7 @@ jobs:
   mobile:
     name: Mobile Builds
     needs: staging
-    if: github.event_name == 'release'
+    if: github.event_name == 'push' || github.event_name == 'release'
     strategy:
       matrix:
         include:
@@ -264,11 +264,25 @@ jobs:
           rustup target add aarch64-apple-ios
           rustup target add x86_64-apple-ios
 
+      - name: Debug Android environment
+        if: matrix.platform == 'android'
+        run: |
+          echo "ANDROID_HOME: $ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+          ls -la $ANDROID_HOME || echo "ANDROID_HOME not set"
+          ls -la $ANDROID_SDK_ROOT || echo "ANDROID_SDK_ROOT not set"
+
       - name: Build Android APK
         if: matrix.platform == 'android'
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
         run: cargo apk build --release --bin unhaunter_game
+
+      - name: Debug iOS environment
+        if: matrix.platform == 'ios'
+        run: |
+          echo "Xcode version:"
+          xcodebuild -version
+          echo "Available iOS targets:"
+          rustup target list | grep ios
 
       - name: Generate iOS Xcode project
         if: matrix.platform == 'ios'
