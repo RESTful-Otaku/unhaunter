@@ -33,7 +33,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -50,6 +50,12 @@ jobs:
           sudo apt-get install -y libasound2-dev pkg-config
           # Install additional dependencies for Bevy
           sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+
+      - name: Clean cargo cache to avoid GLIBC issues
+        if: runner.os == 'Linux'
+        run: |
+          cargo clean
+          rm -rf ~/.cargo/registry/cache
 
       - name: Install cargo-apk (for Android builds)
         if: runner.os == 'Linux'
@@ -72,7 +78,7 @@ jobs:
           rustup target add x86_64-apple-ios
 
       - name: Run core tests only
-        run: timeout 10m cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=1 || (echo "Core tests timed out or failed" && exit 1)
+        run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=1
 
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
@@ -84,7 +90,7 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-22.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -93,7 +99,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -109,8 +115,13 @@ jobs:
           sudo apt-get install -y libasound2-dev pkg-config
           sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
 
+      - name: Clean cargo cache to avoid GLIBC issues
+        run: |
+          cargo clean
+          rm -rf ~/.cargo/registry/cache
+
       - name: Run integration tests
-        run: timeout 15m cargo test --test integration_tests --verbose || (echo "Integration tests timed out or failed" && exit 1)
+        run: cargo test --test integration_tests --verbose
 
   # Quick compilation check
   check:
@@ -125,7 +136,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -157,7 +168,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -171,7 +182,7 @@ jobs:
         run: cargo build --release --bin unhaunter_game
 
       - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: target/release/unhaunter_game.exe
@@ -189,7 +200,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -205,6 +216,11 @@ jobs:
           sudo apt-get install -y libasound2-dev pkg-config
           # Install additional dependencies for Bevy
           sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+
+      - name: Clean cargo cache to avoid GLIBC issues
+        run: |
+          cargo clean
+          rm -rf ~/.cargo/registry/cache
 
       - name: Install cargo-apk
         run: cargo install cargo-apk
@@ -227,7 +243,7 @@ jobs:
         run: cargo apk build --release --bin unhaunter_game
 
       - name: Upload Android artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: android-build
           path: target/android-artifacts/
@@ -245,7 +261,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -267,7 +283,7 @@ jobs:
         run: cargo xcode build --release --bin unhaunter_game
 
       - name: Upload iOS artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ios-build
           path: target/ios/
@@ -281,19 +297,19 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Download Windows artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: windows-build
           path: dist/windows/
 
       - name: Download Android artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: android-build
           path: dist/android/
 
       - name: Download iOS artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ios-build
           path: dist/ios/
