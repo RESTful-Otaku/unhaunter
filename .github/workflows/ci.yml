@@ -1,36 +1,354 @@
-name: CI
+name: CI/CD Pipeline
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, platform-release ]
+  pull_request:
+    branches: [ main, platform-release ]
+  release:
+    types: [ published ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
-  quality:
+  # Stage 1: Build Requirements & Dependencies
+  build:
+    name: Build Requirements
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v4
-    - uses: dtolnay/rust-toolchain@stable
-      with:
-        components: rustfmt, clippy
-    - name: Cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          target
-        key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
-    - name: Format (instant fail-fast)
-      run: cargo fmt --all -- --check
-    - name: Install deps
-      run: sudo apt-get update && sudo apt-get install -y libasound2-dev libudev-dev pkg-config
-    - name: Compile & lint (parallel)
-      run: |
-        cargo clippy -p uncore --lib -- -D warnings &
-        cargo test -p uncore --lib --no-run &
-        wait
-    - name: Tests (parallel)
-      run: |
-        cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=1 &
-        cargo test --test integration_tests &
-        wait
-    - name: Security (non-blocking)
-      run: cargo audit --quiet 2>/dev/null || echo "✅ Security check completed"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev pkg-config
+          sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+
+      - name: Check dependencies
+        run: cargo check --workspace
+
+  # Stage 2: Compilation (Lint/Format + Compile Check)
+  compilation:
+    name: Compilation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev pkg-config
+          sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Lint check
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Compile check
+        run: cargo check --workspace --all-targets
+
+  # Stage 3: Staging (Unit Tests + Integration Tests)
+  staging:
+    name: Staging Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: compilation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev pkg-config
+          sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+
+      - name: Unit tests
+        run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=1
+
+      - name: Integration tests
+        run: cargo test --test integration_tests
+
+  # Stage 4: Deployment (Platform Builds)
+  deployment:
+    name: Platform Builds
+    needs: staging
+    if: github.event_name == 'push' || github.event_name == 'release'
+    strategy:
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - platform: windows
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - platform: macos
+            os: macos-latest
+            target: x86_64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev pkg-config
+          sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+
+      - name: Build release
+        run: cargo build --release --bin unhaunter_game
+
+      - name: Upload artifacts (Linux)
+        if: matrix.platform == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-linux
+          path: target/release/unhaunter_game
+
+      - name: Upload artifacts (Windows)
+        if: matrix.platform == 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-windows
+          path: target/release/unhaunter_game.exe
+
+      - name: Upload artifacts (macOS)
+        if: matrix.platform == 'macos'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-macos
+          path: target/release/unhaunter_game
+
+  # Mobile builds (separate job for Android/iOS)
+  mobile:
+    name: Mobile Builds
+    needs: staging
+    if: github.event_name == 'release'
+    strategy:
+      matrix:
+        include:
+          - platform: android
+            os: ubuntu-latest
+          - platform: ios
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies (Android)
+        if: matrix.platform == 'android'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev pkg-config
+          sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+
+      - name: Setup Android (Android)
+        if: matrix.platform == 'android'
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: 34.0.0
+          ndk-version: 25.1.8937393
+
+      - name: Install cargo-apk (Android)
+        if: matrix.platform == 'android'
+        run: cargo install cargo-apk
+
+      - name: Add Android targets (Android)
+        if: matrix.platform == 'android'
+        run: |
+          rustup target add aarch64-linux-android
+          rustup target add armv7-linux-androideabi
+
+      - name: Install cargo-xcode (iOS)
+        if: matrix.platform == 'ios'
+        run: cargo install cargo-xcode
+
+      - name: Add iOS targets (iOS)
+        if: matrix.platform == 'ios'
+        run: |
+          rustup target add aarch64-apple-ios
+          rustup target add x86_64-apple-ios
+
+      - name: Build Android APK
+        if: matrix.platform == 'android'
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+        run: cargo apk build --release --bin unhaunter_game
+
+      - name: Generate iOS Xcode project
+        if: matrix.platform == 'ios'
+        run: cargo xcode build --release --bin unhaunter_game
+
+      - name: Upload Android artifacts
+        if: matrix.platform == 'android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-android
+          path: target/android-artifacts/
+
+      - name: Upload iOS artifacts
+        if: matrix.platform == 'ios'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-ios
+          path: target/ios/
+
+  # Release packaging (only on release events)
+  release:
+    name: Create Release
+    needs: [deployment, mobile]
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create release archives
+        run: |
+          mkdir -p dist
+          zip -r dist/unhaunter-linux.zip unhaunter-linux/
+          zip -r dist/unhaunter-windows.zip unhaunter-windows/
+          zip -r dist/unhaunter-macos.zip unhaunter-macos/
+          zip -r dist/unhaunter-android.zip unhaunter-android/
+          zip -r dist/unhaunter-ios.zip unhaunter-ios/
+
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/unhaunter-linux.zip
+          asset_name: unhaunter-linux.zip
+          asset_content_type: application/zip
+
+      - name: Upload Windows assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/unhaunter-windows.zip
+          asset_name: unhaunter-windows.zip
+          asset_content_type: application/zip
+
+      - name: Upload macOS assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/unhaunter-macos.zip
+          asset_name: unhaunter-macos.zip
+          asset_content_type: application/zip
+
+      - name: Upload Android assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/unhaunter-android.zip
+          asset_name: unhaunter-android.zip
+          asset_content_type: application/zip
+
+      - name: Upload iOS assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/unhaunter-ios.zip
+          asset_name: unhaunter-ios.zip
+          asset_content_type: application/zip
