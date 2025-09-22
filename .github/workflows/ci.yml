@@ -366,7 +366,7 @@ jobs:
           echo "Building Android APK..."
           echo "Current directory: $(pwd)"
           echo "Available binaries:"
-          cargo apk build --release --bin unhaunter_game
+          cargo apk build --release --lib
           echo "Android build completed successfully"
 
       - name: Debug iOS environment

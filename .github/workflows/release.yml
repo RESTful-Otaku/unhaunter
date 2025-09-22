@@ -241,7 +241,7 @@ jobs:
         run: |
           set -e
           echo "Building Android APK..."
-          cargo apk build --release --bin unhaunter_game
+          cargo apk build --release --lib
           echo "Android build completed successfully"
 
       - name: Generate iOS Xcode project
