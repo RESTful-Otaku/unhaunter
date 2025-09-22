@@ -11,13 +11,51 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: 1
+  CARGO_NET_RETRY: 2
+  CARGO_HTTP_TIMEOUT: 300
 
 jobs:
+  # Stage 0: Detect Changes
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      rust: ${{ steps.changes.outputs.rust }}
+      mobile: ${{ steps.changes.outputs.mobile }}
+      docs: ${{ steps.changes.outputs.docs }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Detect changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            rust:
+              - '**/*.rs'
+              - '**/Cargo.toml'
+              - '**/Cargo.lock'
+            mobile:
+              - '**/*.rs'
+              - '**/Cargo.toml'
+              - '**/Cargo.lock'
+              - '**/android/**'
+              - '**/ios/**'
+            docs:
+              - '**/*.md'
+              - '**/docs/**'
+
   # Stage 1: Build Requirements & Dependencies
   build:
     name: Build Requirements
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: changes
+    if: needs.changes.outputs.rust == 'true' || github.event_name == 'release'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,15 +65,17 @@ jobs:
         with:
           components: rustfmt, clippy
 
-      - name: Cache dependencies
+      - name: Cache Cargo dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cargo/bin
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
             ${{ runner.os }}-cargo-
 
       - name: Install system dependencies
@@ -53,7 +93,8 @@ jobs:
     name: Compilation
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: build
+    needs: [changes, build]
+    if: needs.changes.outputs.rust == 'true' || github.event_name == 'release'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -63,15 +104,17 @@ jobs:
         with:
           components: rustfmt, clippy
 
-      - name: Cache dependencies
+      - name: Cache Cargo dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cargo/bin
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
             ${{ runner.os }}-cargo-
 
       - name: Install system dependencies
@@ -88,14 +131,15 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Compile check
-        run: cargo check --workspace --all-targets
+        run: cargo check --workspace --all-targets --message-format=short
 
   # Stage 3: Staging (Unit Tests + Integration Tests)
   staging:
     name: Staging Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: compilation
+    needs: [changes, compilation]
+    if: needs.changes.outputs.rust == 'true' || github.event_name == 'release'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -103,15 +147,17 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache dependencies
+      - name: Cache Cargo dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cargo/bin
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
             ${{ runner.os }}-cargo-
 
       - name: Install system dependencies
@@ -122,10 +168,10 @@ jobs:
           sudo apt-get install -y libudev-dev libsystemd-dev
 
       - name: Unit tests
-        run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=1
+        run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=4
 
       - name: Integration tests
-        run: cargo test --test integration_tests
+        run: cargo test --test integration_tests --test-threads=4
 
   # Stage 4: Deployment (Platform Builds)
   deployment:
@@ -153,15 +199,17 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache dependencies
+      - name: Cache Cargo dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cargo/bin
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
             ${{ runner.os }}-cargo-
 
       - name: Install system dependencies (Linux)
@@ -173,7 +221,7 @@ jobs:
           sudo apt-get install -y libudev-dev libsystemd-dev
 
       - name: Build release
-        run: cargo build --release --bin unhaunter_game
+        run: cargo build --release --bin unhaunter_game --message-format=short
 
       - name: Upload artifacts (Linux)
         if: matrix.platform == 'linux'
@@ -199,8 +247,8 @@ jobs:
   # Mobile builds (separate job for Android/iOS)
   mobile:
     name: Mobile Builds
-    needs: staging
-    if: github.event_name == 'push' || github.event_name == 'release'
+    needs: [changes, staging]
+    if: (needs.changes.outputs.mobile == 'true' || github.event_name == 'release') && (needs.changes.outputs.rust == 'true' || github.event_name == 'release')
     strategy:
       matrix:
         include:
@@ -209,7 +257,7 @@ jobs:
           - platform: ios
             os: macos-latest
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -217,36 +265,49 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache dependencies
+      - name: Cache Cargo dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cargo/bin
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
             ${{ runner.os }}-cargo-
 
       - name: Install system dependencies (Android)
         if: matrix.platform == 'android'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libasound2-dev pkg-config
-          sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
-          sudo apt-get install -y libudev-dev libsystemd-dev
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            libasound2-dev pkg-config \
+            libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev \
+            libudev-dev libsystemd-dev
 
       - name: Setup Android (Android)
         if: matrix.platform == 'android'
         uses: android-actions/setup-android@v3
+
+      - name: Cache Android tools
+        if: matrix.platform == 'android'
+        uses: actions/cache@v4
         with:
-          api-level: 34
-          build-tools: 34.0.0
-          ndk-version: 25.1.8937393
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-android-tools-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-android-tools-
 
       - name: Install cargo-apk (Android)
         if: matrix.platform == 'android'
-        run: cargo install cargo-apk
+        run: |
+          if ! command -v cargo-apk &> /dev/null; then
+            cargo install cargo-apk
+          else
+            echo "cargo-apk already installed"
+          fi
 
       - name: Add Android targets (Android)
         if: matrix.platform == 'android'
@@ -254,9 +315,23 @@ jobs:
           rustup target add aarch64-linux-android
           rustup target add armv7-linux-androideabi
 
+      - name: Cache iOS tools
+        if: matrix.platform == 'ios'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-ios-tools-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-tools-
+
       - name: Install cargo-xcode (iOS)
         if: matrix.platform == 'ios'
-        run: cargo install cargo-xcode
+        run: |
+          if ! command -v cargo-xcode &> /dev/null; then
+            cargo install cargo-xcode
+          else
+            echo "cargo-xcode already installed"
+          fi
 
       - name: Add iOS targets (iOS)
         if: matrix.platform == 'ios'
@@ -274,7 +349,11 @@ jobs:
 
       - name: Build Android APK
         if: matrix.platform == 'android'
-        run: cargo apk build --release --bin unhaunter_game
+        run: |
+          set -e
+          echo "Building Android APK..."
+          cargo apk build --release --bin unhaunter_game
+          echo "Android build completed successfully"
 
       - name: Debug iOS environment
         if: matrix.platform == 'ios'
@@ -286,7 +365,11 @@ jobs:
 
       - name: Generate iOS Xcode project
         if: matrix.platform == 'ios'
-        run: cargo xcode build --release --bin unhaunter_game
+        run: |
+          set -e
+          echo "Generating iOS Xcode project..."
+          cargo xcode build --bin unhaunter_game
+          echo "iOS Xcode project generated successfully"
 
       - name: Upload Android artifacts
         if: matrix.platform == 'android'
