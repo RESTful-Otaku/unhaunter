@@ -51,6 +51,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup network resilience
+        run: |
+          # Increase timeout and retry settings
+          export RUSTUP_TIMEOUT=300
+          export RUSTUP_RETRY=3
+          # Test connectivity to Rust servers
+          curl -I https://static.rust-lang.org/ || echo "Rust server check failed, continuing anyway"
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
