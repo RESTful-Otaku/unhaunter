@@ -157,7 +157,7 @@ required-features = []
 [lib]
 name = "unhaunter"
 crate-type = ["cdylib", "rlib"]
-path = "src/lib.rs"
+path = "unhaunter/src/lib.rs"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 # bevy_dylib = { workspace = true }  # Disabled due to panic strategy conflicts
