@@ -1,0 +1,93 @@
+name: Platform - iOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Run tests only (no build)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: 1
+
+jobs:
+  ios-build:
+    name: iOS Build
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Cache iOS tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-ios-tools-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-tools-
+
+      - name: Install cargo-xcode
+        run: |
+          if ! command -v cargo-xcode &> /dev/null; then
+            cargo install cargo-xcode
+          else
+            echo "cargo-xcode already installed"
+          fi
+
+      - name: Add iOS targets
+        run: |
+          rustup target add aarch64-apple-ios
+          rustup target add x86_64-apple-ios
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Lint check
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Compile check
+        run: cargo check --workspace --all-targets --message-format=short
+
+      - name: Unit tests
+        if: ${{ !inputs.test_mode }}
+        run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=4
+
+      - name: Integration tests
+        if: ${{ !inputs.test_mode }}
+        run: cargo test --test integration_tests -- --test-threads=4
+
+      - name: Generate iOS Xcode project
+        if: ${{ !inputs.test_mode }}
+        run: |
+          set -e
+          echo "Generating iOS Xcode project..."
+          cargo xcode --platforms "iphoneos iphonesimulator" --verbose
+          echo "iOS Xcode project generated successfully"
+
+      - name: Upload artifacts
+        if: ${{ !inputs.test_mode }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-ios
+          path: target/ios/
