@@ -168,7 +168,6 @@ image = { workspace = true }
 [package.metadata.android]
 app_name = "Unhaunter"
 package_name = "com.unhaunter.game"
-version_name = "0.3.2"
 version_code = 302
 min_sdk_version = 21
 target_sdk_version = 34
