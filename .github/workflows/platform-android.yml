@@ -48,6 +48,10 @@ jobs:
 
       - name: Setup Android
         uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: 34.0.0
+          ndk-version: 25.1.8937393
 
       - name: Cache Android tools
         uses: actions/cache@v4
@@ -92,7 +96,7 @@ jobs:
         run: |
           set -e
           echo "Building Android APK..."
-          cargo apk build --release --bin unhaunter_game --verbose
+          cargo apk build --release --bin unhaunter_game
           echo "Android build completed successfully"
 
       - name: Upload artifacts

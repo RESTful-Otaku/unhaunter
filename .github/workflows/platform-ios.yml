@@ -82,7 +82,7 @@ jobs:
         run: |
           set -e
           echo "Generating iOS Xcode project..."
-          cargo xcode --platforms "iphoneos iphonesimulator" --verbose
+          cargo xcode --platforms "iphoneos iphonesimulator"
           echo "iOS Xcode project generated successfully"
 
       - name: Upload artifacts
