@@ -180,6 +180,14 @@ jobs:
           build-tools: 34.0.0
           ndk-version: 25.1.8937393
 
+      - name: Install Android platforms explicitly (Android)
+        if: matrix.platform == 'android'
+        run: |
+          echo "Installing Android platforms explicitly..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-30"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34"
+          echo "Android platforms installed successfully"
+
       - name: Cache Android tools
         if: matrix.platform == 'android'
         uses: actions/cache@v4
