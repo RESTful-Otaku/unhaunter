@@ -290,6 +290,10 @@ jobs:
       - name: Setup Android (Android)
         if: matrix.platform == 'android'
         uses: android-actions/setup-android@v3
+        with:
+          api-level: 30,34
+          build-tools: 34.0.0
+          ndk-version: 25.1.8937393
 
       - name: Cache Android tools
         if: matrix.platform == 'android'
