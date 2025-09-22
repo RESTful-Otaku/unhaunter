@@ -1,0 +1,309 @@
+name: Platform - Changes + Desktop + Mobile
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Run tests only (no build)'
+        required: false
+        default: false
+        type: boolean
+  push:
+    branches: [ platform-release ]
+    paths: [ '**/*.rs', '**/Cargo.toml', '**/Cargo.lock' ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: 1
+
+jobs:
+  # Change detection
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      rust: ${{ steps.changes.outputs.rust }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Detect changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            rust:
+              - '**/*.rs'
+              - '**/Cargo.toml'
+              - '**/Cargo.lock'
+
+  # Full test suite
+  full-test:
+    name: Full Test Suite
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.rust == 'true'
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup network resilience
+        run: |
+          # Increase timeout and retry settings
+          export RUSTUP_TIMEOUT=300
+          export RUSTUP_RETRY=3
+          # Test connectivity to Rust servers
+          curl -I https://static.rust-lang.org/ || echo "Rust server check failed, continuing anyway"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libasound2-dev pkg-config
+          sudo apt-get install -y -qq libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y -qq libudev-dev libsystemd-dev
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Lint check
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Compile check
+        run: cargo check --workspace --all-targets --message-format=short
+
+      - name: Unit tests
+        run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=4
+
+      - name: Integration tests
+        run: cargo test --test integration_tests -- --test-threads=4
+
+  # Desktop builds
+  desktop-builds:
+    name: Desktop Builds
+    needs: [changes, full-test]
+    if: needs.changes.outputs.rust == 'true'
+    strategy:
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-latest
+          - platform: windows
+            os: windows-latest
+          - platform: macos
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libasound2-dev pkg-config
+          sudo apt-get install -y -qq libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y -qq libudev-dev libsystemd-dev
+
+      - name: Build release
+        if: ${{ !inputs.test_mode }}
+        run: cargo build --release --bin unhaunter_game --message-format=short
+
+      - name: Upload artifacts (Linux)
+        if: matrix.platform == 'linux' && !inputs.test_mode
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-linux-platform
+          path: target/release/unhaunter_game
+
+      - name: Upload artifacts (Windows)
+        if: matrix.platform == 'windows' && !inputs.test_mode
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-windows-platform
+          path: target/release/unhaunter_game.exe
+
+      - name: Upload artifacts (macOS)
+        if: matrix.platform == 'macos' && !inputs.test_mode
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-macos-platform
+          path: target/release/unhaunter_game
+
+  # Mobile builds
+  mobile-builds:
+    name: Mobile Builds
+    needs: [changes, full-test]
+    if: needs.changes.outputs.rust == 'true'
+    strategy:
+      matrix:
+        include:
+          - platform: android
+            os: ubuntu-latest
+          - platform: ios
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies (Android)
+        if: matrix.platform == 'android'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libasound2-dev pkg-config
+          sudo apt-get install -y -qq libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y -qq libudev-dev libsystemd-dev
+
+      - name: Setup Android (Android)
+        if: matrix.platform == 'android'
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 30,34
+          build-tools: 34.0.0
+          ndk-version: 25.1.8937393
+
+      - name: Install Android platforms explicitly (Android)
+        if: matrix.platform == 'android'
+        run: |
+          echo "Installing Android platforms explicitly..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-30"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34"
+          echo "Android platforms installed successfully"
+
+      - name: Cache Android tools
+        if: matrix.platform == 'android'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-android-tools-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-android-tools-
+
+      - name: Install cargo-apk (Android)
+        if: matrix.platform == 'android'
+        run: |
+          if ! command -v cargo-apk &> /dev/null; then
+            cargo install cargo-apk
+          else
+            echo "cargo-apk already installed"
+          fi
+
+      - name: Add Android targets (Android)
+        if: matrix.platform == 'android'
+        run: |
+          rustup target add aarch64-linux-android
+          rustup target add armv7-linux-androideabi
+
+      - name: Generate debug keystore (Android)
+        if: matrix.platform == 'android'
+        run: |
+          echo "Generating debug keystore for Android signing..."
+          keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          echo "Debug keystore generated successfully"
+
+      - name: Cache iOS tools
+        if: matrix.platform == 'ios'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-ios-tools-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-tools-
+
+      - name: Install cargo-xcode (iOS)
+        if: matrix.platform == 'ios'
+        run: |
+          if ! command -v cargo-xcode &> /dev/null; then
+            cargo install cargo-xcode
+          else
+            echo "cargo-xcode already installed"
+          fi
+
+      - name: Add iOS targets (iOS)
+        if: matrix.platform == 'ios'
+        run: |
+          rustup target add aarch64-apple-ios
+          rustup target add x86_64-apple-ios
+
+      - name: Build Android APK
+        if: matrix.platform == 'android' && !inputs.test_mode
+        run: |
+          set -e
+          echo "Building Android APK..."
+          cargo apk build --release --lib
+          echo "Android build completed successfully"
+
+      - name: Generate iOS Xcode project
+        if: matrix.platform == 'ios' && !inputs.test_mode
+        run: |
+          set -e
+          echo "Generating iOS Xcode project..."
+          echo "Current directory: $(pwd)"
+          echo "Available binaries:"
+          ls -la src/bin/ || echo "No src/bin directory"
+          cargo xcode --platforms "iphoneos iphonesimulator"
+          echo "iOS Xcode project generated successfully"
+
+      - name: Upload Android artifacts
+        if: matrix.platform == 'android' && !inputs.test_mode
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-android-platform
+          path: target/android-artifacts/
+
+      - name: Upload iOS artifacts
+        if: matrix.platform == 'ios' && !inputs.test_mode
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-ios-platform
+          path: target/ios/

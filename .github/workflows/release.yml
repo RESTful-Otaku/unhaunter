@@ -1,128 +1,57 @@
-name: CI/CD Pipeline
+name: Release - Everything Including Builds and Releases
 
 on:
-  push:
-    branches: [ main, platform-release ]
-  pull_request:
-    branches: [ main, platform-release ]
   release:
     types: [ published ]
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
 
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
   CARGO_INCREMENTAL: 1
-  CARGO_NET_RETRY: 2
-  CARGO_HTTP_TIMEOUT: 300
 
 jobs:
-  # Stage 0: Detect Changes
-  changes:
-    name: Detect Changes
+  # Full test suite
+  full-test:
+    name: Full Test Suite
     runs-on: ubuntu-latest
-    outputs:
-      rust: ${{ steps.changes.outputs.rust }}
-      mobile: ${{ steps.changes.outputs.mobile }}
-      docs: ${{ steps.changes.outputs.docs }}
+    timeout-minutes: 25
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Detect changes
-        uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            rust:
-              - '**/*.rs'
-              - '**/Cargo.toml'
-              - '**/Cargo.lock'
-            mobile:
-              - '**/*.rs'
-              - '**/Cargo.toml'
-              - '**/Cargo.lock'
-              - '**/android/**'
-              - '**/ios/**'
-            docs:
-              - '**/*.md'
-              - '**/docs/**'
 
-  # Stage 1: Build Requirements & Dependencies
-  build:
-    name: Build Requirements
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: changes
-    if: needs.changes.outputs.rust == 'true' || github.event_name == 'release'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Setup network resilience
+        run: |
+          # Increase timeout and retry settings
+          export RUSTUP_TIMEOUT=300
+          export RUSTUP_RETRY=3
+          # Test connectivity to Rust servers
+          curl -I https://static.rust-lang.org/ || echo "Rust server check failed, continuing anyway"
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
 
-      - name: Cache Cargo dependencies
+      - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            ~/.cargo/bin
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
             ${{ runner.os }}-cargo-
 
       - name: Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libasound2-dev pkg-config
-          sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
-          sudo apt-get install -y libudev-dev libsystemd-dev
-
-      - name: Check dependencies
-        run: cargo check --workspace
-
-  # Stage 2: Compilation (Lint/Format + Compile Check)
-  compilation:
-    name: Compilation
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: [changes, build]
-    if: needs.changes.outputs.rust == 'true' || github.event_name == 'release'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
-
-      - name: Cache Cargo dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
-            ${{ runner.os }}-cargo-
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libasound2-dev pkg-config
-          sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
-          sudo apt-get install -y libudev-dev libsystemd-dev
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libasound2-dev pkg-config
+          sudo apt-get install -y -qq libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y -qq libudev-dev libsystemd-dev
 
       - name: Format check
         run: cargo fmt --all -- --check
@@ -133,65 +62,27 @@ jobs:
       - name: Compile check
         run: cargo check --workspace --all-targets --message-format=short
 
-  # Stage 3: Staging (Unit Tests + Integration Tests)
-  staging:
-    name: Staging Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [changes, compilation]
-    if: needs.changes.outputs.rust == 'true' || github.event_name == 'release'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Cargo dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
-            ${{ runner.os }}-cargo-
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libasound2-dev pkg-config
-          sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
-          sudo apt-get install -y libudev-dev libsystemd-dev
-
       - name: Unit tests
         run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=4
 
       - name: Integration tests
         run: cargo test --test integration_tests -- --test-threads=4
 
-  # Stage 4: Deployment (Platform Builds)
-  deployment:
-    name: Platform Builds
-    needs: [changes, staging]
-    if: (needs.changes.outputs.rust == 'true' || github.event_name == 'release')
+  # Desktop platform builds
+  desktop-builds:
+    name: Desktop Builds
+    needs: full-test
     strategy:
       matrix:
         include:
           - platform: linux
             os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
           - platform: windows
             os: windows-latest
-            target: x86_64-pc-windows-msvc
           - platform: macos
             os: macos-latest
-            target: x86_64-apple-darwin
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -199,26 +90,24 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache Cargo dependencies
+      - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            ~/.cargo/bin
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
             ${{ runner.os }}-cargo-
 
       - name: Install system dependencies (Linux)
         if: matrix.platform == 'linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libasound2-dev pkg-config
-          sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
-          sudo apt-get install -y libudev-dev libsystemd-dev
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libasound2-dev pkg-config
+          sudo apt-get install -y -qq libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y -qq libudev-dev libsystemd-dev
 
       - name: Build release
         run: cargo build --release --bin unhaunter_game --message-format=short
@@ -227,28 +116,27 @@ jobs:
         if: matrix.platform == 'linux'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-linux
+          name: unhaunter-linux-release
           path: target/release/unhaunter_game
 
       - name: Upload artifacts (Windows)
         if: matrix.platform == 'windows'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-windows
+          name: unhaunter-windows-release
           path: target/release/unhaunter_game.exe
 
       - name: Upload artifacts (macOS)
         if: matrix.platform == 'macos'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-macos
+          name: unhaunter-macos-release
           path: target/release/unhaunter_game
 
-  # Mobile builds (separate job for Android/iOS)
-  mobile:
+  # Mobile builds
+  mobile-builds:
     name: Mobile Builds
-    needs: [changes, staging]
-    if: (needs.changes.outputs.rust == 'true' || github.event_name == 'release')
+    needs: full-test
     strategy:
       matrix:
         include:
@@ -265,27 +153,24 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache Cargo dependencies
+      - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            ~/.cargo/bin
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
             ${{ runner.os }}-cargo-
 
       - name: Install system dependencies (Android)
         if: matrix.platform == 'android'
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq \
-            libasound2-dev pkg-config \
-            libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev \
-            libudev-dev libsystemd-dev
+          sudo apt-get install -y -qq libasound2-dev pkg-config
+          sudo apt-get install -y -qq libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y -qq libudev-dev libsystemd-dev
 
       - name: Setup Android (Android)
         if: matrix.platform == 'android'
@@ -358,40 +243,19 @@ jobs:
           rustup target add aarch64-apple-ios
           rustup target add x86_64-apple-ios
 
-      - name: Debug Android environment
-        if: matrix.platform == 'android'
-        run: |
-          echo "ANDROID_HOME: $ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
-          ls -la $ANDROID_HOME || echo "ANDROID_HOME not set"
-          ls -la $ANDROID_SDK_ROOT || echo "ANDROID_SDK_ROOT not set"
-
       - name: Build Android APK
         if: matrix.platform == 'android'
         run: |
           set -e
           echo "Building Android APK..."
-          echo "Current directory: $(pwd)"
-          echo "Available binaries:"
           cargo apk build --release --lib
           echo "Android build completed successfully"
-
-      - name: Debug iOS environment
-        if: matrix.platform == 'ios'
-        run: |
-          echo "Xcode version:"
-          xcodebuild -version
-          echo "Available iOS targets:"
-          rustup target list | grep ios
 
       - name: Generate iOS Xcode project
         if: matrix.platform == 'ios'
         run: |
           set -e
           echo "Generating iOS Xcode project..."
-          echo "Current directory: $(pwd)"
-          echo "Available binaries:"
-          ls -la src/bin/ || echo "No src/bin directory"
           cargo xcode --platforms "iphoneos iphonesimulator"
           echo "iOS Xcode project generated successfully"
 
@@ -399,23 +263,22 @@ jobs:
         if: matrix.platform == 'android'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-android
+          name: unhaunter-android-release
           path: target/android-artifacts/
 
       - name: Upload iOS artifacts
         if: matrix.platform == 'ios'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-ios
+          name: unhaunter-ios-release
           path: target/ios/
 
-  # Release packaging (only on release events)
-  release:
-    name: Create Release
-    needs: [changes, deployment, mobile]
-    if: github.event_name == 'release'
+  # Release packaging
+  package-release:
+    name: Package Release
+    needs: [desktop-builds, mobile-builds]
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -423,13 +286,14 @@ jobs:
       - name: Create release archives
         run: |
           mkdir -p dist
-          zip -r dist/unhaunter-linux.zip unhaunter-linux/
-          zip -r dist/unhaunter-windows.zip unhaunter-windows/
-          zip -r dist/unhaunter-macos.zip unhaunter-macos/
-          zip -r dist/unhaunter-android.zip unhaunter-android/
-          zip -r dist/unhaunter-ios.zip unhaunter-ios/
+          zip -r dist/unhaunter-linux.zip unhaunter-linux-release/
+          zip -r dist/unhaunter-windows.zip unhaunter-windows-release/
+          zip -r dist/unhaunter-macos.zip unhaunter-macos-release/
+          zip -r dist/unhaunter-android.zip unhaunter-android-release/
+          zip -r dist/unhaunter-ios.zip unhaunter-ios-release/
 
       - name: Upload release assets
+        if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -440,6 +304,7 @@ jobs:
           asset_content_type: application/zip
 
       - name: Upload Windows assets
+        if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -450,6 +315,7 @@ jobs:
           asset_content_type: application/zip
 
       - name: Upload macOS assets
+        if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -460,6 +326,7 @@ jobs:
           asset_content_type: application/zip
 
       - name: Upload Android assets
+        if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -470,6 +337,7 @@ jobs:
           asset_content_type: application/zip
 
       - name: Upload iOS assets
+        if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
