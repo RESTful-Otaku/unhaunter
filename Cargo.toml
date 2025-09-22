@@ -183,7 +183,7 @@ features = ["android-native-activity"]
 
 [package.metadata.android.signing.release]
 store = "debug.keystore"
-store_password = "android"
+keystore_password = "android"
 key_alias = "androiddebugkey"
 key_password = "android"
 path = "debug.keystore"
