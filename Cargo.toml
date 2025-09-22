@@ -186,6 +186,7 @@ store = "debug.keystore"
 store_password = "android"
 key_alias = "androiddebugkey"
 key_password = "android"
+path = "debug.keystore"
 
 [package.metadata.ios]
 app_name = "Unhaunter"
