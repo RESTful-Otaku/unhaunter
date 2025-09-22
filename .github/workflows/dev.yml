@@ -1,10 +1,10 @@
-name: Dev - Fast Feedback
+name: Dev - Changes Only
 
 on:
   push:
-    branches: [ main, develop, feature/*, bugfix/*, hotfix/* ]
+    branches: [ develop, feature/*, bugfix/*, hotfix/* ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ develop ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,13 +12,12 @@ env:
   CARGO_INCREMENTAL: 1
 
 jobs:
-  # Quick change detection
+  # Change detection
   changes:
     name: Detect Changes
     runs-on: ubuntu-latest
     outputs:
       rust: ${{ steps.changes.outputs.rust }}
-      docs: ${{ steps.changes.outputs.docs }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,11 +33,8 @@ jobs:
               - '**/*.rs'
               - '**/Cargo.toml'
               - '**/Cargo.lock'
-            docs:
-              - '**/*.md'
-              - '**/docs/**'
 
-  # Fast compilation check
+  # Quick compilation check
   quick-check:
     name: Quick Check
     runs-on: ubuntu-latest
@@ -74,7 +70,7 @@ jobs:
       - name: Compile check
         run: cargo check --workspace --all-targets --message-format=short
 
-  # Fast unit tests only
+  # Unit tests only
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest

@@ -1,4 +1,4 @@
-name: Mobile Builds Only
+name: Platform - Changes + Desktop + Mobile
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         default: false
         type: boolean
   push:
-    branches: [ main, develop, staging ]
+    branches: [ platform-release ]
     paths: [ '**/*.rs', '**/Cargo.toml', '**/Cargo.lock' ]
 
 env:
@@ -18,7 +18,7 @@ env:
   CARGO_INCREMENTAL: 1
 
 jobs:
-  # Quick change detection
+  # Change detection
   changes:
     name: Detect Changes
     runs-on: ubuntu-latest
@@ -88,6 +88,73 @@ jobs:
 
       - name: Integration tests
         run: cargo test --test integration_tests -- --test-threads=4
+
+  # Desktop builds
+  desktop-builds:
+    name: Desktop Builds
+    needs: [changes, full-test]
+    if: needs.changes.outputs.rust == 'true'
+    strategy:
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-latest
+          - platform: windows
+            os: windows-latest
+          - platform: macos
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libasound2-dev pkg-config
+          sudo apt-get install -y -qq libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y -qq libudev-dev libsystemd-dev
+
+      - name: Build release
+        if: ${{ !inputs.test_mode }}
+        run: cargo build --release --bin unhaunter_game --message-format=short
+
+      - name: Upload artifacts (Linux)
+        if: matrix.platform == 'linux' && !inputs.test_mode
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-linux-platform
+          path: target/release/unhaunter_game
+
+      - name: Upload artifacts (Windows)
+        if: matrix.platform == 'windows' && !inputs.test_mode
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-windows-platform
+          path: target/release/unhaunter_game.exe
+
+      - name: Upload artifacts (macOS)
+        if: matrix.platform == 'macos' && !inputs.test_mode
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-macos-platform
+          path: target/release/unhaunter_game
 
   # Mobile builds
   mobile-builds:
@@ -205,12 +272,12 @@ jobs:
         if: matrix.platform == 'android' && !inputs.test_mode
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-android-mobile
+          name: unhaunter-android-platform
           path: target/android-artifacts/
 
       - name: Upload iOS artifacts
         if: matrix.platform == 'ios' && !inputs.test_mode
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-ios-mobile
+          name: unhaunter-ios-platform
           path: target/ios/
