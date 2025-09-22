@@ -171,7 +171,7 @@ jobs:
         run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=4
 
       - name: Integration tests
-        run: cargo test --test integration_tests --test-threads=4
+        run: cargo test --test integration_tests -- --test-threads=4
 
   # Stage 4: Deployment (Platform Builds)
   deployment:
