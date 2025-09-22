@@ -176,8 +176,8 @@ jobs:
   # Stage 4: Deployment (Platform Builds)
   deployment:
     name: Platform Builds
-    needs: staging
-    if: github.event_name == 'push' || github.event_name == 'release'
+    needs: [changes, staging]
+    if: (needs.changes.outputs.rust == 'true' || github.event_name == 'release')
     strategy:
       matrix:
         include:
@@ -248,7 +248,7 @@ jobs:
   mobile:
     name: Mobile Builds
     needs: [changes, staging]
-    if: (needs.changes.outputs.mobile == 'true' || github.event_name == 'release') && (needs.changes.outputs.rust == 'true' || github.event_name == 'release')
+    if: (needs.changes.outputs.rust == 'true' || github.event_name == 'release')
     strategy:
       matrix:
         include:
@@ -257,7 +257,7 @@ jobs:
           - platform: ios
             os: macos-latest
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -352,7 +352,9 @@ jobs:
         run: |
           set -e
           echo "Building Android APK..."
-          cargo apk build --release --bin unhaunter_game
+          echo "Current directory: $(pwd)"
+          echo "Available binaries:"
+          cargo apk build --release --bin unhaunter_game --verbose
           echo "Android build completed successfully"
 
       - name: Debug iOS environment
@@ -368,7 +370,10 @@ jobs:
         run: |
           set -e
           echo "Generating iOS Xcode project..."
-          cargo xcode build --bin unhaunter_game
+          echo "Current directory: $(pwd)"
+          echo "Available binaries:"
+          ls -la src/bin/ || echo "No src/bin directory"
+          cargo xcode --platforms "iphoneos iphonesimulator" --verbose
           echo "iOS Xcode project generated successfully"
 
       - name: Upload Android artifacts
@@ -388,7 +393,7 @@ jobs:
   # Release packaging (only on release events)
   release:
     name: Create Release
-    needs: [deployment, mobile]
+    needs: [changes, deployment, mobile]
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 10
