@@ -265,6 +265,9 @@ jobs:
         run: |
           set -e
           echo "Generating iOS Xcode project..."
+          echo "Current directory: $(pwd)"
+          echo "Available binaries:"
+          ls -la src/bin/ || echo "No src/bin directory"
           cargo xcode --platforms "iphoneos iphonesimulator"
           echo "iOS Xcode project generated successfully"
 

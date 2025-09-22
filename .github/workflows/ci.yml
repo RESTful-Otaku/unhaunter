@@ -354,7 +354,7 @@ jobs:
           echo "Building Android APK..."
           echo "Current directory: $(pwd)"
           echo "Available binaries:"
-          cargo apk build --release --bin unhaunter_game --verbose
+          cargo apk build --release --bin unhaunter_game
           echo "Android build completed successfully"
 
       - name: Debug iOS environment
@@ -373,7 +373,7 @@ jobs:
           echo "Current directory: $(pwd)"
           echo "Available binaries:"
           ls -la src/bin/ || echo "No src/bin directory"
-          cargo xcode --platforms "iphoneos iphonesimulator" --verbose
+          cargo xcode --platforms "iphoneos iphonesimulator"
           echo "iOS Xcode project generated successfully"
 
       - name: Upload Android artifacts
