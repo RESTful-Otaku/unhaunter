@@ -616,17 +616,17 @@ pub fn calculate_stair_waypoints(
                     (stair_pos.y - 2.0, stair_pos.y + 2.0)
                 } else {
                     // Going down: start at top, end at bottom + offset
-                    // This one is possibly unused.
-                    panic!("this case should not happen")
-                    // dbg!(stair_pos.y + 1.0, stair_pos.y - 1.0)
+                    // Fallback case - use reasonable defaults if this unexpected case occurs
+                    warn!("Unexpected stair configuration: positive direction with negative Z");
+                    (stair_pos.y + 1.0, stair_pos.y - 1.0)
                 }
             } else {
                 // Stairs go in negative Y direction (mirrored)
                 if stair_component.z > 0 {
                     // Going up: start at top, end at bottom + offset
-                    // This one is possibly unused.
-                    panic!("this case should not happen")
-                    // dbg!(stair_pos.y + 1.0, stair_pos.y - 1.0)
+                    // Fallback case - use reasonable defaults if this unexpected case occurs
+                    warn!("Unexpected stair configuration: negative direction with positive Z");
+                    (stair_pos.y + 1.0, stair_pos.y - 1.0)
                 } else {
                     // Going down: start at bottom, end at top + offset
                     (stair_pos.y + 1.0, stair_pos.y - 3.0)

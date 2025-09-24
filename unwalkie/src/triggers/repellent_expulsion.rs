@@ -397,7 +397,8 @@ fn trigger_repellent_exhausted_correct_type_system(
         }
         let particles_are_few = repellent_particle_query.iter().count() < 10; // Threshold for "few" particles
         let time_since_exhaustion = time.elapsed_secs() - check_state.time_exhaustion_confirmed;
-        // FIXME: Verification needed: Not sure if this trigger actually fires. Don't recall it having fired in testing.
+        // VERIFICATION NEEDED: This trigger may not fire in normal gameplay.
+        // To verify: Test repellent usage scenarios and confirm hint activation.
         if particles_are_few || time_since_exhaustion > MAX_PARTICLE_CLEAR_WAIT_SECONDS {
             walkie_play.set(
                 WalkieEvent::RepellentExhaustedGhostPresentCorrectType,

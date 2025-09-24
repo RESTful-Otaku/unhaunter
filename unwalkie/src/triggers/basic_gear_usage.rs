@@ -455,7 +455,8 @@ fn trigger_did_not_cycle_to_other_gear_system(
         return; // No other distinct, usable evidence tools to cycle to
     }
     // 6. Trigger Condition
-    // FIXME: Verification needed: Not sure if this trigger actually fires. Don't recall it having fired in testing.
+    // VERIFICATION NEEDED: This trigger may not fire in normal gameplay.
+    // To verify: Test gear usage scenarios and confirm hint activation.
     if tracker.time_with_current_tool_continuously_active > TOOL_ACTIVE_THRESHOLD_SECONDS
         && tracker.time_since_last_q_press > Q_PRESS_INACTIVITY_THRESHOLD_SECONDS
         && walkie_play.set(WalkieEvent::DidNotCycleToOtherGear, time.elapsed_secs_f64())

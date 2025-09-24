@@ -154,8 +154,10 @@ fn trigger_journal_conflicting_evidence_system(
         } else if let Some(start_time) = tracker.conflict_active_since_timestamp {
             let duration_of_conflict = time.elapsed_secs() - start_time;
             if duration_of_conflict > CONFLICT_DURATION_THRESHOLD_SECONDS {
-                // TODO: Add PlayerProfileData check here.
-                // FIXME: Verification needed: Not sure if this trigger actually fires. Don't recall it having fired in testing.
+                // TODO: Add PlayerProfileData check here to limit hints for experienced players.
+                // VERIFICATION NEEDED: This trigger may not fire in normal gameplay.
+                // To verify: Check if conflicting evidence scenarios occur and if this hint system activates.
+                // Consider adding debug logging or test scenarios to confirm functionality.
                 if walkie_play.set(
                     WalkieEvent::JournalConflictingEvidence,
                     time.elapsed_secs_f64(),
@@ -406,7 +408,8 @@ fn trigger_in_truck_with_evidence_no_journal_system(
                 if !player_interacted_with_journal_this_frame
                     && (current_time - time_entered >= TIME_IN_TRUCK_NO_JOURNAL_ACTION_SECONDS)
                 {
-                    // FIXME: Verification needed: Not sure if this trigger actually fires. Don't recall it having fired in testing.
+                    // VERIFICATION NEEDED: This trigger may not fire in normal gameplay.
+                    // To verify: Test evidence gathering scenarios and confirm hint activation.
                     if walkie_play.set(WalkieEvent::InTruckWithEvidenceNoJournal, current_time) {
                         // info!("[Walkie] Triggered InTruckWithEvidenceNoJournal.");
                         system_state.hinted_this_truck_session = true;

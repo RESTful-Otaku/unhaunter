@@ -1,0 +1,5 @@
+---
+description: Make minimal changes necessary to achieve task. Make use of existing systems and code whenever possible and only add what is not already provided. Prefer to exxtend existing things if sensible.
+globs: */**
+alwaysApply: true
+---
