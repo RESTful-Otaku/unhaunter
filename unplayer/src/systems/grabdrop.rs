@@ -14,79 +14,92 @@ use ungear::components::playergear::PlayerGear;
 use ungear::gear_stuff::GearStuff;
 use ungear::gear_usable::GearUsable;
 
-/// Allows the player to pick up a pickable object from the environment.
-///
-/// This system checks if the player is pressing the 'grab' key and if there is a
-/// pickable object within reach. If so, the object is visually attached to the
-/// player, and the player's right-hand gear is disabled. Only one object can be
-/// held at a time.
-fn grab_object(
+/// Event for grab actions to ensure only one action per keypress
+#[derive(Event)]
+enum GrabAction {
+    GrabObject(Entity),
+    RetrieveGear(Entity),
+}
+
+/// Unified input handler for grab actions that prevents conflicts between
+/// grabbing objects and retrieving gear. Prioritizes gear retrieval over object grabbing.
+fn handle_grab_input(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut players: Query<(&mut PlayerGear, &Position, &Direction, &PlayerSprite)>,
+    players: Query<(&PlayerGear, &Position, &Direction, &PlayerSprite)>,
     deployables: Query<(Entity, &Position), With<DeployedGear>>,
-    // Query for all entities with Behaviour
     pickables: Query<(Entity, &Position, &Behaviour)>,
-    mut gs: GearStuff,
+    mut grab_events: EventWriter<GrabAction>,
 ) {
-    for (mut player_gear, player_pos, player_dir, player) in players.iter_mut() {
+    for (player_gear, player_pos, player_dir, player) in players.iter() {
         if keyboard_input.just_pressed(player.controls.grab) && player_gear.held_item.is_none() {
-            // If there's any gear deployed nearby do not consider furniture.
-            if deployables
-                .iter()
-                .any(|(_, object_pos)| player_pos.distance(object_pos) < 1.0)
-            {
+            // Priority 1: Check for deployed gear nearby (highest priority)
+            let mut closest_gear: Option<(Entity, f32)> = None;
+            for (entity, gear_pos) in deployables.iter() {
+                let distance = player_pos.distance(gear_pos);
+                if distance < 1.2 {
+                    if let Some((_, closest_distance)) = closest_gear {
+                        if distance < closest_distance {
+                            closest_gear = Some((entity, distance));
+                        }
+                    } else {
+                        closest_gear = Some((entity, distance));
+                    }
+                }
+            }
+
+            if let Some((gear_entity, _)) = closest_gear {
+                grab_events.write(GrabAction::RetrieveGear(gear_entity));
                 return;
             }
 
-            // First, try to find a pickable object at the player's current position
+            // Priority 2: Check for pickable objects at player position
             if let Some((object_entity, _, _)) = pickables
                 .iter()
-                // Filter for pickable objects
                 .filter(|(_, _, behaviour)| behaviour.p.object.pickable)
                 .find(|(_, object_pos, _)| player_pos.distance(object_pos) < 1.0)
             {
-                // Set the held object in the player's gear
-                player_gear.held_item = Some(HeldObject {
-                    entity: object_entity,
-                });
-
-                // Play "Pick Up" sound effect
-                gs.play_audio("sounds/item-pickup-whoosh.ogg".into(), 1.0, player_pos);
+                grab_events.write(GrabAction::GrabObject(object_entity));
                 return;
             }
 
-            // If no pickable object was found at the player's position,
-            // check in the direction the player is facing
-
-            // Normalise the direction vector to length 0.5
+            // Priority 3: Check for pickable objects in facing direction
             let normalised_dir = player_dir.normalised() * 0.5;
-
-            // Calculate the reach position by adding the normalised direction to the player's position
             let reach_pos = player_pos + normalised_dir;
-
-            // Convert both positions to board positions
             let player_board_pos = player_pos.to_board_position();
             let reach_board_pos = reach_pos.to_board_position();
 
-            // Check if the reach position is exactly 1 tile away
-            if player_board_pos.distance_taxicab(&reach_board_pos) == 1 {
-                // Check for pickable objects at the reach position
-                if let Some((object_entity, _, _)) = pickables
+            if player_board_pos.distance_taxicab(&reach_board_pos) == 1
+                && let Some((object_entity, _, _)) = pickables
                     .iter()
-                    // Filter for pickable objects
                     .filter(|(_, _, behaviour)| behaviour.p.object.pickable)
                     .find(|(_, object_pos, _)| {
                         reach_board_pos.distance(&object_pos.to_board_position()) < 0.5
                     })
-                {
-                    // Set the held object in the player's gear
-                    player_gear.held_item = Some(HeldObject {
-                        entity: object_entity,
-                    });
+            {
+                grab_events.write(GrabAction::GrabObject(object_entity));
+            }
+        }
+    }
+}
 
-                    // Play "Pick Up" sound effect
-                    gs.play_audio("sounds/item-pickup-whoosh.ogg".into(), 1.0, player_pos);
-                }
+/// Handles grab object actions from events
+fn handle_grab_object_action(
+    mut grab_events: EventReader<GrabAction>,
+    mut players: Query<&mut PlayerGear>,
+    mut gs: GearStuff,
+    player_positions: Query<&Position, With<PlayerSprite>>,
+) {
+    for event in grab_events.read() {
+        if let GrabAction::GrabObject(object_entity) = event
+            && let Ok(mut player_gear) = players.single_mut()
+        {
+            player_gear.held_item = Some(HeldObject {
+                entity: *object_entity,
+            });
+
+            // Play "Pick Up" sound effect
+            if let Ok(player_pos) = player_positions.single() {
+                gs.play_audio("sounds/item-pickup-whoosh.ogg".into(), 1.0, player_pos);
             }
         }
     }
@@ -255,78 +268,60 @@ fn deploy_gear(
     }
 }
 
-/// System for retrieving deployed gear and adding it to the player's right hand.
-fn retrieve_gear(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut players: Query<(&Position, &PlayerSprite, &mut PlayerGear)>,
+/// Handles gear retrieval actions from events
+fn handle_retrieve_gear_action(
+    mut grab_events: EventReader<GrabAction>,
+    mut players: Query<&mut PlayerGear>,
     q_deployed: Query<(Entity, &Position, &DeployedGearData)>,
     mut commands: Commands,
     mut gs: GearStuff,
+    player_positions: Query<&Position, With<PlayerSprite>>,
 ) {
-    // FIXME: This code, along with grabbing items are in conflict. It will be
-    // possible for a player to grab equipment from the floor and a location item at
-    // the same time if they are close enough for a well placed player. This needs to
-    // be solved, likely by handling the keypress event in one single system, then
-    // routing the remaining stuff to do via an Event to the system that handles that
-    // exact thing.
-    for (player_pos, player, mut player_gear) in players.iter_mut() {
-        if keyboard_input.just_pressed(player.controls.grab) {
-            // Find the closest deployed gear
-            let mut closest_gear: Option<(Entity, f32)> = None;
-            for (entity, gear_pos, _) in q_deployed.iter() {
-                let distance = player_pos.distance(gear_pos);
-                if distance < 1.2 {
-                    if let Some((_, closest_distance)) = closest_gear {
-                        if distance < closest_distance {
-                            closest_gear = Some((entity, distance));
-                        }
-                    } else {
-                        closest_gear = Some((entity, distance));
+    for event in grab_events.read() {
+        if let GrabAction::RetrieveGear(gear_entity) = event
+            && let Ok(mut player_gear) = players.single_mut()
+            && let Ok((_, _, deployed_gear_data)) = q_deployed.get(*gear_entity)
+        {
+            // Inventory Shifting Logic:
+            if player_gear.right_hand.kind.is_some() {
+                // Right hand is occupied, try to shift to inventory
+                if let Some(empty_slot_index) = player_gear
+                    .inventory
+                    .iter()
+                    .position(|gear| gear.kind.is_none())
+                {
+                    // Move right-hand gear to the empty slot
+                    player_gear.inventory[empty_slot_index] = player_gear.right_hand.take();
+                } else {
+                    // No empty slot - play invalid action sound and skip retrieval
+                    if let Ok(player_pos) = player_positions.single() {
+                        gs.play_audio("sounds/invalid-action-buzz.ogg".into(), 0.3, player_pos);
                     }
+                    return;
                 }
             }
 
-            // Retrieve the closest gear
-            if let Some((closest_gear_entity, _)) = closest_gear
-                && let Ok((_, _, deployed_gear_data)) = q_deployed.get(closest_gear_entity)
-            {
-                // Inventory Shifting Logic:
-                if player_gear.right_hand.kind.is_some() {
-                    // Right hand is occupied, try to shift to inventory
-                    if let Some(empty_slot_index) = player_gear
-                        .inventory
-                        .iter()
-                        .position(|gear| gear.kind.is_none())
-                    {
-                        // Move right-hand gear to the empty slot
-                        player_gear.inventory[empty_slot_index] = player_gear.right_hand.take();
-                    } else {
-                        // No empty slot - play invalid action sound and skip retrieval
-                        gs.play_audio("sounds/invalid-action-buzz.ogg".into(), 0.3, player_pos);
-                        return;
-                    }
-                }
+            // Now the right hand is free, proceed with retrieval
+            player_gear.right_hand = deployed_gear_data.gear.clone();
+            commands.entity(*gear_entity).despawn();
 
-                // Now the right hand is free, proceed with retrieval
-                player_gear.right_hand = deployed_gear_data.gear.clone();
-                commands.entity(closest_gear_entity).despawn();
-
-                // Play "Grab Item" sound effect (reused for gear retrieval)
+            // Play "Grab Item" sound effect (reused for gear retrieval)
+            if let Ok(player_pos) = player_positions.single() {
                 gs.play_audio("sounds/item-pickup-whoosh.ogg".into(), 1.0, player_pos);
             }
-            // --
         }
     }
 }
 
 pub(crate) fn app_setup(app: &mut App) {
-    app.add_systems(
+    app.add_event::<GrabAction>().add_systems(
         Update,
         (
+            handle_grab_input,
+            handle_grab_object_action,
+            handle_retrieve_gear_action,
             update_held_object_position,
             deploy_gear,
-            retrieve_gear,
-            grab_object,
             drop_object,
         )
             .run_if(in_state(uncore::states::GameState::None)),

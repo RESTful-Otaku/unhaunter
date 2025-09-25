@@ -35,6 +35,16 @@ use serde::{Deserialize, Serialize};
 use crate::types::board::light::LightData;
 use crate::types::tiledmap::map::MapLayer;
 
+/// Helper function to safely create NotNan values from known constants
+fn safe_not_nan(value: f32) -> NotNan<f32> {
+    NotNan::new(value).expect("Hardcoded constant values should always be valid NotNan")
+}
+
+/// Helper function to safely convert known constants to NotNan
+fn safe_try_into<T: Into<f32>>(value: T) -> NotNan<f32> {
+    NotNan::new(value.into()).expect("Hardcoded constant values should always be valid NotNan")
+}
+
 /// The `Behaviour` component defines the behaviour of an object in the game world.
 ///
 /// It stores a `SpriteConfig` struct, which contains the object's basic
@@ -238,10 +248,10 @@ impl Default for Light {
             see_through: false,
             light_emission_enabled: false,
             can_emit_light: false,
-            emission_power: NotNan::new(0.0).unwrap(),
+            emission_power: safe_not_nan(0.0),
             heat_coef: 0,
             flickering: false,
-            cached_heat_output: NotNan::new(0.0).unwrap(),
+            cached_heat_output: safe_not_nan(0.0),
         }
     }
 }
@@ -269,7 +279,7 @@ impl Light {
         let heat_coeff = faster::exp(self.heat_coef as f32);
         let lumens = self.emmisivity_lumens();
         let heat_output = lumens / 10000.0 * heat_coeff;
-        self.cached_heat_output = NotNan::new(heat_output).unwrap_or(NotNan::new(0.0).unwrap());
+        self.cached_heat_output = NotNan::new(heat_output).unwrap_or_else(|_| safe_not_nan(0.0));
     }
 
     pub fn transmissivity_factor(&self) -> f32 {
@@ -639,7 +649,7 @@ impl SpriteConfig {
         match self.class {
             Class::Floor => {
                 p.movement.walkable = true;
-                p.display.global_z = (-0.00035).try_into().unwrap();
+                p.display.global_z = safe_try_into(-0.00035);
             }
             Class::Wall => {
                 p.movement.player_collision = true;
@@ -721,7 +731,7 @@ impl SpriteConfig {
                 p.display.global_z = (-0.00004).try_into().unwrap();
                 p.light.can_emit_light = true;
                 p.light.light_emission_enabled = self.state == TileState::On;
-                p.light.emission_power = (3.0).try_into().unwrap();
+                p.light.emission_power = safe_try_into(3.0);
                 p.light.heat_coef = -1;
                 p.light.update_cached_heat_output();
             }
@@ -792,7 +802,8 @@ impl SpriteConfig {
         p.object.pickable = self.properties.get_bool("object:pickable");
         p.object.movable = self.properties.get_bool("object:movable");
         p.object.hidingspot = self.properties.get_bool("object:hidingspot");
-        p.object.weight = NotNan::new(self.properties.get_float("object:weight")).unwrap();
+        p.object.weight = NotNan::new(self.properties.get_float("object:weight"))
+            .unwrap_or_else(|_| safe_not_nan(1.0));
         p.object.name = self.properties.get_string("object:name");
         if p.object.name.is_empty() {
             p.object.name.clone_from(&self.variant.clone());

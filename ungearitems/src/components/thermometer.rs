@@ -16,6 +16,17 @@ use uncore::types::evidence::Evidence;
 use uncore::types::gear::equipmentposition::EquipmentPosition;
 use uncore::{celsius_to_kelvin, kelvin_to_celsius};
 
+/// Temperature threshold for low temperature alert (Celsius)
+#[allow(dead_code)]
+const THERMOMETER_LOW_THRESHOLD: f32 = -0.1;
+/// Temperature threshold for high temperature alert (Celsius)
+#[allow(dead_code)]
+const THERMOMETER_HIGH_THRESHOLD: f32 = 5.1;
+/// Random position offset constant for thermometer readings
+const THERMOMETER_POSITION_OFFSET: f32 = 0.7;
+/// Frame counter modulo value for thermometer updates
+const THERMOMETER_FRAME_MODULO: u16 = 65413;
+
 #[derive(Component, Debug, Clone)]
 pub struct Thermometer {
     pub enabled: bool,
@@ -93,12 +104,12 @@ impl GearUsable for Thermometer {
     }
 
     fn update(&mut self, gs: &mut super::GearStuff, pos: &Position, _ep: &EquipmentPosition) {
-        // TODO: Add two thresholds: LO: -0.1 and HI: 5.1, with sound effects to notify +
-        // distintive icons.
+        // TODO: Add two thresholds: LO: THERMOMETER_LOW_THRESHOLD and HI: THERMOMETER_HIGH_THRESHOLD,
+        // with sound effects to notify + distinctive icons.
         let mut rng = random_seed::rng();
         self.frame_counter += 1;
-        self.frame_counter %= 65413;
-        const K: f32 = 0.7;
+        self.frame_counter %= THERMOMETER_FRAME_MODULO;
+        const K: f32 = THERMOMETER_POSITION_OFFSET;
         let pos = Position {
             x: pos.x + rng.random_range(-K..K) + rng.random_range(-K..K),
             y: pos.y + rng.random_range(-K..K) + rng.random_range(-K..K),
