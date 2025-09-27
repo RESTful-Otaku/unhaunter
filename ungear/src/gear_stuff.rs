@@ -3,6 +3,7 @@ use bevy_persistent::Persistent;
 use unprofile::data::PlayerProfileData;
 use unsettings::audio::AudioSettings;
 
+use uncore::audio_feedback::AudioFeedbackManager;
 use uncore::difficulty::CurrentDifficulty;
 use uncore::resources::summary_data::SummaryData;
 use uncore::{
@@ -32,6 +33,8 @@ pub struct GearStuff<'w, 's> {
     pub audio_settings: Res<'w, Persistent<AudioSettings>>,
     /// Player profile data.
     pub player_profile: Res<'w, Persistent<PlayerProfileData>>,
+    /// Audio feedback manager for enhanced gameplay feedback.
+    pub audio_feedback: ResMut<'w, AudioFeedbackManager>,
 }
 
 impl GearStuff<'_, '_> {

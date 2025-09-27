@@ -1,4 +1,5 @@
 pub mod assets;
+pub mod audio_feedback;
 pub mod behaviour;
 pub mod colours;
 pub mod components;

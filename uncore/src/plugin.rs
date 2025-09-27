@@ -19,6 +19,8 @@ impl Plugin for UnhaunterCorePlugin {
         app.init_resource::<HintUiState>();
         app.init_resource::<crate::noise::PerlinNoise>();
         app.init_resource::<crate::resources::player_input::PlayerInput>();
+        app.init_resource::<crate::audio_feedback::AudioFeedbackManager>();
         app.add_event::<OnScreenHintEvent>();
+        app.add_systems(Update, crate::audio_feedback::process_audio_feedback);
     }
 }
