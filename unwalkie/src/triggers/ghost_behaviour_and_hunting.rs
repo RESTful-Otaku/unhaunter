@@ -69,7 +69,7 @@ fn trigger_hunt_warning_no_player_evasion_system(
         return;
     }
 
-    // test [remove]
+    // test [remove] test
     let is_player_hiding = maybe_hiding.is_some();
     let mut is_hunt_warning_active_for_any_ghost = false;
     for ghost_sprite in q_ghost.iter() {
