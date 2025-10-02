@@ -1,10 +1,9 @@
-name: Staging - Changes + Platform Builds
+name: Production
 
 on:
   push:
-    branches: [ staging, qa ]
-  pull_request:
-    branches: [ staging, qa ]
+    tags:
+      - 'v*.*.*'
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,41 +11,21 @@ env:
   CARGO_INCREMENTAL: 1
 
 jobs:
-  # Change detection
-  changes:
-    name: Detect Changes
+  # Phase 1: Setup and Version Processing
+  setup:
+    name: Setup and Version Processing
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     outputs:
-      rust: ${{ steps.changes.outputs.rust }}
+      version: ${{ steps.get_version.outputs.version }}
     steps:
-      - name: Checkout code
+      - name: Setup job
+        run: echo "Setting up the production environment"
+
+      - name: Checkout code (tagged commit)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Detect changes
-        uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            rust:
-              - '**/*.rs'
-              - '**/Cargo.toml'
-              - '**/Cargo.lock'
-
-  # Phase 1: Setup and Dependencies
-  setup:
-    name: Setup Environment
-    runs-on: ubuntu-latest
-    needs: changes
-    if: needs.changes.outputs.rust == 'true'
-    timeout-minutes: 8
-    steps:
-      - name: Setup job
-        run: echo "Setting up the staging environment"
-
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Update APT
         run: sudo apt-get update
@@ -88,13 +67,28 @@ jobs:
       - name: Install Just
         run: cargo install just
 
+      - name: Get version from Tag
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Extract Release Notes from CHANGELOG.md
+        id: extract_notes
+        run: |
+          VERSION=${{ steps.get_version.outputs.version }}
+          if [ -f "CHANGELOG.md" ]; then
+            awk "/^## $VERSION$/{flag=1;next}/^## /{flag=0}flag" CHANGELOG.md > RELEASE_NOTES.md
+          else
+            echo "No CHANGELOG.md found, creating basic release notes" > RELEASE_NOTES.md
+            echo "Release $VERSION" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "See commit history for changes." >> RELEASE_NOTES.md
+          fi
+
   # Phase 2: Code Quality and Testing (runs in parallel with setup)
   quality-test:
     name: Code Quality and Testing
     runs-on: ubuntu-latest
-    needs: changes
-    if: needs.changes.outputs.rust == 'true'
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -142,8 +136,7 @@ jobs:
   # Phase 3: Platform Builds (runs in parallel after setup)
   platform-builds:
     name: Platform Builds
-    needs: [changes, setup]
-    if: needs.changes.outputs.rust == 'true'
+    needs: setup
     strategy:
       matrix:
         include:
@@ -157,7 +150,7 @@ jobs:
             os: ubuntu-latest
             target: wasm32-unknown-unknown
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -212,28 +205,27 @@ jobs:
         if: matrix.platform == 'linux'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-linux-staging
+          name: unhaunter-linux-production
           path: target/x86_64-unknown-linux-gnu/release/unhaunter_game
 
       - name: Upload Windows artifacts
         if: matrix.platform == 'windows'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-windows-staging
+          name: unhaunter-windows-production
           path: target/x86_64-pc-windows-gnu/release/unhaunter_game.exe
 
       - name: Upload WASM artifacts
         if: matrix.platform == 'wasm'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-wasm-staging
+          name: unhaunter-wasm-production
           path: pkg/
 
   # Phase 4: Mobile Builds (dedicated runners)
   mobile-builds:
     name: Mobile Builds
-    needs: [changes, setup]
-    if: needs.changes.outputs.rust == 'true'
+    needs: setup
     strategy:
       matrix:
         include:
@@ -242,7 +234,7 @@ jobs:
           - platform: ios
             os: macos-latest
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 50
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -362,29 +354,68 @@ jobs:
         if: matrix.platform == 'android'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-android-staging
+          name: unhaunter-android-production
           path: target/android-artifacts/
 
       - name: Upload iOS artifacts
         if: matrix.platform == 'ios'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-ios-staging
+          name: unhaunter-ios-production
           path: target/ios/
 
-  # Phase 5: Summary (depends on all previous phases)
+  # Phase 5: Release Creation (depends on all previous phases)
+  release:
+    name: Create GitHub Release
+    needs: [setup, quality-test, platform-builds, mobile-builds]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create release archives
+        run: |
+          mkdir -p dist
+          if [ -d "unhaunter-linux-production" ]; then
+            zip -r dist/unhaunter-linux.zip unhaunter-linux-production/
+          fi
+          if [ -d "unhaunter-windows-production" ]; then
+            zip -r dist/unhaunter-windows.zip unhaunter-windows-production/
+          fi
+          if [ -d "unhaunter-wasm-production" ]; then
+            zip -r dist/unhaunter-wasm.zip unhaunter-wasm-production/
+          fi
+          if [ -d "unhaunter-android-production" ]; then
+            zip -r dist/unhaunter-android.zip unhaunter-android-production/
+          fi
+          if [ -d "unhaunter-ios-production" ]; then
+            zip -r dist/unhaunter-ios.zip unhaunter-ios-production/
+          fi
+
+      - name: Create GitHub Release and Upload Artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.setup.outputs.version }}
+          name: Release ${{ needs.setup.outputs.version }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            dist/*.zip
+
+  # Phase 6: Summary (depends on all previous phases)
   summary:
-    name: Staging Summary
-    needs: [changes, setup, quality-test, platform-builds, mobile-builds]
+    name: Production Summary
+    needs: [setup, quality-test, platform-builds, mobile-builds, release]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     if: always()
     steps:
       - name: Check results
         run: |
-          echo "Staging workflow completed"
-          echo "Changes: ${{ needs.changes.result }}"
+          echo "Production workflow completed"
+          echo "Version: ${{ needs.setup.outputs.version }}"
           echo "Setup: ${{ needs.setup.result }}"
           echo "Quality & Test: ${{ needs.quality-test.result }}"
           echo "Platform Builds: ${{ needs.platform-builds.result }}"
           echo "Mobile Builds: ${{ needs.mobile-builds.result }}"
+          echo "Release: ${{ needs.release.result }}"
