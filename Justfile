@@ -63,6 +63,14 @@ release-ios:
 release-all:
     ./build.sh all release
 
+# Package artifacts for distribution
+package:
+    #!/bin/bash
+    echo "Packaging artifacts for distribution..."
+    mkdir -p dist
+    cp target/release/unhaunter_game dist/
+    echo "Artifacts packaged in dist/ directory"
+
 # Platform testing
 test-windows:
     ./build.sh windows test

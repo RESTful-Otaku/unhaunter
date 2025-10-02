@@ -1,9 +1,15 @@
-name: Staging
+name: Development
 
 on:
   push:
     branches:
-      - staging
+      - 'feat/*'
+      - 'fix/*'
+      - 'cont/*'
+      - 'perf/*'
+  pull_request:
+    branches:
+      - main
 
 env:
   CARGO_TERM_COLOR: always
@@ -13,10 +19,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - name: Setup job
-        run: echo "Setting up the staging job environment"
+        run: echo "Setting up the development job environment"
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,25 +36,6 @@ jobs:
           sudo apt-get install -y libasound2-dev pkg-config
           sudo apt-get install -y libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
           sudo apt-get install -y libudev-dev libsystemd-dev
-
-      - name: Install Windows Cross-Compile Dependencies (mingw)
-        run: |
-          sudo apt-get install -y gcc-mingw-w64-x86-64
-
-      - name: Install iOS cross-compile dependencies
-        run: |
-          # Note: iOS cross-compilation requires macOS runners
-          echo "iOS cross-compilation will be handled in separate macOS job if needed"
-
-      - name: Install Android cross-compile dependencies
-        run: |
-          # Android dependencies will be installed via android-actions/setup-android
-          echo "Android dependencies will be installed via setup-android action"
-
-      - name: Install WASM Dependencies
-        run: |
-          rustup target add wasm32-unknown-unknown
-          cargo install wasm-pack
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -77,17 +64,6 @@ jobs:
           cargo clippy --all-targets --all-features -- -D warnings
           cargo check --workspace --all-targets --message-format=short
           cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=4
-          cargo test --test integration_tests -- --test-threads=4
-          cargo build --release --verbose
-
-      - name: Package Artifacts
-        run: just package
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: unhaunter-staging
-          path: target/release/unhaunter_game
 
       - name: Complete Job
-        run: echo "Staging workflow completed"
+        run: echo "Development workflow completed"
