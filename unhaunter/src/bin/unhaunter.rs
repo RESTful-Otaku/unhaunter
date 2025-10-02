@@ -10,6 +10,7 @@ struct Args {
 
 fn main() {
     // Parse command line arguments for game configuration
+    // This ensures proper CLI argument handling for the game
     let args = Args::parse();
 
     #[cfg(not(target_arch = "wasm32"))]
