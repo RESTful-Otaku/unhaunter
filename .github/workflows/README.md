@@ -20,7 +20,7 @@ This directory contains the streamlined and enhanced CI/CD workflows for the Unh
 
 ### 2. Staging Workflow (`staging.yml`)
 **Purpose**: Stable/Testing/QA
-**Triggers**: 
+**Triggers**:
 - Push to `staging` and `qa` branches
 - Pull requests to `staging` and `qa` branches
 
@@ -36,7 +36,7 @@ This directory contains the streamlined and enhanced CI/CD workflows for the Unh
 
 ### 3. Production Workflow (`production.yml`)
 **Purpose**: Live/Release Ready
-**Triggers**: 
+**Triggers**:
 - Push to tags matching `v*.*.*` pattern
 
 **Phases**:
