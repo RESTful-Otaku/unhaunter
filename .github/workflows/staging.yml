@@ -1,9 +1,10 @@
-name: Staging
+name: Staging - Changes + Platform Builds
 
 on:
   push:
-    branches:
-      - staging
+    branches: [ staging, qa ]
+  pull_request:
+    branches: [ staging, qa ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -11,12 +12,38 @@ env:
   CARGO_INCREMENTAL: 1
 
 jobs:
-  build:
+  # Change detection
+  changes:
+    name: Detect Changes
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    outputs:
+      rust: ${{ steps.changes.outputs.rust }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Detect changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            rust:
+              - '**/*.rs'
+              - '**/Cargo.toml'
+              - '**/Cargo.lock'
+
+  # Phase 1: Setup and Dependencies
+  setup:
+    name: Setup Environment
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.rust == 'true'
+    timeout-minutes: 8
     steps:
       - name: Setup job
-        run: echo "Setting up the staging job environment"
+        run: echo "Setting up the staging environment"
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,16 +61,6 @@ jobs:
       - name: Install Windows Cross-Compile Dependencies (mingw)
         run: |
           sudo apt-get install -y gcc-mingw-w64-x86-64
-
-      - name: Install iOS cross-compile dependencies
-        run: |
-          # Note: iOS cross-compilation requires macOS runners
-          echo "iOS cross-compilation will be handled in separate macOS job if needed"
-
-      - name: Install Android cross-compile dependencies
-        run: |
-          # Android dependencies will be installed via android-actions/setup-android
-          echo "Android dependencies will be installed via setup-android action"
 
       - name: Install WASM Dependencies
         run: |
@@ -71,23 +88,303 @@ jobs:
       - name: Install Just
         run: cargo install just
 
-      - name: Build and Test
+  # Phase 2: Code Quality and Testing (runs in parallel with setup)
+  quality-test:
+    name: Code Quality and Testing
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.rust == 'true'
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies
         run: |
-          cargo fmt --all -- --check
-          cargo clippy --all-targets --all-features -- -D warnings
-          cargo check --workspace --all-targets --message-format=short
-          cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=4
-          cargo test --test integration_tests -- --test-threads=4
-          cargo build --release --verbose
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libasound2-dev pkg-config
+          sudo apt-get install -y -qq libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y -qq libudev-dev libsystemd-dev
 
-      - name: Package Artifacts
-        run: just package
+      - name: Format check
+        run: cargo fmt --all -- --check
 
-      - name: Upload Artifacts
+      - name: Lint check
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Compile check
+        run: cargo check --workspace --all-targets --message-format=short
+
+      - name: Unit tests
+        run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=4
+
+      - name: Integration tests
+        run: cargo test --test integration_tests -- --test-threads=4
+
+  # Phase 3: Platform Builds (runs in parallel after setup)
+  platform-builds:
+    name: Platform Builds
+    needs: [changes, setup]
+    if: needs.changes.outputs.rust == 'true'
+    strategy:
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - platform: windows
+            os: ubuntu-latest
+            target: x86_64-pc-windows-gnu
+          - platform: wasm
+            os: ubuntu-latest
+            target: wasm32-unknown-unknown
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-${{ matrix.target }}-
+
+      - name: Install system dependencies (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libasound2-dev pkg-config
+          sudo apt-get install -y -qq libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y -qq libudev-dev libsystemd-dev
+
+      - name: Install Windows cross-compile dependencies
+        if: matrix.platform == 'windows'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq gcc-mingw-w64-x86-64
+
+      - name: Install WASM dependencies
+        if: matrix.platform == 'wasm'
+        run: |
+          rustup target add wasm32-unknown-unknown
+          cargo install wasm-pack
+
+      - name: Build release
+        run: |
+          if [ "${{ matrix.platform }}" = "wasm" ]; then
+            wasm-pack build --target web --out-dir pkg --release
+          else
+            cargo build --release --target ${{ matrix.target }} --bin unhaunter_game
+          fi
+
+      - name: Upload Linux artifacts
+        if: matrix.platform == 'linux'
         uses: actions/upload-artifact@v4
         with:
-          name: unhaunter-staging
-          path: target/release/unhaunter_game
+          name: unhaunter-linux-staging
+          path: target/x86_64-unknown-linux-gnu/release/unhaunter_game
 
-      - name: Complete Job
-        run: echo "Staging workflow completed"
+      - name: Upload Windows artifacts
+        if: matrix.platform == 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-windows-staging
+          path: target/x86_64-pc-windows-gnu/release/unhaunter_game.exe
+
+      - name: Upload WASM artifacts
+        if: matrix.platform == 'wasm'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-wasm-staging
+          path: pkg/
+
+  # Phase 4: Mobile Builds (dedicated runners)
+  mobile-builds:
+    name: Mobile Builds
+    needs: [changes, setup]
+    if: needs.changes.outputs.rust == 'true'
+    strategy:
+      matrix:
+        include:
+          - platform: android
+            os: ubuntu-latest
+          - platform: ios
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            target
+          key: ${{ runner.os }}-cargo-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ matrix.platform }}-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-${{ matrix.platform }}-
+
+      - name: Install system dependencies (Android)
+        if: matrix.platform == 'android'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libasound2-dev pkg-config
+          sudo apt-get install -y -qq libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y -qq libudev-dev libsystemd-dev
+
+      - name: Setup Android (Android)
+        if: matrix.platform == 'android'
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: 34.0.0
+          ndk-version: 25.1.8937393
+
+      - name: Install Android platforms explicitly (Android)
+        if: matrix.platform == 'android'
+        run: |
+          echo "Installing Android platforms explicitly..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-30"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34"
+          echo "Android platforms installed successfully"
+
+      - name: Cache Android tools
+        if: matrix.platform == 'android'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-android-tools-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-android-tools-
+
+      - name: Install cargo-apk (Android)
+        if: matrix.platform == 'android'
+        run: |
+          if ! command -v cargo-apk &> /dev/null; then
+            cargo install cargo-apk
+          else
+            echo "cargo-apk already installed"
+          fi
+
+      - name: Add Android targets (Android)
+        if: matrix.platform == 'android'
+        run: |
+          rustup target add aarch64-linux-android
+          rustup target add armv7-linux-androideabi
+
+      - name: Generate debug keystore (Android)
+        if: matrix.platform == 'android'
+        run: |
+          echo "Generating debug keystore for Android signing..."
+          keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          echo "Debug keystore generated successfully"
+
+      - name: Cache iOS tools
+        if: matrix.platform == 'ios'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-ios-tools-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-tools-
+
+      - name: Install cargo-xcode (iOS)
+        if: matrix.platform == 'ios'
+        run: |
+          if ! command -v cargo-xcode &> /dev/null; then
+            cargo install cargo-xcode
+          else
+            echo "cargo-xcode already installed"
+          fi
+
+      - name: Add iOS targets (iOS)
+        if: matrix.platform == 'ios'
+        run: |
+          rustup target add aarch64-apple-ios
+          rustup target add x86_64-apple-ios
+
+      - name: Build Android APK
+        if: matrix.platform == 'android'
+        run: |
+          set -e
+          echo "Building Android APK..."
+          cargo apk build --release --lib
+          echo "Android build completed successfully"
+
+      - name: Generate iOS Xcode project
+        if: matrix.platform == 'ios'
+        run: |
+          set -e
+          echo "Generating iOS Xcode project..."
+          cargo xcode --platforms "iphoneos iphonesimulator"
+          echo "iOS Xcode project generated successfully"
+
+      - name: Upload Android artifacts
+        if: matrix.platform == 'android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-android-staging
+          path: target/android-artifacts/
+
+      - name: Upload iOS artifacts
+        if: matrix.platform == 'ios'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-ios-staging
+          path: target/ios/
+
+  # Phase 5: Summary (depends on all previous phases)
+  summary:
+    name: Staging Summary
+    needs: [changes, setup, quality-test, platform-builds, mobile-builds]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    if: always()
+    steps:
+      - name: Check results
+        run: |
+          echo "Staging workflow completed"
+          echo "Changes: ${{ needs.changes.result }}"
+          echo "Setup: ${{ needs.setup.result }}"
+          echo "Quality & Test: ${{ needs.quality-test.result }}"
+          echo "Platform Builds: ${{ needs.platform-builds.result }}"
+          echo "Mobile Builds: ${{ needs.mobile-builds.result }}"

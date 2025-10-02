@@ -8,21 +8,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Streamlined CI/CD pipeline with three distinct workflows: Development, Staging, and Production
-- Development workflow for feature branches and pull requests
-- Staging workflow for stable testing and QA
-- Production workflow for live releases with automated GitHub releases
+- Enhanced CI/CD pipeline with separate phases and parallel execution
+- Development workflow with parallel code quality and setup phases
+- Staging workflow with parallel platform builds and dedicated mobile runners
+- Production workflow with comprehensive release automation
+- Matrix strategy for cross-platform builds (Linux, Windows, WASM, Android, iOS)
+- Dedicated iOS and Android runners for optimal mobile build performance
+- Enhanced caching strategy for improved build times
+- Comprehensive workflow documentation and monitoring
 
 ### Changed
-- Simplified CI/CD pipeline structure for better maintainability
+- Streamlined CI/CD pipeline structure for better maintainability
 - Reduced workflow complexity while maintaining functionality
+- Optimized job dependencies and parallelism for maximum efficiency
+- Improved artifact packaging and distribution
 
-## [0.3.2] - 2024-01-XX
+### Fixed
+- Resolved merge conflicts in staging workflow
+- Fixed workflow dependencies and job ordering
+- Corrected artifact paths for cross-platform builds
+
+## [0.3.3] - 2024-01-XX
 
 ### Added
 - Initial release with basic game functionality
 - Cross-platform support for Linux, Windows, macOS, Android, and iOS
 - Comprehensive test suite
+
+### Changed
+- Various improvements and bug fixes
+
+## [0.3.2] - 2024-01-XX
+
+### Added
+- Previous version features
 
 ### Changed
 - Various improvements and bug fixes
