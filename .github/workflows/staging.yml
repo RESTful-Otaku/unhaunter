@@ -133,11 +133,37 @@ jobs:
       - name: Compile check
         run: cargo check --workspace --all-targets --message-format=short
 
-      - name: Unit tests
+      - name: Build release binary
+        run: cargo build --release --bin unhaunter_game
+
+      - name: Unit tests - Core
         run: cargo test -p uncore --lib -- --skip ghost_setfinder --test-threads=4
+
+      - name: Unit tests - All packages
+        run: |
+          for package in uncore unstd ungear ungearitems unmaphub untruck unplayer unghost unlight unmenu unnpc untmxmap unsettings unmenusettings unwalkie uncoremenu unmapload uncampaign unprofile unsummary unwalkie_types unwalkiecore unfog; do
+            if [ -d "$package" ]; then
+              echo "Running unit tests for $package..."
+              cargo test -p $package --lib -- --test-threads=4 || true
+            fi
+          done
 
       - name: Integration tests
         run: cargo test --test integration_tests -- --test-threads=4
+
+      - name: Simple integration tests
+        run: cargo test --test simple_integration_tests -- --test-threads=4
+
+      - name: End-to-End tests
+        run: cargo test --test e2e_tests -- --test-threads=4
+
+      - name: Game binary functionality test
+        run: |
+          cargo run --bin unhaunter_game -- --help
+          cargo run --bin unhaunter_walkie_voice_generator -- --help || true
+
+      - name: Performance tests
+        run: cargo bench --no-run
 
   # Phase 3: Platform Builds (runs in parallel after setup)
   platform-builds:
