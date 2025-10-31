@@ -3,7 +3,7 @@ use bevy_persistent::Persistent;
 use bevy_platform::collections::{HashMap, HashSet};
 use uncore::components::ghost_sprite::GhostSprite;
 use uncore::resources::ghost_guess::GhostGuess;
-use uncore::states::GameState;
+use uncore::states::{AppState, GameState};
 use uncore::types::ghost::types::GhostType;
 use uncore::{
     colours,
@@ -262,9 +262,18 @@ fn clear_seen_evidence_hints_on_mission_change(
     }
 }
 
+/// Clear evidence hint state when a mission ends (entering Summary screen)
+fn clear_seen_evidence_hints_on_mission_end(
+    mut seen_evidence_hints: ResMut<SeenEvidenceHints>,
+) {
+    seen_evidence_hints.0.clear();
+    info!("Journal: Cleared seen evidence hints on mission end");
+}
+
 pub(crate) fn app_setup(app: &mut App) {
     app.init_resource::<SeenEvidenceHints>();
     app.add_systems(Update, clear_seen_evidence_hints_on_mission_change);
+    app.add_systems(OnEnter(AppState::Summary), clear_seen_evidence_hints_on_mission_end);
     app.add_systems(
         FixedUpdate,
         (

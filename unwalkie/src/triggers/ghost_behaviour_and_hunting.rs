@@ -69,6 +69,7 @@ fn trigger_hunt_warning_no_player_evasion_system(
         return;
     }
 
+    // test [remove] test
     let is_player_hiding = maybe_hiding.is_some();
     let mut is_hunt_warning_active_for_any_ghost = false;
     for ghost_sprite in q_ghost.iter() {
@@ -81,7 +82,6 @@ fn trigger_hunt_warning_no_player_evasion_system(
         }
     }
 
-    // 3. Conditions for starting/resetting the timer
     if is_hunt_warning_active_for_any_ghost && !is_player_hiding {
         if warning_timer.is_none() {
             *warning_timer = Some(Stopwatch::new());
