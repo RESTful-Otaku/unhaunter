@@ -3,6 +3,7 @@ use crate::metrics;
 use super::{Gear, GearKind, GearSpriteID, GearUsable, on_off};
 use bevy::prelude::*;
 use rand::Rng;
+use uncore::audio_feedback::{EquipmentType, ThresholdType, trigger_equipment_threshold_feedback, AudioFeedbackEvent};
 use uncore::behaviour::Behaviour;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::position::Position;
@@ -104,8 +105,9 @@ impl GearUsable for Thermometer {
     }
 
     fn update(&mut self, gs: &mut super::GearStuff, pos: &Position, _ep: &EquipmentPosition) {
-        // TODO: Add two thresholds: LO: THERMOMETER_LOW_THRESHOLD and HI: THERMOMETER_HIGH_THRESHOLD,
-        // with sound effects to notify + distinctive icons.
+        // Threshold constants for audio feedback
+        const THERMOMETER_LOW_THRESHOLD: f32 = 5.0;   // Cold threshold
+        const THERMOMETER_HIGH_THRESHOLD: f32 = 15.0; // Warm threshold
         let mut rng = random_seed::rng();
         self.frame_counter += 1;
         self.frame_counter %= THERMOMETER_FRAME_MODULO;
@@ -128,7 +130,40 @@ impl GearUsable for Thermometer {
         if self.frame_counter.is_multiple_of(5) {
             let sum_temp: f32 = self.temp_l2.iter().sum();
             let avg_temp: f32 = sum_temp / self.temp_l2.len() as f32;
+            let old_temp = self.temp;
             self.temp = (avg_temp * 5.0).round() / 5.0;
+            
+            // Audio feedback for temperature thresholds
+            let temp_celsius = kelvin_to_celsius(self.temp);
+            let old_temp_celsius = kelvin_to_celsius(old_temp);
+            
+            // Check for freezing temperature (evidence threshold)
+            if temp_celsius < 0.0 && old_temp_celsius >= 0.0 {
+                trigger_equipment_threshold_feedback(
+                    &mut gs.audio_feedback,
+                    EquipmentType::Thermometer,
+                    ThresholdType::Critical,
+                    temp_celsius,
+                );
+            }
+            // Check for cold temperature threshold
+            else if temp_celsius < THERMOMETER_LOW_THRESHOLD && old_temp_celsius >= THERMOMETER_LOW_THRESHOLD {
+                trigger_equipment_threshold_feedback(
+                    &mut gs.audio_feedback,
+                    EquipmentType::Thermometer,
+                    ThresholdType::Low,
+                    temp_celsius,
+                );
+            }
+            // Check for warm temperature threshold
+            else if temp_celsius > THERMOMETER_HIGH_THRESHOLD && old_temp_celsius <= THERMOMETER_HIGH_THRESHOLD {
+                trigger_equipment_threshold_feedback(
+                    &mut gs.audio_feedback,
+                    EquipmentType::Thermometer,
+                    ThresholdType::High,
+                    temp_celsius,
+                );
+            }
 
             // Update blinking_hint_active
             const HINT_ACKNOWLEDGE_THRESHOLD: u32 = 3;
@@ -169,8 +204,14 @@ impl GearUsable for Thermometer {
         }
     }
 
-    fn set_trigger(&mut self, _gs: &mut super::GearStuff) {
+    fn set_trigger(&mut self, gs: &mut super::GearStuff) {
         self.enabled = !self.enabled;
+        
+        // Add audio feedback for equipment toggle
+        gs.audio_feedback.add_feedback(AudioFeedbackEvent::EquipmentToggle {
+            equipment: EquipmentType::Thermometer,
+            active: self.enabled,
+        });
     }
 
     fn box_clone(&self) -> Box<dyn GearUsable> {

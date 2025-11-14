@@ -6,6 +6,7 @@ use uncore::components::player_sprite::PlayerSprite;
 use uncore::components::truck::TruckUI;
 use uncore::components::truck_ui_button::TruckUIButton;
 use uncore::difficulty::CurrentDifficulty;
+use uncore::error::{UnhaunterError, ErrorTracker};
 use uncore::events::truck::TruckUIEvent;
 use uncore::resources::board_data::BoardData;
 use uncore::resources::ghost_guess::GhostGuess;
@@ -334,6 +335,7 @@ fn truckui_event_handle(
     board_data: Res<BoardData>,
     mut player_profile: ResMut<Persistent<PlayerProfileData>>,
     mut craft_tracker: ResMut<RepellentCraftTracker>,
+    mut error_tracker: ResMut<ErrorTracker>,
 ) {
     for ev in ev_truckui.read() {
         match ev {
@@ -350,7 +352,9 @@ fn truckui_event_handle(
                 player_profile.progression.insurance_deposit = 0;
 
                 if let Err(e) = player_profile.persist() {
-                    panic!("Failed to persist PlayerProfileData: {:?}", e);
+                    let error = UnhaunterError::ProfilePersistence(format!("Failed to persist PlayerProfileData after mission end: {:?}", e));
+                    error_tracker.add_error(error);
+                    warn!("Failed to persist profile after mission end. Progress may be lost.");
                 }
 
                 // Set summary_data.current_mission_id from board_data.map_path

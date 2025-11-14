@@ -1,11 +1,16 @@
 pub mod assets;
+pub mod audio_feedback;
 pub mod behaviour;
 pub mod colours;
 pub mod components;
 pub mod difficulty;
+pub mod error;
 pub mod events;
 pub mod metric_recorder;
 pub mod noise;
+pub mod object_pool;
+pub mod optimized_noise;
+pub mod performance_optimizer;
 pub mod platform;
 pub mod plugin;
 pub mod random_seed;
