@@ -3,6 +3,7 @@ pub mod behaviour;
 pub mod colours;
 pub mod components;
 pub mod difficulty;
+pub mod error;
 pub mod events;
 pub mod metric_recorder;
 pub mod noise;
