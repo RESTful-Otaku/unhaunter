@@ -13,6 +13,7 @@ bevy-persistent = { workspace = true }
 bevy_platform = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+ron = { workspace = true }
 enum-iterator = { workspace = true }
 thiserror = { workspace = true }
 fastapprox = { workspace = true }

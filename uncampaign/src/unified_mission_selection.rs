@@ -219,7 +219,8 @@ fn handle_selection_input(
 
                 if let Err(e) = player_profile.persist() {
                     error!("Failed to persist PlayerProfileData: {:?}", e);
-                    panic!("Profile persistence failed!");
+                    warn!("Profile persistence failed! Mission progress may be lost.");
+                    // Continue execution instead of panicking
                 }
 
                 ev_load_level.write(LoadLevelEvent {
