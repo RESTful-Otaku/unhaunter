@@ -10,6 +10,7 @@ use uncore::components::game_config::GameConfig;
 use uncore::components::player_inventory::{Inventory, InventoryNext, InventoryStats};
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::events::sound::SoundEvent;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::resources::looking_gear::LookingGear;
 use uncore::states::GameState;
 use uncore::types::gear::equipmentposition::{EquipmentPosition, Hand};
@@ -111,22 +112,26 @@ fn sound_playback_system(
 }
 
 fn keyboard_gear(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut q_gear: Query<(&PlayerSprite, &mut PlayerGear)>,
     looking_gear: Res<LookingGear>,
     mut gs: GearStuff,
 ) {
-    for (ps, mut playergear) in q_gear.iter_mut() {
-        if keyboard_input.just_pressed(ps.controls.cycle) {
-            playergear.cycle(&looking_gear.hand());
+    let _ = &q_gear; // PlayerSprite kept in query for future per-player controls
+    if actions.just_pressed(PlayerAction::CycleInventory) {
+        let hand = looking_gear.hand();
+        for (_, mut playergear) in q_gear.iter_mut() {
+            playergear.cycle(&hand);
         }
-        if keyboard_input.just_pressed(ps.controls.swap) {
+    }
+    for (_, mut playergear) in q_gear.iter_mut() {
+        if actions.just_pressed(PlayerAction::SwapHands) {
             playergear.swap();
         }
-        if keyboard_input.just_released(ps.controls.trigger) {
+        if actions.just_released(PlayerAction::TriggerRightHand) {
             playergear.right_hand.set_trigger(&mut gs);
         }
-        if keyboard_input.just_released(ps.controls.torch) {
+        if actions.just_released(PlayerAction::TorchLeftHand) {
             playergear.left_hand.set_trigger(&mut gs);
         }
     }

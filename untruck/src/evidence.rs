@@ -2,6 +2,7 @@ use super::uibutton::{TruckButtonState, TruckButtonType, TruckUIButton};
 use bevy::prelude::*;
 use bevy_persistent::Persistent;
 use uncore::components::game_ui::EvidenceUI;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::components::{game_config::GameConfig, player_sprite::PlayerSprite};
 use uncore::resources::looking_gear::LookingGear;
 use uncore::states::{AppState, GameState};
@@ -58,7 +59,7 @@ pub fn update_evidence_ui(
 }
 
 pub fn keyboard_evidence(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     gc: Res<GameConfig>,
     players: Query<(&PlayerSprite, &PlayerGear)>,
     mut interaction_query: Query<&mut TruckUIButton, With<Button>>,
@@ -73,7 +74,7 @@ pub fn keyboard_evidence(
         else {
             continue;
         };
-        if keyboard_input.just_pressed(player.controls.change_evidence) {
+        if actions.just_pressed(PlayerAction::ChangeEvidence) {
             for mut t in &mut interaction_query {
                 if t.class == TruckButtonType::Evidence(evidence) {
                     // Call pressed() first to change the button state

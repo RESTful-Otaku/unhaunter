@@ -1,6 +1,7 @@
 use bevy::{color::palettes::css, prelude::*};
 use bevy_persistent::Persistent;
 
+use uncore::input::{ActionState, PlayerAction};
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::components::summary_ui::{SCamera, SummaryUI, SummaryUIType};
 use uncore::difficulty::CurrentDifficulty;
@@ -68,15 +69,12 @@ pub fn keyboard(
     app_state: Res<State<AppState>>,
     mut app_next_state: ResMut<NextState<AppState>>,
     mut game_next_state: ResMut<NextState<GameState>>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
 ) {
     if *app_state.get() != AppState::Summary {
         return;
     }
-    if keyboard_input.just_pressed(KeyCode::Escape)
-        | keyboard_input.just_pressed(KeyCode::NumpadEnter)
-        | keyboard_input.just_pressed(KeyCode::Enter)
-    {
+    if actions.just_pressed(PlayerAction::Back) | actions.just_pressed(PlayerAction::Confirm) {
         app_next_state.set(AppState::MissionSelect);
         game_next_state.set(GameState::None);
     }

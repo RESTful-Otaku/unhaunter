@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
 use uncore::states::{AppState, GameState};
 use uncore::types::root::game_assets::GameAssets;
@@ -16,15 +17,22 @@ fn keyboard(
     game_state: Res<State<GameState>>,
     mut game_next_state: ResMut<NextState<GameState>>,
     mut next_state: ResMut<NextState<AppState>>,
+    actions: Res<ActionState>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     if *game_state.get() != GameState::Pause {
         return;
     }
-    if keyboard_input.just_pressed(KeyCode::Escape) {
+    // Resume: [ESC]/[Start] again, or confirm ([Enter]/[A]).
+    if actions.just_pressed(PlayerAction::Back)
+        || actions.just_pressed(PlayerAction::Confirm)
+    {
         game_next_state.set(GameState::None);
     }
-    if keyboard_input.just_pressed(KeyCode::KeyQ) {
+    // Quit: [Q] (legacy keyboard shortcut) or [B/East].
+    if keyboard_input.just_pressed(KeyCode::KeyQ)
+        || actions.just_pressed(PlayerAction::Drop)
+    {
         game_next_state.set(GameState::None);
         next_state.set(AppState::MissionSelect);
     }
@@ -98,7 +106,7 @@ fn setup_ui(
                     });
                     mid_blk
                         .spawn(Text::new(
-                            "The game is paused. Hit [ESC] again to resume or [Q] to Quit.",
+                            "The game is paused. Hit [ESC]/[Start] again or [A] to resume. Press [Q] or [B] to Quit.",
                         ))
                         .insert(TextFont {
                             font: handles.fonts.chakra.w300_light.clone(),

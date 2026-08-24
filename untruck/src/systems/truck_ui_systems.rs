@@ -2,6 +2,7 @@ use crate::craft_repellent::craft_repellent;
 use bevy::prelude::*;
 use bevy_persistent::Persistent;
 use uncore::components::game_config::GameConfig;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::components::truck::TruckUI;
 use uncore::components::truck_ui_button::TruckUIButton;
@@ -93,12 +94,12 @@ fn hide_ui(mut qtui: Query<&mut Visibility, With<TruckUI>>) {
 fn keyboard(
     game_state: Res<State<GameState>>,
     mut game_next_state: ResMut<NextState<GameState>>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
 ) {
     if *game_state.get() != GameState::Truck {
         return;
     }
-    if keyboard_input.just_pressed(KeyCode::Escape) {
+    if actions.just_pressed(PlayerAction::Back) {
         game_next_state.set(GameState::None);
     }
 }

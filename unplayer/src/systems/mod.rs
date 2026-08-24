@@ -1,6 +1,7 @@
 pub mod grabdrop;
 pub mod hide;
 pub mod input {
+    pub mod gamepad_aim;
     pub mod keyboard;
     pub mod mouse_interaction;
     pub mod mouse_pathing;
@@ -27,6 +28,8 @@ pub(crate) fn app_setup(app: &mut App) {
         (
             // Input systems run first
             input::keyboard::keyboard_input_system,
+            // Gamepad right-stick aiming (runs alongside mouse aim)
+            input::gamepad_aim::gamepad_aim_system,
             // Walk target indicator system (kept for compatibility)
             walk_target_indicator::manage_walk_target_indicator,
             // Mouse interaction systems (gear only, clicks handled by waypoint system)

@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_persistent::Persistent;
 use uncore::states::AppState;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::{
     components::player_sprite::PlayerSprite, resources::looking_gear::LookingGear,
     types::evidence::Evidence,
@@ -9,15 +10,15 @@ use ungear::components::playergear::PlayerGear;
 use unprofile::data::PlayerProfileData;
 
 fn acknowledge_blinking_gear_hint_system(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     player_query: Query<(&PlayerSprite, &PlayerGear)>,
     mut profile_data: ResMut<Persistent<PlayerProfileData>>,
     looking_gear: Res<LookingGear>,
 ) {
     for (player_sprite, player_gear) in player_query.iter() {
-        let controls = &player_sprite.controls;
+        let _controls = &player_sprite.controls;
 
-        if keyboard_input.just_pressed(controls.change_evidence) {
+        if actions.just_pressed(PlayerAction::ChangeEvidence) {
             let active_gear = match looking_gear.hand() {
                 uncore::types::gear::equipmentposition::Hand::Left => &player_gear.left_hand,
                 uncore::types::gear::equipmentposition::Hand::Right => &player_gear.right_hand,

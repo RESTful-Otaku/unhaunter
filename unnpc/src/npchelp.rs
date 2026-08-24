@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::colors;
 use uncore::components::board::direction::Direction;
 use uncore::components::board::position::Position;
@@ -29,12 +30,15 @@ pub struct NpcUIData {
 pub fn keyboard(
     game_state: Res<State<GameState>>,
     mut game_next_state: ResMut<NextState<GameState>>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
 ) {
     if *game_state.get() != GameState::NpcHelp {
         return;
     }
-    if keyboard_input.just_pressed(KeyCode::Escape) || keyboard_input.just_pressed(KeyCode::KeyE) {
+    if actions.just_pressed(PlayerAction::Back)
+        || actions.just_pressed(PlayerAction::Activate)
+        || actions.just_pressed(PlayerAction::Confirm)
+    {
         game_next_state.set(GameState::None);
     }
 }

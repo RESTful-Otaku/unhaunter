@@ -1,24 +1,25 @@
 use bevy::prelude::*;
 use uncore::{
     components::{game_config::GameConfig, player_sprite::PlayerSprite},
+    input::{ActionState, PlayerAction},
     resources::looking_gear::LookingGear,
     states::AppState,
 };
 
 fn system_update_looking_gear(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut looking_gear: ResMut<LookingGear>,
     gc: Res<GameConfig>,
     players: Query<&PlayerSprite>,
 ) {
-    let Some(player_sprite) = players.iter().find(|player| player.id == gc.player_id) else {
+    let Some(_player_sprite) = players.iter().find(|player| player.id == gc.player_id) else {
         return;
     };
-    if keyboard_input.just_pressed(player_sprite.controls.left_hand_toggle) {
+    if actions.just_pressed(PlayerAction::LookLeftHandToggle) {
         looking_gear.toggle();
     }
 
-    looking_gear.held = keyboard_input.pressed(player_sprite.controls.left_hand_look);
+    looking_gear.held = actions.pressed(PlayerAction::LookLeftHandHold);
 }
 
 pub(crate) fn app_setup(app: &mut App) {

@@ -13,6 +13,7 @@ use ungear::components::deployedgear::{DeployedGear, DeployedGearData};
 use ungear::components::playergear::PlayerGear;
 use ungear::gear_stuff::GearStuff;
 use ungear::gear_usable::GearUsable;
+use uncore::input::{ActionState, PlayerAction};
 
 /// Allows the player to pick up a pickable object from the environment.
 ///
@@ -21,7 +22,7 @@ use ungear::gear_usable::GearUsable;
 /// player, and the player's right-hand gear is disabled. Only one object can be
 /// held at a time.
 fn grab_object(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut players: Query<(&mut PlayerGear, &Position, &Direction, &PlayerSprite)>,
     deployables: Query<(Entity, &Position), With<DeployedGear>>,
     // Query for all entities with Behavior
@@ -29,7 +30,7 @@ fn grab_object(
     mut gs: GearStuff,
 ) {
     for (mut player_gear, player_pos, player_dir, player) in players.iter_mut() {
-        if keyboard_input.just_pressed(player.controls.grab) && player_gear.held_item.is_none() {
+        if actions.just_pressed(PlayerAction::Grab) && player_gear.held_item.is_none() {
             // If there's any gear deployed nearby do not consider furniture.
             if deployables
                 .iter()
@@ -103,13 +104,13 @@ fn grab_object(
 /// invalid, an "invalid drop" sound effect is played, and the object is not
 /// dropped.
 fn drop_object(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut players: Query<(&mut PlayerGear, &Position, &PlayerSprite), Without<Behavior>>,
     mut objects: Query<(Entity, &mut Position), (Without<PlayerSprite>, With<FloorItemCollidable>)>,
     mut gs: GearStuff,
 ) {
     for (mut player_gear, player_pos, player) in players.iter_mut() {
-        if keyboard_input.just_pressed(player.controls.drop) {
+        if actions.just_pressed(PlayerAction::Drop) {
             // Take the held object from the player's gear (this removes it temporarily)
             if let Some(held_object) = player_gear.held_item.take() {
                 // Check for valid Drop location
@@ -200,7 +201,7 @@ fn update_held_object_position(
 /// System for deploying a piece of gear from the player's right hand into the game
 /// world.
 fn deploy_gear(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut players: Query<(&mut PlayerGear, &Position, &PlayerSprite, &Direction)>,
     mut commands: Commands,
     q_collidable: Query<(Entity, &Position), With<FloorItemCollidable>>,
@@ -208,7 +209,7 @@ fn deploy_gear(
     handles: Res<GameAssets>,
 ) {
     for (mut player_gear, player_pos, player, dir) in players.iter_mut() {
-        if keyboard_input.just_pressed(player.controls.drop)
+        if actions.just_pressed(PlayerAction::Drop)
             && player_gear.right_hand.kind.is_some()
             && player_gear.held_item.is_none()
         {
@@ -257,7 +258,7 @@ fn deploy_gear(
 
 /// System for retrieving deployed gear and adding it to the player's right hand.
 fn retrieve_gear(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut players: Query<(&Position, &PlayerSprite, &mut PlayerGear)>,
     q_deployed: Query<(Entity, &Position, &DeployedGearData)>,
     mut commands: Commands,
@@ -270,7 +271,7 @@ fn retrieve_gear(
     // routing the remaining stuff to do via an Event to the system that handles that
     // exact thing.
     for (player_pos, player, mut player_gear) in players.iter_mut() {
-        if keyboard_input.just_pressed(player.controls.grab) {
+        if actions.just_pressed(PlayerAction::Grab) {
             // Find the closest deployed gear
             let mut closest_gear: Option<(Entity, f32)> = None;
             for (entity, gear_pos, _) in q_deployed.iter() {

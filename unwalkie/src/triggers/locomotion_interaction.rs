@@ -5,6 +5,7 @@ use bevy_persistent::Persistent;
 use uncore::behavior::component::Door;
 use uncore::behavior::{Behavior, TileState};
 use uncore::components::board::position::Position;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::components::player::Hiding;
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::resources::roomdb::RoomDB;
@@ -226,7 +227,7 @@ fn trigger_struggling_with_grab_drop(
     app_state: Res<State<AppState>>,
     game_state: Res<State<GameState>>,
     mut walkie_play: ResMut<WalkiePlay>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     player_query: Query<(&PlayerGear, &PlayerSprite)>,
     mut full_and_failed_grab_timer: Local<Option<Stopwatch>>,
 ) {
@@ -254,7 +255,7 @@ fn trigger_struggling_with_grab_drop(
     let player_is_completely_full = right_hand_full && inventory_full;
 
     // 3.c. Detecting a Failed Grab Attempt to Start/Check Timer
-    if keyboard_input.just_pressed(player_sprite.controls.grab) && player_is_completely_full {
+    if actions.just_pressed(PlayerAction::Grab) && player_is_completely_full {
         if full_and_failed_grab_timer.is_none() {
             *full_and_failed_grab_timer = Some(Stopwatch::new());
             // Timer starts, will be ticked below if it's Some.
@@ -303,7 +304,7 @@ fn trigger_struggling_with_hide_unhide(
     app_state: Res<State<AppState>>,
     game_state: Res<State<GameState>>,
     mut walkie_play: ResMut<WalkiePlay>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     player_query: Query<&PlayerSprite, Without<Hiding>>,
     mut hide_key_timer: Local<Option<Stopwatch>>,
 ) {
@@ -323,7 +324,7 @@ fn trigger_struggling_with_hide_unhide(
     };
 
     // Check if the hide key (activate key, typically [E]) is currently pressed
-    let hide_key_pressed = keyboard_input.pressed(player_sprite.controls.activate);
+    let hide_key_pressed = actions.pressed(PlayerAction::Activate);
 
     if hide_key_pressed {
         // Start or continue timer if key is pressed

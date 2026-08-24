@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use bevy::{prelude::*, window::PrimaryWindow};
+use uncore::input::StickAimTracker;
 use uncore::resources::mouse_visibility::MouseVisibility;
 use uncore::states::{AppState, GameState};
 
@@ -12,6 +13,7 @@ fn system_hide_mouse(
     app_state: Res<State<AppState>>,
     game_state: Res<State<GameState>>,
     mut mouse_visibility: ResMut<MouseVisibility>,
+    stick_aim_tracker: Res<StickAimTracker>,
 ) {
     let cursor_moved = ev_cursor_moved.read().last();
     if cursor_moved.is_none() {
@@ -21,7 +23,9 @@ fn system_hide_mouse(
     }
 
     let visible = if *app_state == AppState::InGame && *game_state == GameState::None {
-        !timer.0.finished()
+        // Hide when idle, and also while the gamepad right stick is aiming
+        // (recently), so mouse aim does not fight the stick.
+        !timer.0.finished() && !stick_aim_tracker.is_active_within(1.0)
     } else {
         true
     };

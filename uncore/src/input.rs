@@ -110,6 +110,21 @@ struct ToggleLatches {
     run: bool,
 }
 
+/// Tracks how recently the aim stick was used, so other systems (e.g. cursor
+/// visibility, movement-facing) can yield to gamepad aiming gracefully.
+#[derive(Resource, Debug, Default, Clone, Copy)]
+pub struct StickAimTracker {
+    /// Seconds elapsed since the right stick last deflected past deadzone.
+    pub seconds_since_active: f32,
+}
+
+impl StickAimTracker {
+    /// True when the stick aimed within this many seconds.
+    pub fn is_active_within(&self, seconds: f32) -> bool {
+        self.seconds_since_active < seconds
+    }
+}
+
 /// Merges keyboard + gamepad input into [`ActionState`] every frame.
 ///
 /// Runs in `PreUpdate` right after Bevy's raw input processing.
@@ -119,6 +134,7 @@ fn update_action_state(
     bindings: Res<Persistent<ControlBindings>>,
     mut state: ResMut<ActionState>,
     mut latches: ResMut<ToggleLatches>,
+    mut stick_aim_tracker: ResMut<StickAimTracker>,
     time: Res<Time>,
     mut repeat: Local<StickMenuRepeat>,
 ) {
@@ -133,6 +149,13 @@ fn update_action_state(
 
     // Accessibility: run toggle latch (needs post-edge processing).
     apply_run_toggle(&mut state, &bindings, &mut latches);
+
+    // Track recent stick-aim usage for other systems.
+    stick_aim_tracker.seconds_since_active = if state.stick_aiming {
+        0.0
+    } else {
+        stick_aim_tracker.seconds_since_active + time.delta_secs()
+    };
 
     // Push-a-direction-and-hold auto-repeat for menu navigation via sticks.
     repeat.update(&mut state, time.delta_secs());
@@ -358,6 +381,7 @@ pub(crate) fn app_setup(app: &mut App) {
     app.init_resource::<ActionState>()
         .init_resource::<GamepadStatus>()
         .init_resource::<ToggleLatches>()
+        .init_resource::<StickAimTracker>()
         .add_systems(
             PreUpdate,
             (

@@ -30,6 +30,7 @@ use uncore::states::{AppState, MapHubState};
 use uncore::types::grade::Grade;
 use uncore::types::root::game_assets::GameAssets;
 use uncoremenu::components::MenuMouseTracker;
+use uncore::input::{ActionState, PlayerAction};
 use uncoremenu::events::KeyboardNavigate;
 use uncoremenu::scrollbar::ScrollableListContainer;
 use uncoremenu::{
@@ -106,7 +107,7 @@ fn cleanup_ui(
 fn handle_selection_input(
     mut ev_menu_clicks: EventReader<MenuItemClicked>,
     mut ev_escape: EventReader<MenuEscapeEvent>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     menu_root: Query<&MenuRoot>,
     maps_resource: Res<Maps>,
     ui_mapping: Res<UIMissionMapping>,
@@ -133,7 +134,7 @@ fn handle_selection_input(
 
     ev_menu_clicks.clear();
 
-    if selected_identifier.is_none() && keyboard_input.just_pressed(KeyCode::Enter) {
+    if selected_identifier.is_none() && actions.just_pressed(PlayerAction::Confirm) {
         if let Ok(root) = menu_root.single() {
             selected_identifier = Some(root.selected_item);
         }

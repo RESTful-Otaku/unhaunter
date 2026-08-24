@@ -8,6 +8,7 @@ use uncore::components::board::position::Position;
 use uncore::components::player::Hiding;
 use uncore::components::player_sprite::PlayerSprite;
 use ungear::components::playergear::PlayerGear;
+use uncore::input::{ActionState, PlayerAction};
 use ungear::gear_stuff::GearStuff;
 
 /// Allows the player to hide in a designated hiding spot.
@@ -18,7 +19,7 @@ use ungear::gear_stuff::GearStuff;
 /// player's presence.
 fn hide_player(
     mut commands: Commands,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut players: Query<
         (Entity, &mut PlayerSprite, &mut Position, &PlayerGear),
         (Without<Hiding>, Without<Behavior>),
@@ -34,7 +35,7 @@ fn hide_player(
         let timer = hold_timers
             .entry(player_entity)
             .or_insert_with(|| Timer::from_seconds(0.3, TimerMode::Once));
-        if keyboard_input.pressed(player.controls.activate) {
+        if actions.pressed(PlayerAction::Activate) {
             if player_gear.held_item.is_some() {
                 // Player cannot hide while carrying furniture.
                 continue;
@@ -97,7 +98,7 @@ fn hide_player(
 /// visibility is restored, and the visual overlay is removed from the hiding spot.
 fn unhide_player(
     mut commands: Commands,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut players: Query<(
         Entity,
         &mut PlayerSprite,
@@ -107,7 +108,7 @@ fn unhide_player(
     )>,
 ) {
     for (player_entity, player, _, _visibility, hiding) in players.iter_mut() {
-        if keyboard_input.just_pressed(player.controls.activate) {
+        if actions.just_pressed(PlayerAction::Activate) {
             // Using 'activate' for unhiding Remove the Hiding component
             commands.entity(player_entity).remove::<Hiding>();
 

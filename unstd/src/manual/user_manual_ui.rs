@@ -1,5 +1,6 @@
 use super::{CurrentManualPage, Manual, draw_manual_page};
 use bevy::prelude::*;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::platform::plt::FONT_SCALE;
 use uncore::states::AppState;
 use uncore::types::root::game_assets::GameAssets;
@@ -151,6 +152,7 @@ pub fn draw_manual_ui(commands: &mut Commands, handles: Res<GameAssets>) {
 
 pub fn user_manual_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut ev_navigation: EventWriter<ManualNavigationEvent>,
     mut interaction_query: Query<
         (Ref<Interaction>, &Children),

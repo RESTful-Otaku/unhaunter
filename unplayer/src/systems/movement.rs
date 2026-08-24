@@ -10,6 +10,8 @@ use uncore::difficulty::CurrentDifficulty;
 use uncore::events::npc_help::NpcHelpEvent;
 use uncore::events::roomchanged::{InteractionExecutionType, RoomChangedEvent};
 use uncore::resources::board_data::BoardData;
+use uncore::input::{ActionState, PlayerAction, StickAimTracker};
+use crate::systems::input::gamepad_aim as unplayer_aim;
 use uncore::resources::mouse_visibility::MouseVisibility;
 use uncore::resources::player_input::PlayerInput;
 use uncore::systemparam::collision_handler::CollisionHandler;
@@ -68,6 +70,7 @@ pub fn player_movement_system(
     board_data: Res<BoardData>,
     mut avg_running: Local<f32>,
     mouse_visibility: Res<MouseVisibility>,
+    stick_aim_tracker: Res<StickAimTracker>,
 ) {
     let dt = time.delta_secs() * 60.0;
 
@@ -122,7 +125,7 @@ pub fn player_movement_system(
         };
 
         // Check for Running with Stamina System
-        let wants_to_run = keyboard_input.pressed(player.controls.run);
+        let wants_to_run = actions.pressed(PlayerAction::Run);
 
         // Miasma Logic
         let bpos = pos.to_board_position();
@@ -181,8 +184,8 @@ pub fn player_movement_system(
             .to_vec(),
         );
 
-        // Handle Interaction (E key)
-        if keyboard_input.just_pressed(player.controls.activate) {
+        // Handle Interaction
+        if actions.just_pressed(PlayerAction::Activate) {
             let mut max_dist = 1.4;
             let mut selected_entity = None;
             for (entity, item_pos, interactive, behavior, _) in interactables.iter() {
@@ -222,7 +225,10 @@ pub fn player_movement_system(
             }
         }
 
-        if !mouse_visibility.is_visible {
+        // While the gamepad stick is aiming it owns the facing direction.
+        if !mouse_visibility.is_visible
+            && unplayer_aim::movement_should_control_facing(&actions, &stick_aim_tracker)
+        {
             if d.distance() > 0.1 {
                 *dir = player.movement;
             } else {

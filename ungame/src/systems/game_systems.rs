@@ -10,8 +10,9 @@ use uncore::{
     resources::board_data::BoardData,
     states::{AppState, GameState},
 };
-use unsettings::controls::ControlKeys;
 use unsettings::game::GameplaySettings;
+
+use uncore::input::{ActionState, PlayerAction};
 use unstd::picking::CustomSpritePickingCamera;
 
 fn setup(mut commands: Commands, qc: Query<Entity, With<GCameraArena>>) {
@@ -59,13 +60,12 @@ fn keyboard(
     app_state: Res<State<AppState>>,
     game_state: Res<State<GameState>>,
     mut game_next_state: ResMut<NextState<GameState>>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut camera: Query<(&mut Transform, &mut Direction), With<GCameraArena>>,
     gc: Res<GameConfig>,
     pc: Query<(&PlayerSprite, &Transform, &Direction), Without<GCameraArena>>,
     time: Res<Time>,
     game_settings: Res<Persistent<GameplaySettings>>,
-    control_settings: Res<Persistent<ControlKeys>>,
 ) {
     if *app_state.get() != AppState::InGame {
         return;
@@ -75,7 +75,7 @@ fn keyboard(
         return;
     }
     let dt = time.delta_secs() * 60.0;
-    if keyboard_input.just_pressed(KeyCode::Escape) && in_game {
+    if actions.just_pressed(PlayerAction::Back) && in_game {
         game_next_state.set(GameState::Pause);
     }
     for (mut transform, mut cam_dir) in camera.iter_mut() {
@@ -109,25 +109,40 @@ fn keyboard(
             transform.translation += cam_dir.to_vec3() * dt;
         }
         if in_game && game_settings.camera_controls.on() {
-            if keyboard_input.pressed(control_settings.camera_right) {
-                transform.translation.x += 2.0 * dt;
+            // Digital pan bindings (arrows on keyboard). On gamepad the camera
+            // auto-follows the player and the right stick is reserved for
+            // aiming, so these are optional rebindable extras.
+            const PAN_SPEED: f32 = 2.0;
+            let mut pan = Vec2::ZERO;
+            if actions.pressed(PlayerAction::CameraRight) {
+                pan.x += PAN_SPEED;
             }
-            if keyboard_input.pressed(control_settings.camera_left) {
-                transform.translation.x -= 2.0 * dt;
+            if actions.pressed(PlayerAction::CameraLeft) {
+                pan.x -= PAN_SPEED;
             }
-            if keyboard_input.pressed(control_settings.camera_up) {
-                transform.translation.y += 2.0 * dt;
+            if actions.pressed(PlayerAction::CameraUp) {
+                pan.y += PAN_SPEED;
             }
-            if keyboard_input.pressed(control_settings.camera_down) {
-                transform.translation.y -= 2.0 * dt;
+            if actions.pressed(PlayerAction::CameraDown) {
+                pan.y -= PAN_SPEED;
             }
-            if keyboard_input.pressed(KeyCode::NumpadAdd) {
-                transform.scale.x /= 1.02_f32.powf(dt);
-                transform.scale.y /= 1.02_f32.powf(dt);
-            }
-            if keyboard_input.pressed(KeyCode::NumpadSubtract) {
-                transform.scale.x *= 1.02_f32.powf(dt);
-                transform.scale.y *= 1.02_f32.powf(dt);
+            transform.translation.x += pan.x * dt;
+            transform.translation.y += pan.y * dt;
+
+            if actions.pressed(PlayerAction::ZoomIn) || actions.pressed(PlayerAction::ZoomOut) {
+                let direction = (actions.pressed(PlayerAction::ZoomIn) as i32)
+                    - (actions.pressed(PlayerAction::ZoomOut) as i32);
+                match direction.signum() {
+                    1 => {
+                        transform.scale.x /= 1.02_f32.powf(dt);
+                        transform.scale.y /= 1.02_f32.powf(dt);
+                    }
+                    -1 => {
+                        transform.scale.x *= 1.02_f32.powf(dt);
+                        transform.scale.y *= 1.02_f32.powf(dt);
+                    }
+                    _ => {}
+                }
             }
         }
     }

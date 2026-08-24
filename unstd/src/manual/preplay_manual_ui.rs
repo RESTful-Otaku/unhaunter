@@ -3,6 +3,7 @@
 use super::{CurrentManualPage, Manual};
 use bevy::prelude::*;
 use uncore::difficulty::CurrentDifficulty;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::events::loadlevel::LoadLevelEvent;
 use uncore::platform::plt::FONT_SCALE;
 use uncore::resources::difficulty_state::DifficultySelectionState;
@@ -109,8 +110,20 @@ fn manual_button_system(
         With<Button>,
     >,
     keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut manual_events: EventWriter<PreplayManualNavigationEvent>,
 ) {
+    // Gamepad/keyboard-action equivalents: Confirm continues, Back goes back.
+    if actions.just_pressed(PlayerAction::Confirm) {
+        manual_events.write(PreplayManualNavigationEvent {
+            action: PreplayManualNavigationAction::Continue,
+        });
+    }
+    if actions.just_pressed(PlayerAction::Back) || actions.just_pressed(PlayerAction::MenuLeft) {
+        manual_events.write(PreplayManualNavigationEvent {
+            action: PreplayManualNavigationAction::Previous,
+        });
+    }
     for (interaction, maybe_input, maybe_action) in &mut interaction_query {
         if interaction.is_changed() && *interaction == Interaction::Pressed {
             if let Some(action) = maybe_action {

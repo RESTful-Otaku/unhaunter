@@ -2,6 +2,7 @@ use crate::components::{MenuItemInteractive, MenuMouseTracker, MenuRoot, Princip
 use crate::events::KeyboardNavigate;
 use bevy::{input::mouse::MouseMotion, prelude::*};
 use uncore::colors;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::states::AppState;
 
 /// Event sent when a menu item is clicked
@@ -73,10 +74,14 @@ fn menu_interaction_system(
     }
 }
 
-/// Handles keyboard navigation for menu items, including up/down arrows,
+/// Handles menu navigation from all devices, including up/down arrows,
 /// enter for selection, and escape key events.
+///
+/// Reads the unified [`ActionState`], which merges keyboard, mouse-free
+/// bindings and gamepads (d-pad, left stick with auto-repeat, face buttons),
+/// so menus are controllable with any input method automatically.
 fn menu_keyboard_system(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut menu_query: Query<&mut MenuRoot>,
     menu_items: Query<&MenuItemInteractive>,
     mut selection_events: EventWriter<MenuItemSelected>,
@@ -98,13 +103,13 @@ fn menu_keyboard_system(
 
     // Handle up/down navigation
     let mut new_selection = None;
-    if keyboard_input.just_pressed(KeyCode::ArrowUp) {
+    if actions.just_pressed(PlayerAction::MenuUp) {
         new_selection = Some(if menu.selected_item == 0 {
             item_count - 1
         } else {
             menu.selected_item - 1
         });
-    } else if keyboard_input.just_pressed(KeyCode::ArrowDown) {
+    } else if actions.just_pressed(PlayerAction::MenuDown) {
         new_selection = Some((menu.selected_item + 1) % item_count);
     }
 
@@ -115,16 +120,16 @@ fn menu_keyboard_system(
         keyboard_nav_events.write(KeyboardNavigate(new_idx)); // Send the new event
     }
 
-    // Handle enter key for selection
-    if keyboard_input.just_pressed(KeyCode::Enter) {
+    // Handle confirm (Enter / A)
+    if actions.just_pressed(PlayerAction::Confirm) {
         click_events.write(MenuItemClicked {
             state: **app_state,
             pos: menu.selected_item,
         });
     }
 
-    // Handle escape key
-    if keyboard_input.just_pressed(KeyCode::Escape) {
+    // Handle back / escape
+    if actions.just_pressed(PlayerAction::Back) {
         escape_events.write(MenuEscapeEvent);
     }
 }

@@ -12,6 +12,7 @@ use uncore::{
     states::{AppState, GameState},
     types::{evidence::Evidence, gear_kind::GearKind, manual::ManualChapterIndex},
 };
+use uncore::input::{ActionState, PlayerAction};
 use ungear::components::playergear::PlayerGear;
 use unwalkiecore::{WalkieEvent, WalkiePlay}; // Core walkie types
 
@@ -27,7 +28,7 @@ fn trigger_gear_selected_not_activated_system(
     app_state: Res<State<AppState>>,
     game_state: Res<State<GameState>>,
     roomdb: Res<RoomDB>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut walkie_play: ResMut<WalkiePlay>,
     player_query: Query<(&PlayerSprite, &PlayerGear, &Position)>,
     mut tracker: Local<Option<RightHandGearStateTracker>>,
@@ -101,7 +102,7 @@ fn trigger_gear_selected_not_activated_system(
     let current_gear_kind = right_hand_gear.kind;
     let mut reset_timer_this_frame = false;
 
-    if keyboard_input.just_pressed(player_sprite.controls.trigger) {
+    if actions.just_pressed(PlayerAction::TriggerRightHand) {
         // [R] key
         reset_timer_this_frame = true;
         *r_triggered += 1;
@@ -346,7 +347,7 @@ fn trigger_did_not_cycle_to_other_gear_system(
     mut walkie_play: ResMut<WalkiePlay>,
     player_query: Query<(&PlayerSprite, &PlayerGear, &Position)>,
     roomdb: Res<RoomDB>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     difficulty: Res<CurrentDifficulty>,
     ghost_query: Query<&GhostSprite>, // Add ghost query to check hunting state
     mut tracker: Local<GearCycleUsageTracker>, // No Option, always track
@@ -387,7 +388,7 @@ fn trigger_did_not_cycle_to_other_gear_system(
     }
 
     // 3. Manage Tracker - time_since_last_q_press
-    if keyboard_input.just_pressed(player_sprite.controls.cycle) {
+    if actions.just_pressed(PlayerAction::CycleInventory) {
         // [Q] key
         tracker.time_since_last_q_press = 0.0;
     } else {
