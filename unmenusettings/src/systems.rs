@@ -740,6 +740,22 @@ fn control_page_rows(
                 })
                 .collect(),
         ),
+        ControlSettingsMenu::RumbleIntensity => (
+            "Rumble Strength".to_string(),
+            Some("How strong rumble feedback feels. 0% disables vibration.".to_string()),
+            [0.0, 0.25, 0.5, 0.75, 1.0]
+                .into_iter()
+                .map(|v| {
+                    let label = format!("{}%", (v * 100.0) as u32);
+                    let label = if (bindings.rumble_intensity - v).abs() < 0.01 {
+                        format!("[{label}]")
+                    } else {
+                        label
+                    };
+                    (label, MenuEvent::SaveControlSetting(ControlSettingValue::RumbleIntensity(v)))
+                })
+                .collect(),
+        ),
         // Display-only entries never route here.
         ControlSettingsMenu::ConnectedPads => ("Connected Gamepads".to_string(), None, vec![]),
         ControlSettingsMenu::ResetKeyboard | ControlSettingsMenu::ResetGamepad => {

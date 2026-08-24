@@ -74,6 +74,7 @@ fn ghost_movement(
     config: Res<ObjectInteractionConfig>,
     object_query: Query<(&Position, &GhostInfluence)>,
     difficulty: Res<CurrentDifficulty>,
+    mut ev_rumble: EventWriter<uncore::rumble::RumbleFeedback>,
 ) {
     let measure = GHOST_MOVEMENT.time_measure();
 
@@ -125,6 +126,7 @@ fn ghost_movement(
                     ghost.hunt_target = false;
                     finalize = true;
                     warn!("Hunt finished");
+                    ev_rumble.write(uncore::rumble::RumbleFeedback::HuntEnd);
                 }
             } else {
                 pos.x += delta.dx / 200.0 * dt * difficulty.0.ghost_speed;
@@ -374,6 +376,7 @@ fn ghost_enrage(
     difficulty: Res<CurrentDifficulty>,
     roomdb: Res<RoomDB>,
     mut ev_ambient_mute: EventWriter<AmbientSoundMuteEvent>,
+    mut ev_rumble: EventWriter<uncore::rumble::RumbleFeedback>,
 ) {
     let measure = GHOST_ENRAGE.time_measure();
 
@@ -497,6 +500,7 @@ fn ghost_enrage(
                 ghost.hunt_target = true;
                 ghost.hunt_time_secs = time.elapsed_secs();
                 warn!("Hunting player for {:.1}s", ghost.hunting);
+                ev_rumble.write(uncore::rumble::RumbleFeedback::HuntStart);
             }
         } else if ghost.hunting < 0.001 {
             ghost.hunt_warning_intensity /= 2.2_f32.powf(dt);

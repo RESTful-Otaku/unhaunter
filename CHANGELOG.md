@@ -6,6 +6,9 @@
 * New "Controls" section in Settings: choose input device mode, view connected gamepads, rebind every keyboard key and gamepad button, and tune stick deadzone/sensitivity/response curve and aim inversion.
 * Right analog stick aims the flashlight; movement supports full analog speed.
 * Menus can be navigated with the D-Pad, left stick, A/B (or equivalent) buttons.
+* In-game screens (truck computer, pause) are controllable with the left stick driving an on-screen cursor and A clicking.
+* Rumble feedback for hunts, deaths, gear interactions and evidence recording, with enable/disable and strength settings.
+* The main menu shows connected controllers; help bars, pause screen and the in-game control legend now reflect the active control scheme and live rebinds.
 
 ### Version 0.3.1 - 2025-07-10
 

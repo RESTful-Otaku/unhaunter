@@ -183,9 +183,11 @@ fn handle_player_death(
     mut next_app_state: ResMut<NextState<AppState>>,
     board_data: Res<BoardData>,
     difficulty_res: Res<CurrentDifficulty>,
+    mut ev_rumble: EventWriter<uncore::rumble::RumbleFeedback>,
 ) {
     for player in player_query.iter_mut() {
         if player.health <= 0.0 {
+            ev_rumble.write(uncore::rumble::RumbleFeedback::Death);
             let initial_deposit_held = player_profile.progression.insurance_deposit;
 
             player_profile.progression.insurance_deposit = 0;

@@ -78,6 +78,11 @@ sensitivity, response curve and aim inversion are configurable for accessibility
 input devices work simultaneously ("Auto" mode); you can restrict input to keyboard+mouse or
 gamepad-only in Settings > Controls > Input Devices.
 
+In-game screens (truck computer, pause menu) can be driven entirely from the controller: the left
+stick moves an on-screen cursor and A clicks. Rumble feedback (hunts, deaths, gear interactions,
+evidence recording) can be toggled and tuned in Settings > Controls. Help bars, the pause screen and
+the in-game control legend always reflect whichever device you are using, including live rebinds.
+
 ### Ghost Hunting
 
 Beware! Ghosts can enter a hunting phase, becoming more aggressive and directly pursuing players to inflict damage. The likelihood of a hunt increases as the ghost's rage grows, and its duration is determined by the ghost's "hunting" state. Before a hunt begins, the ghost will often give a warning, such as a loud roar, giving you time to prepare. During a hunt, you can try to hide behind certain objects by holding down the [E] key. If the ghost catches you during a hunt, it will damage your health.

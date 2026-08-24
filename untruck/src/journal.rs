@@ -82,6 +82,7 @@ fn button_system(
     mut potential_id_timer: ResMut<PotentialIDTimer>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     difficulty: Res<CurrentDifficulty>,
+    mut ev_rumble: EventWriter<uncore::rumble::RumbleFeedback>,
 ) {
     let mut selected_evidences_found = HashSet::<Evidence>::new();
     let mut selected_evidences_missing = HashSet::<Evidence>::new();
@@ -105,6 +106,7 @@ fn button_system(
                         tui_button.toggle_discard();
                     } else {
                         tui_button.pressed();
+                        ev_rumble.write(uncore::rumble::RumbleFeedback::Light);
                     }
                 }
                 TruckButtonType::Ghost(ghost_type) => {

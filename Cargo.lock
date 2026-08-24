@@ -5328,10 +5328,12 @@ version = "0.3.1"
 dependencies = [
  "anyhow",
  "bevy",
+ "bevy-persistent",
  "bevy_picking",
  "serde",
  "uncore",
  "unprofile",
+ "unsettings",
 ]
 
 [[package]]
@@ -5555,6 +5557,7 @@ dependencies = [
  "uncore",
  "uncoremenu",
  "unprofile",
+ "unsettings",
 ]
 
 [[package]]
@@ -5671,6 +5674,7 @@ name = "unstd"
 version = "0.3.1"
 dependencies = [
  "bevy",
+ "bevy-persistent",
  "bevy_framepace",
  "bevy_picking",
  "bevy_platform",
@@ -5683,6 +5687,8 @@ dependencies = [
  "thiserror 2.0.12",
  "tiled",
  "uncore",
+ "unsettings",
+ "uuid",
 ]
 
 [[package]]

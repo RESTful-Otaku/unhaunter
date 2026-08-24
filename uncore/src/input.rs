@@ -12,7 +12,7 @@
 //! routed through this layer.
 
 use bevy::input::gamepad::{
-    Gamepad, GamepadButtonChangedEvent, GamepadConnection, GamepadConnectionEvent,
+    Gamepad, GamepadButton, GamepadButtonChangedEvent, GamepadConnection, GamepadConnectionEvent,
 };
 use bevy::prelude::*;
 use bevy_persistent::Persistent;
@@ -392,6 +392,109 @@ pub(crate) fn app_setup(app: &mut App) {
                 drain_button_events,
             ),
         );
+    crate::rumble::app_setup(app);
+}
+
+/// Friendly label for a standard gamepad button, e.g. "A / Cross".
+pub fn gamepad_button_label(button: GamepadButton) -> String {
+    match button {
+        GamepadButton::South => "A / Cross".into(),
+        GamepadButton::East => "B / Circle".into(),
+        GamepadButton::North => "Y / Triangle".into(),
+        GamepadButton::West => "X / Square".into(),
+        GamepadButton::LeftTrigger => "LB / L1".into(),
+        GamepadButton::LeftTrigger2 => "LT / L2".into(),
+        GamepadButton::RightTrigger => "RB / R1".into(),
+        GamepadButton::RightTrigger2 => "RT / R2".into(),
+        GamepadButton::Select => "Back / Share".into(),
+        GamepadButton::Start => "Start / Options".into(),
+        GamepadButton::Mode => "Home".into(),
+        GamepadButton::LeftThumb => "L3".into(),
+        GamepadButton::RightThumb => "R3".into(),
+        GamepadButton::DPadUp => "D-Pad Up".into(),
+        GamepadButton::DPadDown => "D-Pad Down".into(),
+        GamepadButton::DPadLeft => "D-Pad Left".into(),
+        GamepadButton::DPadRight => "D-Pad Right".into(),
+        other => format!("{other:?}"),
+    }
+}
+
+/// Compact label for a gamepad button, suited for inline prompts: "[A]".
+fn gamepad_button_short(button: GamepadButton) -> String {
+    match button {
+        GamepadButton::South => "A".into(),
+        GamepadButton::East => "B".into(),
+        GamepadButton::North => "Y".into(),
+        GamepadButton::West => "X".into(),
+        GamepadButton::LeftTrigger => "LB".into(),
+        GamepadButton::LeftTrigger2 => "LT".into(),
+        GamepadButton::RightTrigger => "RB".into(),
+        GamepadButton::RightTrigger2 => "RT".into(),
+        GamepadButton::Select => "Back".into(),
+        GamepadButton::Start => "Start".into(),
+        GamepadButton::Mode => "Home".into(),
+        GamepadButton::LeftThumb => "L3".into(),
+        GamepadButton::RightThumb => "R3".into(),
+        GamepadButton::DPadUp => "D-Up".into(),
+        GamepadButton::DPadDown => "D-Down".into(),
+        GamepadButton::DPadLeft => "D-Left".into(),
+        GamepadButton::DPadRight => "D-Right".into(),
+        other => format!("{other:?}"),
+    }
+}
+
+/// Compact human label for a keyboard key, e.g. "E", "ESC", "Shift".
+pub fn key_label(key: KeyCode) -> String {
+    match key {
+        KeyCode::Escape => "ESC".into(),
+        KeyCode::ShiftLeft | KeyCode::ShiftRight => "Shift".into(),
+        KeyCode::ControlLeft | KeyCode::ControlRight => "Ctrl".into(),
+        KeyCode::AltLeft | KeyCode::AltRight => "Alt".into(),
+        _ => {
+            let name = format!("{key:?}");
+            name.strip_prefix("Key").unwrap_or(&name).to_string()
+        }
+    }
+}
+
+/// Whether prompts should show gamepad bindings for the current mode.
+pub fn prefers_gamepad(bindings: &ControlBindings, status: Option<&GamepadStatus>) -> bool {
+    match bindings.device_mode {
+        InputDeviceMode::Gamepad => true,
+        InputDeviceMode::KeyboardAndMouse => false,
+        InputDeviceMode::Auto => status.is_some_and(|s| s.is_any_connected()),
+    }
+}
+
+/// Bracketed prompt for `action` reflecting the active control scheme, e.g.
+/// "[A]" when playing on a controller or "[E]" on keyboard. Falls back to the
+/// other device's binding when the preferred one is unbound.
+pub fn action_prompt(
+    bindings: &ControlBindings,
+    action: PlayerAction,
+    status: Option<&GamepadStatus>,
+) -> String {
+    if prefers_gamepad(bindings, status)
+        && let Some(b) = bindings.button(action)
+    {
+        return format!("[{}]", gamepad_button_short(b));
+    }
+    if let Some(k) = bindings.key(action) {
+        return format!("[{}]", key_label(k));
+    }
+    if let Some(b) = bindings.button(action) {
+        return format!("[{}]", gamepad_button_short(b));
+    }
+    format!("[{:?}]", action)
+}
+
+/// Navigation hint line for menus, derived from the live bindings.
+pub fn menu_nav_help(bindings: &ControlBindings, status: &GamepadStatus) -> String {
+    let up = action_prompt(bindings, PlayerAction::MoveUp, Some(status));
+    let down = action_prompt(bindings, PlayerAction::MoveDown, Some(status));
+    let confirm = action_prompt(bindings, PlayerAction::Confirm, Some(status));
+    let back = action_prompt(bindings, PlayerAction::Back, Some(status));
+    format!("{up}/{down}: Change    |    {confirm}: Select    |    {back}: Go Back")
 }
 
 #[cfg(test)]

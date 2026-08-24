@@ -11,8 +11,10 @@ homepage.workspace = true
 [dependencies]
 uncore = { path = "../uncore" }
 unprofile = { path = "../unprofile" }
+unsettings = { path = "../unsettings" }
 
 bevy = { workspace = true }
 bevy_picking = { workspace = true }
+bevy-persistent = { workspace = true }
 serde = { workspace = true }
 anyhow = { workspace = true }

@@ -9,6 +9,7 @@ authors.workspace = true
 
 [dependencies]
 uncore = { path = "../uncore" }
+unsettings = { path = "../unsettings" }
 uncoremenu = { path = "../uncoremenu" }
 unprofile = { path = "../unprofile" }
 

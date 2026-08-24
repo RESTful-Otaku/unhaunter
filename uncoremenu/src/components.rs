@@ -45,3 +45,11 @@ pub struct MenuStrip;
 /// A component that marks an entity as the help text for a menu
 #[derive(Component, Debug)]
 pub struct MenuHelpText;
+
+/// Marks the text entity that displays connected-gamepad status.
+#[derive(Component, Debug)]
+pub struct GamepadStatusText;
+
+/// Marks the default help-bar text so it can track the active control scheme.
+#[derive(Component, Debug)]
+pub struct MenuHelpTextContent;

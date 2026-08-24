@@ -19,11 +19,12 @@ use bevy::prelude::*;
 use bevy::ui::ComputedNode;
 use bevy::ui::ScrollPosition;
 use bevy_persistent::Persistent;
+use unsettings::bindings::ControlBindings;
 
 use uncore::colors;
 use uncore::difficulty::CurrentDifficulty;
 use uncore::events::loadlevel::LoadLevelEvent;
-use uncore::input::{ActionState, PlayerAction};
+use uncore::input::{ActionState, PlayerAction, action_prompt};
 use uncore::platform::plt::FONT_SCALE;
 use uncore::resources::maps::Maps;
 use uncore::resources::mission_select_mode::{CurrentMissionSelectMode, MissionSelectMode};
@@ -319,6 +320,8 @@ pub fn setup_ui(
     asset_server: Res<AssetServer>,
     player_profile_resource: Res<Persistent<unprofile::data::PlayerProfileData>>,
     maps_resource: Res<Maps>,
+    bindings: Res<Persistent<ControlBindings>>,
+    gamepad_status: Res<uncore::input::GamepadStatus>,
     mission_select_mode: Res<CurrentMissionSelectMode>,
     difficulty_resource: Res<CurrentDifficulty>,
     mut ui_mapping: ResMut<UIMissionMapping>,
@@ -723,11 +726,19 @@ pub fn setup_ui(
                     });
             });
 
+            let up = action_prompt(&bindings, PlayerAction::MoveUp, Some(&gamepad_status));
+            let down =
+                action_prompt(&bindings, PlayerAction::MoveDown, Some(&gamepad_status));
+            let confirm =
+                action_prompt(&bindings, PlayerAction::Confirm, Some(&gamepad_status));
+            let back = action_prompt(&bindings, PlayerAction::Back, Some(&gamepad_status));
             let help_text = match mission_select_mode.0 {
-                MissionSelectMode::Campaign =>
-                    "Select a mission    |    [Up]/[Down]: Change    |    [Enter]: Start Mission    |    [ESC]: Go Back",
-                MissionSelectMode::Custom =>
-                    "Select a map    |    [Up]/[Down]: Change    |    [Enter]: Start Mission    |    [ESC]: Back to Difficulty Selection",
+                MissionSelectMode::Campaign => format!(
+                    "Select a mission    |    {up}/{down}: Change    |    {confirm}: Start Mission    |    {back}: Go Back"
+                ),
+                MissionSelectMode::Custom => format!(
+                    "Select a map    |    {up}/{down}: Change    |    {confirm}: Start Mission    |    {back}: Back to Difficulty Selection"
+                ),
             };
 
             templates::create_help_text(

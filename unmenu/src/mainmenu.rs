@@ -115,6 +115,8 @@ pub fn setup_ui(
     // Add the persistent player status bar as a child of root_entity
     commands.entity(root_entity).with_children(|parent| {
         templates::create_player_status_bar(parent, &handles, &player_profile);
+        // Show detected controllers in the top-right corner
+        templates::create_gamepad_status_text(parent, &handles);
     });
 
     warn!("Main menu created with root entity: {:?}", root_entity);

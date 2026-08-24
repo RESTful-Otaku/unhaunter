@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_persistent::Persistent;
 use bevy_platform::time::Instant;
 use uncore::colors;
 use uncore::difficulty::{CurrentDifficulty, Difficulty};
@@ -14,6 +15,7 @@ use uncoremenu::{
     systems::{MenuEscapeEvent, MenuItemClicked, MenuItemSelected},
     templates,
 };
+use unsettings::bindings::{ControlBindings, PlayerAction};
 
 /// UI component marker for the difficulty selection screen
 #[derive(Component, Debug)]
@@ -49,13 +51,24 @@ pub fn setup_systems(
     mut commands: Commands,
     handles: Res<GameAssets>,
     mut map_selected_events: EventReader<MapSelectedEvent>,
+    bindings: Res<Persistent<ControlBindings>>,
+    gamepad_status: Res<uncore::input::GamepadStatus>,
 ) {
     // Filter for non-tutorial difficulties to display
     let available_difficulties: Vec<Difficulty> = Difficulty::all()
         .filter(|d| !d.is_tutorial_difficulty())
         .collect();
 
-    setup_ui(&mut commands, &handles, &available_difficulties);
+    let help = format!(
+        "{up}/{down}: Change Difficulty    |    {confirm}: Select    |    {back}: Go Back",
+        up = uncore::input::action_prompt(&bindings, PlayerAction::MoveUp, Some(&gamepad_status)),
+        down =
+            uncore::input::action_prompt(&bindings, PlayerAction::MoveDown, Some(&gamepad_status)),
+        confirm =
+            uncore::input::action_prompt(&bindings, PlayerAction::Confirm, Some(&gamepad_status)),
+        back = uncore::input::action_prompt(&bindings, PlayerAction::Back, Some(&gamepad_status)),
+    );
+    setup_ui(&mut commands, &handles, &available_difficulties, Some(help));
 
     // Default to the first *non-tutorial* difficulty, or a sensible fallback
     let default_difficulty = available_difficulties
@@ -234,6 +247,7 @@ pub fn setup_ui(
     commands: &mut Commands,
     handles: &GameAssets,
     available_difficulties: &[Difficulty],
+    help_text: Option<String>,
 ) {
     // Use the first available non-tutorial difficulty for initial description
     let initial_difficulty = available_difficulties.first().copied().unwrap_or_else(|| {
@@ -342,13 +356,6 @@ pub fn setup_ui(
                     });
             });
 
-            templates::create_help_text(
-                parent,
-                handles,
-                Some(
-                    "[Up]/[Down]: Change Difficulty    |    [Enter]: Select    |    [ESC]: Go Back"
-                        .to_string(),
-                ),
-            );
+            templates::create_help_text(parent, handles, help_text);
         });
 }

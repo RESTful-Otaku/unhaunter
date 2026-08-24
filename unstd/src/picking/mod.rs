@@ -4,8 +4,10 @@
 //! materials instead of the standard `Sprite` component. It enables mouse interaction
 //! with doors, switches, and other interactive map elements.
 
+mod gamepad_pointer;
 mod sprite_picking_backend;
 
+pub use gamepad_pointer::GamepadPointerPlugin;
 pub use sprite_picking_backend::{
     CustomSpritePickingCamera, CustomSpritePickingMode, CustomSpritePickingPlugin,
     CustomSpritePickingSettings,

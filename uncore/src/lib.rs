@@ -11,6 +11,7 @@ pub mod platform;
 pub mod plugin;
 pub mod random_seed;
 pub mod resources;
+pub mod rumble;
 pub mod states;
 pub mod systemparam;
 pub mod systems;

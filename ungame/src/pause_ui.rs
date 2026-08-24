@@ -1,8 +1,10 @@
 use bevy::prelude::*;
-use uncore::input::{ActionState, PlayerAction};
+use bevy_persistent::Persistent;
+use uncore::input::{ActionState, PlayerAction, action_prompt};
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
 use uncore::states::{AppState, GameState};
 use uncore::types::root::game_assets::GameAssets;
+use unsettings::bindings::ControlBindings;
 use unstd::materials::UIPanelMaterial;
 
 #[derive(Debug, Component)]
@@ -44,6 +46,8 @@ fn setup_ui(
     mut commands: Commands,
     mut materials: ResMut<Assets<UIPanelMaterial>>,
     handles: Res<GameAssets>,
+    bindings: Res<Persistent<ControlBindings>>,
+    gamepad_status: Res<uncore::input::GamepadStatus>,
 ) {
     const MARGIN_PERCENT: f32 = 0.5;
     const MARGIN: UiRect = UiRect::percent(
@@ -100,10 +104,13 @@ fn setup_ui(
                         height: Val::Px(0.0),
                         ..default()
                     });
-                    mid_blk
-                        .spawn(Text::new(
-                            "The game is paused. Hit [ESC]/[Start] again or [A] to resume. Press [Q] or [B] to Quit.",
-                        ))
+                    let back = action_prompt(&bindings, PlayerAction::Back, Some(&gamepad_status));
+                    let confirm =
+                        action_prompt(&bindings, PlayerAction::Confirm, Some(&gamepad_status));
+                    let drop = action_prompt(&bindings, PlayerAction::Drop, Some(&gamepad_status));
+                    mid_blk.spawn(Text::new(format!(
+                        "The game is paused. Hit {back} again or {confirm} to resume. Press {drop} to Quit.",
+                    )))
                         .insert(TextFont {
                             font: handles.fonts.chakra.w300_light.clone(),
                             font_size: 25.0 * FONT_SCALE,

@@ -1,9 +1,14 @@
-use crate::components::{MenuItemInteractive, MenuMouseTracker, MenuRoot, PrincipalMenuText};
+use crate::components::{
+    GamepadStatusText, MenuHelpTextContent, MenuItemInteractive, MenuMouseTracker, MenuRoot,
+    PrincipalMenuText,
+};
 use crate::events::KeyboardNavigate;
 use bevy::{input::mouse::MouseMotion, prelude::*};
+use bevy_persistent::Persistent;
 use uncore::colors;
-use uncore::input::{ActionState, PlayerAction};
+use uncore::input::{ActionState, GamepadStatus, PlayerAction, menu_nav_help};
 use uncore::states::AppState;
+use unsettings::bindings::ControlBindings;
 
 /// Event sent when a menu item is clicked
 #[derive(Event, Debug, Clone, Copy)]
@@ -132,6 +137,68 @@ fn menu_keyboard_system(
     if actions.just_pressed(PlayerAction::Back) {
         escape_events.write(MenuEscapeEvent);
     }
+
+    // Contextual mapping: the gamepad cancel face (B/Circle, bound to "Drop"
+    // during gameplay) also navigates back inside menus.
+    if actions.just_pressed(PlayerAction::Drop) {
+        escape_events.write(MenuEscapeEvent);
+    }
+}
+
+/// Keeps the gamepad status line (see
+/// `templates::create_gamepad_status_text`) current.
+fn update_gamepad_status_text(
+    gamepad_status: Res<GamepadStatus>,
+    bindings: Res<Persistent<ControlBindings>>,
+    mut texts: Query<(&mut Text, &mut TextColor), With<GamepadStatusText>>,
+) {
+    let summary = gamepad_status.summary();
+    let (new_text, new_color) = if gamepad_status.is_any_connected() {
+        (
+            format!("🎮 {summary}"),
+            uncore::colors::TRUCKUI_ACCENT3_COLOR,
+        )
+    } else if matches!(
+        bindings.device_mode,
+        unsettings::bindings::InputDeviceMode::Gamepad
+    ) {
+        (
+            "🎮 No controller found - using keyboard".to_string(),
+            uncore::colors::MENU_ITEM_COLOR_ON,
+        )
+    } else {
+        (
+            "🎮 No controller detected".to_string(),
+            uncore::colors::MENU_ITEM_COLOR_OFF,
+        )
+    };
+    for (mut text, mut color) in texts.iter_mut() {
+        if text.0 != new_text {
+            text.0 = new_text.clone();
+        }
+        if color.0 != new_color {
+            color.0 = new_color;
+        }
+    }
+}
+
+/// Keeps the default help bar (see `templates::create_help_text`) in sync
+/// with the active control scheme and live rebinds.
+fn update_menu_help_text(
+    bindings: Res<Persistent<ControlBindings>>,
+    gamepad_status: Res<GamepadStatus>,
+    mut texts: Query<&mut Text, With<MenuHelpTextContent>>,
+) {
+    let new_text = format!(
+        "Unhaunter {}    |    {}",
+        uncore::platform::plt::VERSION,
+        menu_nav_help(&bindings, &gamepad_status)
+    );
+    for mut text in texts.iter_mut() {
+        if text.0 != new_text {
+            text.0 = new_text.clone();
+        }
+    }
 }
 
 /// Updates the visual state of menu items based on selection and hover states.
@@ -214,6 +281,8 @@ pub(crate) fn app_setup(app: &mut App) {
             menu_interaction_system,
             menu_keyboard_system,
             update_menu_item_visuals,
+            update_gamepad_status_text,
+            update_menu_help_text,
         ),
     );
 }

@@ -8,10 +8,12 @@ use uncore::components::game_ui::{
     WalkieTextUIRoot,
 };
 use uncore::components::player_sprite::PlayerSprite;
+use uncore::input::PlayerAction;
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
 use uncore::states::{AppState, GameState};
 use uncore::types::root::game_assets::GameAssets;
 use ungear::components::playergear::PlayerGear;
+use unsettings::bindings::ControlBindings;
 use unsettings::game::GameplaySettings;
 
 fn cleanup(
@@ -44,6 +46,8 @@ fn setup_ui(
     mut commands: Commands,
     handles: Res<GameAssets>,
     game_settings: Res<Persistent<GameplaySettings>>,
+    bindings: Res<Persistent<ControlBindings>>,
+    gamepad_status: Res<uncore::input::GamepadStatus>,
 ) {
     // Spawn independent WalkieText UI
     commands
@@ -112,19 +116,35 @@ fn setup_ui(
     // Spawn game UI
     type Cb<'a, 'b> = &'b mut ChildSpawnerCommands<'a>;
     let key_legend = |p: Cb| {
-        // For now a reminder of the keys:
+        // Reminder of the active control scheme.
+        let prompt =
+            |action| uncore::input::action_prompt(&bindings, action, Some(&gamepad_status));
         let ch_control = game_settings.character_controls.to_string();
-        let controls = vec![
-            format!("[{ch_control}]: Movement"),
-            "[Shift]: Sprint".to_string(),
-            "[Ctrl]: Left Hand".to_string(),
-            "[E]: Interact".to_string(),
-            "[F]: Grab/Move".to_string(),
-            "[G]: Drop".to_string(),
-            "[Q]: Next".to_string(),
-            "[T]: Swap Hands".to_string(),
-            "[C]: Change Evidence".to_string(),
-        ];
+        let controls = if uncore::input::prefers_gamepad(&bindings, Some(&gamepad_status)) {
+            vec![
+                "Left Stick / D-Pad: Movement".to_string(),
+                format!("{}: Sprint", prompt(PlayerAction::Run)),
+                format!("{}: Left Hand", prompt(PlayerAction::TorchLeftHand)),
+                format!("{}: Interact", prompt(PlayerAction::Activate)),
+                format!("{}: Grab/Move", prompt(PlayerAction::Grab)),
+                format!("{}: Drop", prompt(PlayerAction::Drop)),
+                format!("{}: Next", prompt(PlayerAction::CycleInventory)),
+                format!("{}: Swap Hands", prompt(PlayerAction::SwapHands)),
+                format!("{}: Change Evidence", prompt(PlayerAction::ChangeEvidence)),
+            ]
+        } else {
+            vec![
+                format!("[{ch_control}]: Movement"),
+                "[Shift]: Sprint".to_string(),
+                "[Ctrl]: Left Hand".to_string(),
+                "[E]: Interact".to_string(),
+                "[F]: Grab/Move".to_string(),
+                "[G]: Drop".to_string(),
+                "[Q]: Next".to_string(),
+                "[T]: Swap Hands".to_string(),
+                "[C]: Change Evidence".to_string(),
+            ]
+        };
         for ctrl in controls {
             p.spawn(Node {
                 padding: UiRect::all(Val::Px(6.0 * UI_SCALE)),

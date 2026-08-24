@@ -62,6 +62,7 @@ pub fn keyboard_evidence(
     mut interaction_query: Query<&mut TruckUIButton, With<Button>>,
     looking_gear: Res<LookingGear>,
     mut profile_data: ResMut<Persistent<PlayerProfileData>>,
+    mut ev_rumble: EventWriter<uncore::rumble::RumbleFeedback>,
 ) {
     for (player, playergear) in &players {
         if gc.player_id != player.id {
@@ -79,6 +80,7 @@ pub fn keyboard_evidence(
 
                     // Track gear acknowledgment if button is now pressed (evidence found)
                     if t.status == TruckButtonState::Pressed {
+                        ev_rumble.write(uncore::rumble::RumbleFeedback::Light);
                         const GEAR_HINT_THRESHOLD: u32 = 3; // Same threshold as journal
                         let ack_count_entry = profile_data
                             .times_evidence_acknowledged_on_gear

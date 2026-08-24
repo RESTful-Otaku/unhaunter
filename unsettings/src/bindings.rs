@@ -248,8 +248,15 @@ pub struct ControlBindings {
     pub stick: StickSettings,
     /// Enable rumble feedback (when supported by the platform/device).
     pub rumble_enabled: bool,
+    /// Rumble strength multiplier, from 0.0 (silent) to 1.0 (full).
+    #[serde(default = "default_rumble_intensity")]
+    pub rumble_intensity: f32,
     /// Treat the Run binding as a toggle instead of hold-to-run.
     pub run_is_toggle: bool,
+}
+
+fn default_rumble_intensity() -> f32 {
+    0.7
 }
 
 impl Default for ControlBindings {
@@ -260,6 +267,7 @@ impl Default for ControlBindings {
             gamepad: default_gamepad_bindings(),
             stick: StickSettings::default(),
             rumble_enabled: true,
+            rumble_intensity: default_rumble_intensity(),
             run_is_toggle: false,
         }
     }
@@ -447,6 +455,7 @@ pub enum ControlSettingValue {
     ResponseCurve(StickResponseCurve),
     RunIsToggle(bool),
     RumbleEnabled(bool),
+    RumbleIntensity(f32),
     ResetKeyboard,
     ResetGamepad,
 }
@@ -465,6 +474,7 @@ impl ControlBindings {
             ControlSettingValue::ResponseCurve(c) => self.stick.response_curve = c,
             ControlSettingValue::RunIsToggle(b) => self.run_is_toggle = b,
             ControlSettingValue::RumbleEnabled(b) => self.rumble_enabled = b,
+            ControlSettingValue::RumbleIntensity(v) => self.rumble_intensity = v.clamp(0.0, 1.0),
             ControlSettingValue::ResetKeyboard => self.keyboard = default_keyboard_bindings(),
             ControlSettingValue::ResetGamepad => self.gamepad = default_gamepad_bindings(),
         }

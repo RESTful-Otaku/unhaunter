@@ -28,6 +28,7 @@ fn grab_object(
     // Query for all entities with Behavior
     pickables: Query<(Entity, &Position, &Behavior)>,
     mut gs: GearStuff,
+    mut ev_rumble: EventWriter<uncore::rumble::RumbleFeedback>,
 ) {
     for (mut player_gear, player_pos, player_dir, _player) in players.iter_mut() {
         if actions.just_pressed(PlayerAction::Grab) && player_gear.held_item.is_none() {
@@ -53,6 +54,7 @@ fn grab_object(
 
                 // Play "Pick Up" sound effect
                 gs.play_audio("sounds/item-pickup-whoosh.ogg".into(), 1.0, player_pos);
+                ev_rumble.write(uncore::rumble::RumbleFeedback::Medium);
                 return;
             }
 
@@ -87,6 +89,7 @@ fn grab_object(
 
                     // Play "Pick Up" sound effect
                     gs.play_audio("sounds/item-pickup-whoosh.ogg".into(), 1.0, player_pos);
+                    ev_rumble.write(uncore::rumble::RumbleFeedback::Medium);
                 }
             }
         }
@@ -108,6 +111,7 @@ fn drop_object(
     mut players: Query<(&mut PlayerGear, &Position, &PlayerSprite), Without<Behavior>>,
     mut objects: Query<(Entity, &mut Position), (Without<PlayerSprite>, With<FloorItemCollidable>)>,
     mut gs: GearStuff,
+    mut ev_rumble: EventWriter<uncore::rumble::RumbleFeedback>,
 ) {
     for (mut player_gear, player_pos, _player) in players.iter_mut() {
         if actions.just_pressed(PlayerAction::Drop) {
@@ -137,6 +141,7 @@ fn drop_object(
 
                         // Play "Drop" sound effect
                         gs.play_audio("sounds/item-drop-clunk.ogg".into(), 1.0, player_pos);
+                        ev_rumble.write(uncore::rumble::RumbleFeedback::Medium);
                     } else {
                         warn!("Failed to retrieve components from held object entity.");
 
@@ -263,6 +268,7 @@ fn retrieve_gear(
     q_deployed: Query<(Entity, &Position, &DeployedGearData)>,
     mut commands: Commands,
     mut gs: GearStuff,
+    mut ev_rumble: EventWriter<uncore::rumble::RumbleFeedback>,
 ) {
     // FIXME: This code, along with grabbing items are in conflict. It will be
     // possible for a player to grab equipment from the floor and a location item at
@@ -314,6 +320,7 @@ fn retrieve_gear(
 
                 // Play "Grab Item" sound effect (reused for gear retrieval)
                 gs.play_audio("sounds/item-pickup-whoosh.ogg".into(), 1.0, player_pos);
+                ev_rumble.write(uncore::rumble::RumbleFeedback::Medium);
             }
             // --
         }

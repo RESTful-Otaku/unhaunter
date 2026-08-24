@@ -9,9 +9,12 @@ authors.workspace = true
 
 [dependencies]
 uncore = { path = "../uncore" }
+unsettings = { path = "../unsettings" }
 
 bevy = { workspace = true }
 bevy_picking = { workspace = true }
+bevy-persistent = { workspace = true }
+uuid.workspace = true
 bevy_platform = { workspace = true }
 bevy_framepace = { workspace = true }
 serde = { workspace = true }

@@ -1,7 +1,6 @@
 //! Menu definitions for the "Controls" settings category: device selection,
 //! rebinding lists, stick sensitivity and related accessibility options.
 
-use bevy::input::gamepad::GamepadButton;
 use bevy::prelude::*;
 use strum::IntoEnumIterator;
 use unsettings::bindings::{
@@ -34,28 +33,7 @@ impl BindDevice {
 }
 
 /// Friendly label for standard gamepad buttons.
-pub fn gamepad_button_label(button: GamepadButton) -> String {
-    match button {
-        GamepadButton::South => "A / Cross".into(),
-        GamepadButton::East => "B / Circle".into(),
-        GamepadButton::North => "Y / Triangle".into(),
-        GamepadButton::West => "X / Square".into(),
-        GamepadButton::LeftTrigger => "LB / L1".into(),
-        GamepadButton::LeftTrigger2 => "LT / L2".into(),
-        GamepadButton::RightTrigger => "RB / R1".into(),
-        GamepadButton::RightTrigger2 => "RT / R2".into(),
-        GamepadButton::Select => "Back / Share".into(),
-        GamepadButton::Start => "Start / Options".into(),
-        GamepadButton::Mode => "Home".into(),
-        GamepadButton::LeftThumb => "L3".into(),
-        GamepadButton::RightThumb => "R3".into(),
-        GamepadButton::DPadUp => "D-Pad Up".into(),
-        GamepadButton::DPadDown => "D-Pad Down".into(),
-        GamepadButton::DPadLeft => "D-Pad Left".into(),
-        GamepadButton::DPadRight => "D-Pad Right".into(),
-        other => format!("{other:?}"),
-    }
-}
+pub use uncore::input::gamepad_button_label;
 
 /// Level-2 entries inside the Controls category.
 #[derive(strum::Display, strum::EnumIter, Debug, Clone, Copy, PartialEq, Eq)]
@@ -74,6 +52,8 @@ pub enum ControlSettingsMenu {
     RunMode,
     #[strum(to_string = "Rumble Feedback")]
     Rumble,
+    #[strum(to_string = "Rumble Strength")]
+    RumbleIntensity,
     #[strum(to_string = "Reset Keyboard Defaults")]
     ResetKeyboard,
     #[strum(to_string = "Reset Gamepad Defaults")]
@@ -97,6 +77,9 @@ impl ControlSettingsMenu {
             }
             Self::RunMode => MenuEvent::EditControlSetting(ControlSettingsMenu::RunMode),
             Self::Rumble => MenuEvent::EditControlSetting(ControlSettingsMenu::Rumble),
+            Self::RumbleIntensity => {
+                MenuEvent::EditControlSetting(ControlSettingsMenu::RumbleIntensity)
+            }
             Self::ResetKeyboard => {
                 MenuEvent::SaveControlSetting(ControlSettingValue::ResetKeyboard)
             }
@@ -125,6 +108,7 @@ impl ControlSettingsMenu {
             }
             .to_string(),
             Self::Rumble => if bindings.rumble_enabled { "On" } else { "Off" }.to_string(),
+            Self::RumbleIntensity => format!("{}%", (bindings.rumble_intensity * 100.0).round()),
             Self::ResetKeyboard | Self::ResetGamepad => String::new(),
         }
     }
