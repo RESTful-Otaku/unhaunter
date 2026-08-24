@@ -82,6 +82,12 @@ In-game screens (truck computer, pause menu) can be driven entirely from the con
 stick moves an on-screen cursor and A clicks. Rumble feedback (hunts, deaths, gear interactions,
 evidence recording) can be toggled and tuned in Settings > Controls. Help bars, the pause screen and
 the in-game control legend always reflect whichever device you are using, including live rebinds.
+Run can be switched between hold-to-run and toggle-to-run in Settings > Controls for accessibility.
+
+### Video
+
+**Settings > Video** offers window size and aspect ratio presets that apply immediately and persist
+across sessions.
 
 ### Ghost Hunting
 
@@ -99,6 +105,23 @@ Beware! Ghosts can enter a hunting phase, becoming more aggressive and directly 
 | Spirit Box     | Spirit Box     | Screams, whispers, or other paranormal sounds may be heard through the Spirit Box when close to the breach and in relative darkness.                                                      |
 | RL Presence    | Red Torch      | Some ghosts glow orange under red light.  Lights must be OFF.                                                                                                                             |
 | 500+ cpm       | Geiger Counter | The Geiger Counter measures radiation levels. Some ghosts emit high radiation, registering over 500 counts per minute (cpm). It takes time for the Geiger counter to settle into a value. |
+
+### Utility Gear
+
+In challenge missions (Standard and above), the truck also carries utility gear that helps you
+explore and track the ghost without providing evidence on its own:
+
+| Gear           | Use                                                                                                                                                                                        |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compass        | The needle trembles and locks onto the ghost's direction when one is nearby.                                                                                                               |
+| Ion Meter      | Reads ambient ionization; miasma clouds and ghost proximity push the reading up into distinct tiers.                                                                                        |
+| E-Static Meter | Measures electrostatic discharge; readings spike sharply when the ghost is close, sounding an alarm before a hunt.                                                                          |
+| Thermal Imager | Sweeps the area ahead for the coldest spot and reports its direction.                                                                                                                       |
+| Motion Sensor  | Deployable tripwire that triggers when the ghost (or anything) passes nearby.                                                                                                               |
+| Photo Camera   | Take photos of the ghost — if something unusual shows up on film, the camera will tell you.                                                                                                 |
+
+All electronic gear is affected by ghost interference: during rising activity, displays may glitch
+or misfire.
 
 ## Basic Strategy
 

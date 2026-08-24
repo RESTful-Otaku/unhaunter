@@ -2,6 +2,7 @@ use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 use bevy::sprite::Material2dPlugin;
 use bevy::window::WindowResolution;
+use bevy_persistent::Persistent;
 use std::time::Duration;
 use uncampaign::plugin::UnhaunterCampaignPlugin;
 use uncore::difficulty::CurrentDifficulty;
@@ -23,6 +24,7 @@ use unnpc::plugin::UnhaunterNPCPlugin;
 use unplayer::plugin::UnhaunterPlayerPlugin;
 use unprofile::plugin::UnhaunterProfilePlugin;
 use unsettings::plugin::UnhaunterSettingsPlugin;
+use unsettings::video::VideoSettings;
 use unstd::materials::{CustomMaterial1, UIPanelMaterial};
 use unstd::picking::{CustomSpritePickingPlugin, GamepadPointerPlugin};
 use unstd::plugins::board::UnhaunterBoardPlugin;
@@ -99,11 +101,29 @@ pub fn app_run(cli_options: CliOptions) {
         UnhaunterProfilePlugin,
     ));
     app.add_systems(Update, crate::report_timer::report_performance);
+    app.add_systems(PostUpdate, apply_video_settings);
     #[cfg(not(target_arch = "wasm32"))]
     {
         app.add_systems(Startup, set_window_icon);
     }
     app.run();
+}
+
+/// Applies persisted video settings (window size / aspect ratio) to the
+/// primary window whenever they change.
+fn apply_video_settings(
+    video: Res<Persistent<VideoSettings>>,
+    mut q_window: Query<&mut bevy::window::Window, With<bevy::window::PrimaryWindow>>,
+) {
+    if !video.is_changed() {
+        return;
+    }
+    let (width, height) = video.resolution();
+    // Query returns one window typically.
+    for mut window in q_window.iter_mut() {
+        window.resolution.set(width, height);
+    }
+    info!("Applied video settings: {}x{}", width as u32, height as u32);
 }
 
 fn default_resolution() -> WindowResolution {

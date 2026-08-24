@@ -1,9 +1,12 @@
 use bevy::prelude::*;
 use bevy_platform::time::Instant;
 use unsettings::bindings::{ControlSettingValue, PlayerAction};
+use unsettings::video::VideoSettingsValue;
 use unsettings::{audio::AudioSettingsValue, game::GameplaySettingsValue};
 
-use crate::menus::{AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1};
+use crate::menus::{
+    AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1, VideoSettingsMenu,
+};
 use crate::menus_bindings::{BindDevice, ControlSettingsMenu};
 
 #[derive(Component, Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -63,6 +66,8 @@ pub enum MenuEvent {
     EditAudioSetting(AudioSettingsMenu),
     SaveGameplaySetting(GameplaySettingsValue),
     EditGameplaySetting(GameplaySettingsMenu),
+    SaveVideoSetting(VideoSettingsValue),
+    EditVideoSetting(VideoSettingsMenu),
     SettingClassSelected(MenuSettingsLevel1),
     EditControlSetting(ControlSettingsMenu),
     SaveControlSetting(ControlSettingValue),
@@ -105,6 +110,16 @@ pub struct GameplaySettingSelected {
 #[derive(Event, Debug, Clone, Copy)]
 pub struct SaveGameplaySetting {
     pub value: GameplaySettingsValue,
+}
+
+#[derive(Event, Debug, Clone, Copy)]
+pub struct VideoSettingSelected {
+    pub setting: VideoSettingsMenu,
+}
+
+#[derive(Event, Debug, Clone, Copy)]
+pub struct SaveVideoSetting {
+    pub value: VideoSettingsValue,
 }
 
 #[derive(Event, Debug, Clone, Copy)]

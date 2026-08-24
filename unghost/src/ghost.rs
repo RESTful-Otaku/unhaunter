@@ -797,6 +797,15 @@ fn update_ghost_warning_field(
         }
     }
 
+    // Publish live ghost positions for utility gear (compass, ion meter,
+    // motion sensor, ...).
+    board_data.ghost_positions.clear();
+    for (_, position) in q_ghost.iter() {
+        if position.x.is_finite() && position.y.is_finite() {
+            board_data.ghost_positions.push(*position);
+        }
+    }
+
     let cur_t = time.elapsed_secs_f64();
     let wave = f64::sin(PI * cur_t * 2.0).powi(2);
     board_data.ghost_warning_intensity = max_intensity * wave as f32;

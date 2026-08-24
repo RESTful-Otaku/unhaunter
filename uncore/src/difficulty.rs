@@ -540,18 +540,19 @@ impl Difficulty {
             }
         }
 
-        // This is for debugging purposes, to add gear that isn't functional yet.
-        const ENABLE_INCOMPLETE: bool = false;
-        if ENABLE_INCOMPLETE {
-            let mut incomplete: Vec<GearKind> = vec![
+        // Utility tools available in challenge missions. They assist
+        // exploration and tracking but don't provide evidence on their own.
+        // Tutorials keep their curated, progressive loadout.
+        if !self.is_tutorial_difficulty() {
+            let mut utility: Vec<GearKind> = vec![
+                Compass,
+                MotionSensor,
                 IonMeter,
+                EStaticMeter,
                 ThermalImager,
                 Photocam,
-                Compass,
-                EStaticMeter,
-                MotionSensor,
             ];
-            gear.append(&mut incomplete);
+            gear.append(&mut utility);
         }
         gear
     }

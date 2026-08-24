@@ -5419,6 +5419,7 @@ version = "0.3.1"
 dependencies = [
  "anyhow",
  "bevy",
+ "bevy-persistent",
  "bevy_dylib",
  "bevy_picking",
  "bevy_platform",

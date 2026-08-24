@@ -4,6 +4,7 @@ use strum::IntoEnumIterator;
 use unsettings::{
     audio::{AudioLevel, AudioSettings, AudioSettingsValue},
     game::{CameraControls, GameplaySettings, GameplaySettingsValue, MovementStyle},
+    video::{AspectRatio, VideoSettings, VideoSettingsValue, WindowSize},
 };
 
 use crate::components::MenuEvent;
@@ -23,10 +24,10 @@ impl MenuSettingsLevel1 {
         use MenuSettingsLevel1 as m;
         match self {
             MenuSettingsLevel1::Gameplay => MenuEvent::SettingClassSelected(m::Gameplay),
+            MenuSettingsLevel1::Video => MenuEvent::SettingClassSelected(m::Video),
             MenuSettingsLevel1::Audio => MenuEvent::SettingClassSelected(m::Audio),
             MenuSettingsLevel1::Controls => MenuEvent::SettingClassSelected(m::Controls),
-            // We disable Video and Profile for now
-            MenuSettingsLevel1::Video => MenuEvent::None,
+            // Profile stays hidden until there is something to apply it to.
             MenuSettingsLevel1::Profile => MenuEvent::None,
         }
     }
@@ -245,5 +246,82 @@ impl GameplaySettingsMenu {
                 )
             })
             .collect::<Vec<_>>()
+    }
+}
+
+/// Level-2 entries inside the Video category.
+#[derive(strum::Display, strum::EnumIter, Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VideoSettingsMenu {
+    #[strum(to_string = "Window Size")]
+    WindowSize,
+    #[strum(to_string = "Aspect Ratio")]
+    AspectRatio,
+}
+
+impl VideoSettingsMenu {
+    pub fn menu_event(&self) -> MenuEvent {
+        MenuEvent::EditVideoSetting(*self)
+    }
+
+    pub fn setting_value(&self, video_settings: &Res<Persistent<VideoSettings>>) -> String {
+        match self {
+            Self::WindowSize => video_settings.window_size.to_string(),
+            Self::AspectRatio => match video_settings.aspect_ratio {
+                AspectRatio::Ar4_3 => "4:3".to_string(),
+                AspectRatio::Ar16_10 => "16:10".to_string(),
+                AspectRatio::Ar16_9 => "16:9".to_string(),
+            },
+        }
+    }
+
+    pub fn iter_events(
+        video_settings: &Res<Persistent<VideoSettings>>,
+    ) -> Vec<(String, MenuEvent)> {
+        use strum::IntoEnumIterator;
+        Self::iter()
+            .map(|s| {
+                (
+                    format!("{}: {}", s, s.setting_value(video_settings)),
+                    s.menu_event(),
+                )
+            })
+            .collect::<Vec<_>>()
+    }
+
+    pub fn iter_events_item(
+        &self,
+        video_settings: &Res<Persistent<VideoSettings>>,
+    ) -> Vec<(String, MenuEvent)> {
+        match self {
+            Self::WindowSize => WindowSize::iter()
+                .map(|s| {
+                    (
+                        if s == video_settings.window_size {
+                            format!("[{s}]")
+                        } else {
+                            s.to_string()
+                        },
+                        MenuEvent::SaveVideoSetting(VideoSettingsValue::window_size(s)),
+                    )
+                })
+                .collect::<Vec<_>>(),
+            Self::AspectRatio => AspectRatio::iter()
+                .map(|s| {
+                    let label = match s {
+                        AspectRatio::Ar4_3 => "4:3".to_string(),
+                        AspectRatio::Ar16_10 => "16:10".to_string(),
+                        AspectRatio::Ar16_9 => "16:9".to_string(),
+                    };
+                    (
+                        if s == video_settings.aspect_ratio {
+                            format!("[{label}]")
+                        } else {
+                            label
+                        },
+                        MenuEvent::SaveVideoSetting(VideoSettingsValue::aspect_ratio(s)),
+                    )
+                })
+                .collect::<Vec<_>>(),
+        }
     }
 }

@@ -10,6 +10,12 @@
 * Rumble feedback for hunts, deaths, gear interactions and evidence recording, with enable/disable and strength settings.
 * The main menu shows connected controllers; help bars, pause screen and the in-game control legend now reflect the active control scheme and live rebinds.
 
+**Utility Gear & Settings**
+
+* Six previously dormant tools are now fully functional utility gear in challenge missions: the Compass points toward the ghost, the Ion Meter reads ionization from miasma and ghost presence, the E-Static Meter alarms on ghost proximity, the Thermal Imager sweeps for cold spots, the Motion Sensor is a deployable tripwire, and the Photo Camera can capture anomalies on film.
+* Utility gear assists exploration and tracking but never provides evidence on its own.
+* Video settings are now available: window size and aspect ratio presets apply immediately and persist across sessions.
+
 ### Version 0.3.1 - 2025-07-10
 
 **Mouse Aiming**

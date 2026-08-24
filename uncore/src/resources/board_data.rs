@@ -92,6 +92,9 @@ pub struct BoardData {
     pub ghost_warning_intensity: f32,
     /// Source position of warning
     pub ghost_warning_position: Option<Position>,
+    /// Live position of every ghost in the board, updated each frame. Used by
+    /// utility gear (compass, ion meter, motion sensor...) to sense presence.
+    pub ghost_positions: Vec<Position>,
 
     pub map_path: String,      // Path to the current map file
     pub level_ready_time: f32, // Time when the level became ready
@@ -258,6 +261,7 @@ impl FromWorld for BoardData {
             prebaked_propagation: Vec::new(),
             ghost_warning_intensity: 0.0,
             ghost_warning_position: None,
+            ghost_positions: Vec::new(),
             floor_z_map: HashMap::new(),
             z_floor_map: HashMap::new(),
             floor_mapping: crate::events::loadlevel::FloorLevelMapping {

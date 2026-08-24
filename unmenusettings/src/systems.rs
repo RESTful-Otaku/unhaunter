@@ -1,10 +1,13 @@
 use crate::components::{
     AudioSettingSelected, ControlSettingSelected, GameplaySettingSelected, MenuEvBack, MenuEvent,
     MenuItem, MenuSettingClassSelected, MenuType, RebindRequest, SaveAudioSetting,
-    SaveControlSetting, SaveGameplaySetting, SettingsMenu, SettingsState, SettingsStateTimer,
+    SaveControlSetting, SaveGameplaySetting, SaveVideoSetting, SettingsMenu, SettingsState,
+    SettingsStateTimer, VideoSettingSelected,
 };
 use crate::menu_ui::setup_ui_main_cat;
-use crate::menus::{AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1};
+use crate::menus::{
+    AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1, VideoSettingsMenu,
+};
 use crate::menus_bindings::{BindDevice, ControlSettingsMenu, StickSettingsMenu, rebind_list_rows};
 use bevy::input::gamepad::GamepadButtonChangedEvent;
 use bevy::prelude::*;
@@ -20,6 +23,7 @@ use uncoremenu::templates;
 use unsettings::audio::AudioSettings;
 use unsettings::bindings::{ControlBindings, ControlSettingValue, InputDeviceMode};
 use unsettings::game::GameplaySettings;
+use unsettings::video::VideoSettings;
 
 pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(
@@ -32,6 +36,8 @@ pub(crate) fn app_setup(app: &mut App) {
             menu_audio_setting_selected,
             menu_save_audio_setting,
             menu_gameplay_setting_selected,
+            menu_video_setting_selected,
+            menu_save_video_setting,
             menu_save_gameplay_setting,
             menu_control_setting_selected,
             menu_save_control_setting,
@@ -49,6 +55,8 @@ pub(crate) fn app_setup(app: &mut App) {
     .add_event::<SaveAudioSetting>()
     .add_event::<GameplaySettingSelected>()
     .add_event::<SaveGameplaySetting>()
+    .add_event::<VideoSettingSelected>()
+    .add_event::<SaveVideoSetting>()
     .add_event::<ControlSettingSelected>()
     .add_event::<SaveControlSetting>()
     .add_event::<RebindRequest>();
@@ -80,6 +88,8 @@ fn menu_routing_system(
     mut ev_save_audio_setting: EventWriter<SaveAudioSetting>,
     mut ev_game_setting: EventWriter<GameplaySettingSelected>,
     mut ev_save_game_setting: EventWriter<SaveGameplaySetting>,
+    mut ev_video_setting: EventWriter<VideoSettingSelected>,
+    mut ev_save_video_setting: EventWriter<SaveVideoSetting>,
     mut ev_control_setting: EventWriter<ControlSettingSelected>,
     mut ev_save_control_setting: EventWriter<SaveControlSetting>,
     mut ev_rebind_request: EventWriter<RebindRequest>,
@@ -112,6 +122,16 @@ fn menu_routing_system(
             }
             MenuEvent::SaveGameplaySetting(setting_value) => {
                 ev_save_game_setting.write(SaveGameplaySetting {
+                    value: *setting_value,
+                });
+            }
+            MenuEvent::EditVideoSetting(video_settings_menu) => {
+                ev_video_setting.write(VideoSettingSelected {
+                    setting: *video_settings_menu,
+                });
+            }
+            MenuEvent::SaveVideoSetting(setting_value) => {
+                ev_save_video_setting.write(SaveVideoSetting {
                     value: *setting_value,
                 });
             }
@@ -188,6 +208,7 @@ fn menu_settings_class_selected(
     game_settings: Res<Persistent<GameplaySettings>>,
     control_bindings: Res<Persistent<ControlBindings>>,
     gamepad_status: Res<GamepadStatus>,
+    video_settings: Res<Persistent<VideoSettings>>,
 ) {
     for ev in events.read() {
         warn!("Menu Setting Class Selected: {:?}", ev.menu);
@@ -226,8 +247,18 @@ fn menu_settings_class_selected(
                 );
                 next_state.set(SettingsState::Lv2List);
             }
-            MenuSettingsLevel1::Video => todo!(),
-            MenuSettingsLevel1::Profile => todo!(),
+            MenuSettingsLevel1::Video => {
+                let menu_items = VideoSettingsMenu::iter_events(&video_settings);
+                setup_ui_main_cat(
+                    &mut commands,
+                    &handles,
+                    &qtui,
+                    "Video Settings",
+                    &menu_items,
+                );
+                next_state.set(SettingsState::Lv2List);
+            }
+            MenuSettingsLevel1::Profile => {} // Disabled (no consumer for profile data yet).
         }
     }
 }
@@ -526,6 +557,120 @@ fn menu_save_gameplay_setting(
         }
         if let Err(e) = gameplay_settings.persist() {
             error!("Error persisting Gameplay Settings: {e:?}");
+        }
+        ev_back.write(MenuEvBack);
+    }
+}
+
+fn menu_video_setting_selected(
+    mut commands: Commands,
+    mut events: EventReader<VideoSettingSelected>,
+    mut next_state: ResMut<NextState<SettingsState>>,
+    handles: Res<GameAssets>,
+    qtui: Query<Entity, With<SettingsMenu>>,
+    video_settings: Res<Persistent<VideoSettings>>,
+) {
+    for ev in events.read() {
+        warn!("Video Setting Selected: {:?}", ev.setting);
+
+        let menu_items = ev.setting.iter_events_item(&video_settings);
+
+        // Clean up old UI
+        for e in qtui.iter() {
+            commands.entity(e).despawn();
+        }
+
+        // Create new UI with uncoremenu templates
+        commands
+            .spawn(Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                position_type: PositionType::Absolute,
+                ..default()
+            })
+            .insert(SettingsMenu {
+                menu_type: MenuType::SettingEdit,
+                selected_item_idx: 0,
+            })
+            .with_children(|parent| {
+                // Background
+                templates::create_background(parent, &handles);
+
+                // Logo
+
+                templates::create_logo(parent, &handles);
+
+                // Create breadcrumb navigation with title - show the full path
+                templates::create_breadcrumb_navigation(
+                    parent,
+                    &handles,
+                    "Video Settings",
+                    ev.setting.to_string(),
+                );
+
+                // Create content area for settings items
+                let mut content_area = templates::create_selectable_content_area(
+                    parent, &handles, 0, // Initial selection
+                );
+
+                // Add mouse tracker to prevent unwanted initial hover selection
+                content_area.insert(MenuMouseTracker::default());
+
+                content_area.insert(MenuRoot { selected_item: 0 });
+
+                // Add a column container inside the content area for vertical layout
+                content_area.with_children(|content| {
+                    content
+                        .spawn(Node {
+                            width: Val::Percent(100.0),
+                            height: Val::Percent(100.0),
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::FlexStart,
+                            justify_content: JustifyContent::FlexStart,
+                            overflow: Overflow::scroll_y(),
+                            ..default()
+                        })
+                        .with_children(|menu_list| {
+                            let mut idx = 0;
+
+                            // Add each menu item
+                            for (item_text, event) in menu_items.iter() {
+                                if !event.is_none() {
+                                    templates::create_content_item(
+                                        menu_list,
+                                        item_text,
+                                        idx,
+                                        idx == 0, // First item selected by default
+                                        &handles,
+                                    )
+                                    .insert(MenuItem::new(idx, *event));
+                                    idx += 1;
+                                }
+                            }
+
+                            // Add "Go Back" option
+                            templates::create_content_item(
+                                menu_list, "Go Back", idx, false, &handles,
+                            )
+                            .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
+                        });
+                });
+            });
+
+        next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Video));
+    }
+}
+
+fn menu_save_video_setting(
+    mut events: EventReader<SaveVideoSetting>,
+    mut ev_back: EventWriter<MenuEvBack>,
+    mut video_settings: ResMut<Persistent<VideoSettings>>,
+) {
+    for ev in events.read() {
+        warn!("Save Video Setting: {:?}", ev.value);
+        ev.value.apply(&mut video_settings);
+        if let Err(e) = video_settings.persist() {
+            error!("Error persisting Video Settings: {e:?}");
         }
         ev_back.write(MenuEvBack);
     }

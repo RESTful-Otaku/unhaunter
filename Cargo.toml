@@ -106,6 +106,7 @@ unmenu = { path = "unmenu" }
 unnpc = { path = "unnpc" }
 untmxmap = { path = "untmxmap" }
 unsettings = { path = "unsettings" }
+bevy-persistent.workspace = true
 unmenusettings = { path = "unmenusettings" }
 unwalkie = { path = "unwalkie" }
 uncoremenu = { path = "uncoremenu" }
