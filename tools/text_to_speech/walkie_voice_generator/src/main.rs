@@ -186,19 +186,14 @@ fn main() {
         Ok(entries) => {
             for entry in entries.flatten() {
                 let path = entry.path();
-                if path.is_file() {
-                    if let Some(ext_osstr) = path.extension() {
-                        if let Some(ext) = ext_osstr.to_str() {
-                            if ext == "wav" || ext == "ogg" {
-                                println!("Deleting temporary file: {:?}", path);
-                                if let Err(e) = fs::remove_file(&path) {
-                                    eprintln!(
-                                        "Warning: Failed to delete temporary file {:?}: {}",
-                                        path, e
-                                    );
-                                }
-                            }
-                        }
+                let ext = path
+                    .extension()
+                    .and_then(|e| e.to_str())
+                    .unwrap_or_default();
+                if path.is_file() && (ext == "wav" || ext == "ogg") {
+                    println!("Deleting temporary file: {:?}", path);
+                    if let Err(e) = fs::remove_file(&path) {
+                        eprintln!("Warning: Failed to delete temporary file {:?}: {}", path, e);
                     }
                 }
             }

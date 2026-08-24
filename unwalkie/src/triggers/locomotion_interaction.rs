@@ -237,7 +237,7 @@ fn trigger_struggling_with_grab_drop(
         return;
     }
 
-    let Ok((player_gear, player_sprite)) = player_query.single() else {
+    let Ok((player_gear, _player_sprite)) = player_query.single() else {
         *full_and_failed_grab_timer = None;
         return;
     };
@@ -318,7 +318,7 @@ fn trigger_struggling_with_hide_unhide(
     }
 
     // Only proceed if player is not hiding
-    let Ok(player_sprite) = player_query.single() else {
+    let Ok(_player_sprite) = player_query.single() else {
         *hide_key_timer = None;
         return;
     };

@@ -142,9 +142,10 @@ fn update_action_state(
     *state = synthesize(&keyboard, &q_gamepads, &bindings, &mut latches);
 
     // Derive edge flags from the previous frame's state.
-    for i in 0..ACTION_CAPACITY {
-        state.just_pressed[i] = state.pressed[i] && !prev_pressed[i];
-        state.just_released[i] = !state.pressed[i] && prev_pressed[i];
+    let pressed_now = state.pressed;
+    for (i, prev) in prev_pressed.iter().enumerate() {
+        state.just_pressed[i] = pressed_now[i] && !*prev;
+        state.just_released[i] = !pressed_now[i] && *prev;
     }
 
     // Accessibility: run toggle latch (needs post-edge processing).

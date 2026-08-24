@@ -134,10 +134,11 @@ fn handle_selection_input(
 
     ev_menu_clicks.clear();
 
-    if selected_identifier.is_none() && actions.just_pressed(PlayerAction::Confirm) {
-        if let Ok(root) = menu_root.single() {
-            selected_identifier = Some(root.selected_item);
-        }
+    if selected_identifier.is_none()
+        && actions.just_pressed(PlayerAction::Confirm)
+        && let Ok(root) = menu_root.single()
+    {
+        selected_identifier = Some(root.selected_item);
     }
 
     let mut go_back = false;

@@ -591,11 +591,11 @@ fn ghost_enrage(
         if *last_roar > 30.0 && matches!(should_roar, RoarType::None) {
             should_roar = RoarType::Snore;
         }
-        if *last_roar > roar_time {
-            if let Some(roar_sound) = should_roar.get_sound() {
-                gs.play_audio(roar_sound, should_roar.get_volume(), gpos);
-                *last_roar = 0.0;
-            }
+        if *last_roar > roar_time
+            && let Some(roar_sound) = should_roar.get_sound()
+        {
+            gs.play_audio(roar_sound, should_roar.get_volume(), gpos);
+            *last_roar = 0.0;
         }
     }
 
