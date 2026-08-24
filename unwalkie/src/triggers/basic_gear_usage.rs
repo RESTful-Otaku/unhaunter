@@ -1,6 +1,7 @@
 // In unwalkie/src/triggers/basic_gear_usage.rs
 
 use bevy::prelude::*;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::{
     components::{
         board::{boardposition::BoardPosition, position::Position},
@@ -12,7 +13,6 @@ use uncore::{
     states::{AppState, GameState},
     types::{evidence::Evidence, gear_kind::GearKind, manual::ManualChapterIndex},
 };
-use uncore::input::{ActionState, PlayerAction};
 use ungear::components::playergear::PlayerGear;
 use unwalkiecore::{WalkieEvent, WalkiePlay}; // Core walkie types
 

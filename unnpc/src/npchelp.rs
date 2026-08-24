@@ -1,10 +1,10 @@
 use bevy::prelude::*;
-use uncore::input::{ActionState, PlayerAction};
 use uncore::colors;
 use uncore::components::board::direction::Direction;
 use uncore::components::board::position::Position;
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::events::npc_help::NpcHelpEvent;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
 use uncore::states::GameState;
 use uncore::types::root::game_assets::GameAssets;

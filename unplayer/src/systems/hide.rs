@@ -7,8 +7,8 @@ use uncore::components::board::mapcolor::MapColor;
 use uncore::components::board::position::Position;
 use uncore::components::player::Hiding;
 use uncore::components::player_sprite::PlayerSprite;
-use ungear::components::playergear::PlayerGear;
 use uncore::input::{ActionState, PlayerAction};
+use ungear::components::playergear::PlayerGear;
 use ungear::gear_stuff::GearStuff;
 
 /// Allows the player to hide in a designated hiding spot.
@@ -30,7 +30,7 @@ fn hide_player(
     time: Res<Time>,
     mut hold_timers: Local<HashMap<Entity, Timer>>,
 ) {
-    for (player_entity, player, mut player_pos, player_gear) in players.iter_mut() {
+    for (player_entity, _player, mut player_pos, player_gear) in players.iter_mut() {
         // Get the player's hold timer or create a new one
         let timer = hold_timers
             .entry(player_entity)
@@ -107,7 +107,7 @@ fn unhide_player(
         &Hiding,
     )>,
 ) {
-    for (player_entity, player, _, _visibility, hiding) in players.iter_mut() {
+    for (player_entity, _player, _, _visibility, hiding) in players.iter_mut() {
         if actions.just_pressed(PlayerAction::Activate) {
             // Using 'activate' for unhiding Remove the Hiding component
             commands.entity(player_entity).remove::<Hiding>();

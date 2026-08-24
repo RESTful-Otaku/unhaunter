@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 use bevy_platform::time::Instant;
+use unsettings::bindings::{ControlSettingValue, PlayerAction};
 use unsettings::{audio::AudioSettingsValue, game::GameplaySettingsValue};
 
 use crate::menus::{AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1};
+use crate::menus_bindings::{BindDevice, ControlSettingsMenu};
 
 #[derive(Component, Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum MenuType {
@@ -30,6 +32,12 @@ pub enum SettingsState {
     Lv2List,
     /// Allows the user to select a new value for the setting (10% volume, 50% volume, etc)
     Lv3ValueEdit(MenuSettingsLevel1),
+    /// Waiting for the user to press a key or gamepad button to (re)bind an
+    /// action.
+    RebindCapture {
+        device: BindDevice,
+        action: PlayerAction,
+    },
 }
 
 #[derive(Component)]
@@ -56,6 +64,10 @@ pub enum MenuEvent {
     SaveGameplaySetting(GameplaySettingsValue),
     EditGameplaySetting(GameplaySettingsMenu),
     SettingClassSelected(MenuSettingsLevel1),
+    EditControlSetting(ControlSettingsMenu),
+    SaveControlSetting(ControlSettingValue),
+    RebindRequest(BindDevice, PlayerAction),
+    BindingInfo,
     Back(MenuEvBack),
     #[default]
     None,
@@ -93,4 +105,20 @@ pub struct GameplaySettingSelected {
 #[derive(Event, Debug, Clone, Copy)]
 pub struct SaveGameplaySetting {
     pub value: GameplaySettingsValue,
+}
+
+#[derive(Event, Debug, Clone, Copy)]
+pub struct ControlSettingSelected {
+    pub setting: ControlSettingsMenu,
+}
+
+#[derive(Event, Debug, Clone, Copy)]
+pub struct SaveControlSetting {
+    pub value: ControlSettingValue,
+}
+
+#[derive(Event, Debug, Clone, Copy)]
+pub struct RebindRequest {
+    pub device: BindDevice,
+    pub action: PlayerAction,
 }

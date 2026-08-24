@@ -1,6 +1,6 @@
 use bevy::input::gamepad::GamepadButton;
 use bevy::prelude::*;
-use enum_iterator::{all, Sequence};
+use enum_iterator::{Sequence, all};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -181,6 +181,21 @@ impl PlayerAction {
                 | Self::LookLeftHandToggle
         )
     }
+
+    /// Whether this action has a default gamepad binding. Camera and zoom
+    /// actions are keyboard-only: the analog sticks are reserved for movement
+    /// and aiming.
+    pub fn is_gamepad_bindable(&self) -> bool {
+        !matches!(
+            self,
+            Self::CameraUp
+                | Self::CameraDown
+                | Self::CameraLeft
+                | Self::CameraRight
+                | Self::ZoomIn
+                | Self::ZoomOut
+        )
+    }
 }
 
 /// Tuning knobs for analog sticks (accessibility & precision).
@@ -255,14 +270,36 @@ fn default_keyboard_bindings() -> HashMap<PlayerAction, KeyCode> {
     all::<PlayerAction>()
         .zip([
             // Gameplay
-            KeyW, KeyS, KeyA, KeyD, KeyE, KeyF, KeyG, KeyR, Tab, KeyQ, KeyT, KeyC, ShiftLeft,
-            ControlLeft, CapsLock,
+            KeyW,
+            KeyS,
+            KeyA,
+            KeyD,
+            KeyE,
+            KeyF,
+            KeyG,
+            KeyR,
+            Tab,
+            KeyQ,
+            KeyT,
+            KeyC,
+            ShiftLeft,
+            ControlLeft,
+            CapsLock,
             // Camera
-            ArrowUp, ArrowDown, ArrowLeft, ArrowRight, NumpadAdd, NumpadSubtract,
+            ArrowUp,
+            ArrowDown,
+            ArrowLeft,
+            ArrowRight,
+            NumpadAdd,
+            NumpadSubtract,
             // Menus / global
-            ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Enter, Escape,
+            ArrowUp,
+            ArrowDown,
+            ArrowLeft,
+            ArrowRight,
+            Enter,
+            Escape,
         ])
-        .map(|(action, key)| (action, key))
         .collect()
 }
 
@@ -274,14 +311,14 @@ fn default_gamepad_bindings() -> HashMap<PlayerAction, GamepadButton> {
             GamepadButton::DPadDown,
             GamepadButton::DPadLeft,
             GamepadButton::DPadRight,
-            GamepadButton::South,     // A / Cross: interact & hide
-            GamepadButton::West,      // X / Square: grab
-            GamepadButton::East,      // B / Circle: drop/deploy
-            GamepadButton::North,     // Y / Triangle: use right-hand gear
+            GamepadButton::South,         // A / Cross: interact & hide
+            GamepadButton::West,          // X / Square: grab
+            GamepadButton::East,          // B / Circle: drop/deploy
+            GamepadButton::North,         // Y / Triangle: use right-hand gear
             GamepadButton::LeftTrigger2,  // LT: toggle left gear
             GamepadButton::LeftTrigger,   // LB: cycle inventory
             GamepadButton::RightTrigger,  // RB: swap hands
-            GamepadButton::Select,    // Back/Share: record evidence
+            GamepadButton::Select,        // Back/Share: record evidence
             GamepadButton::RightTrigger2, // RT: run
             GamepadButton::LeftThumb,     // L3: look at left gear (hold)
             GamepadButton::RightThumb,    // R3: look at left gear (toggle)
@@ -298,18 +335,20 @@ fn default_gamepad_bindings() -> HashMap<PlayerAction, GamepadButton> {
             GamepadButton::DPadDown,
             GamepadButton::DPadLeft,
             GamepadButton::DPadRight,
-            GamepadButton::South,  // A: confirm
-            GamepadButton::Start,  // Start/Options: back / pause
+            GamepadButton::South, // A: confirm
+            GamepadButton::Start, // Start/Options: back / pause
         ])
         .filter(|(_, b)| !matches!(b, GamepadButton::Other(_)))
-        .map(|(action, button)| (action, button))
         .collect()
 }
 
 impl ControlBindings {
     /// The keyboard key bound to `action`, if any.
     pub fn key(&self, action: PlayerAction) -> Option<KeyCode> {
-        self.keyboard.get(&action).copied().filter(|k| *k != KeyCode::NonConvert)
+        self.keyboard
+            .get(&action)
+            .copied()
+            .filter(|k| *k != KeyCode::NonConvert)
     }
 
     /// The gamepad button bound to `action`, if any.
@@ -369,7 +408,12 @@ impl ControlBindings {
 /// Applies a radial deadzone, response curve and sensitivity to a raw stick vector.
 ///
 /// Returns a vector with the same direction whose magnitude is in `0.0..=1.0`.
-pub fn process_stick(raw: Vec2, deadzone: f32, sensitivity: f32, curve: StickResponseCurve) -> Vec2 {
+pub fn process_stick(
+    raw: Vec2,
+    deadzone: f32,
+    sensitivity: f32,
+    curve: StickResponseCurve,
+) -> Vec2 {
     let len = raw.length();
     if len <= deadzone || len <= f32::EPSILON {
         return Vec2::ZERO;
@@ -387,6 +431,44 @@ pub fn process_stick(raw: Vec2, deadzone: f32, sensitivity: f32, curve: StickRes
 /// Convenience: the keyboard defaults are equivalent to the classic WASD preset.
 pub fn wasd_keyboard_bindings() -> HashMap<PlayerAction, KeyCode> {
     default_keyboard_bindings()
+}
+
+/// A single adjustable control value, used by the settings menus to apply
+/// changes to [`ControlBindings`].
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ControlSettingValue {
+    DeviceMode(InputDeviceMode),
+    MoveDeadzone(f32),
+    AimDeadzone(f32),
+    MoveSensitivity(f32),
+    AimSensitivity(f32),
+    InvertAimX(bool),
+    InvertAimY(bool),
+    ResponseCurve(StickResponseCurve),
+    RunIsToggle(bool),
+    RumbleEnabled(bool),
+    ResetKeyboard,
+    ResetGamepad,
+}
+
+impl ControlBindings {
+    /// Applies one menu-selected value to these bindings.
+    pub fn apply_setting(&mut self, value: ControlSettingValue) {
+        match value {
+            ControlSettingValue::DeviceMode(m) => self.device_mode = m,
+            ControlSettingValue::MoveDeadzone(v) => self.stick.move_deadzone = v,
+            ControlSettingValue::AimDeadzone(v) => self.stick.aim_deadzone = v,
+            ControlSettingValue::MoveSensitivity(v) => self.stick.move_sensitivity = v,
+            ControlSettingValue::AimSensitivity(v) => self.stick.aim_sensitivity = v,
+            ControlSettingValue::InvertAimX(b) => self.stick.invert_aim_x = b,
+            ControlSettingValue::InvertAimY(b) => self.stick.invert_aim_y = b,
+            ControlSettingValue::ResponseCurve(c) => self.stick.response_curve = c,
+            ControlSettingValue::RunIsToggle(b) => self.run_is_toggle = b,
+            ControlSettingValue::RumbleEnabled(b) => self.rumble_enabled = b,
+            ControlSettingValue::ResetKeyboard => self.keyboard = default_keyboard_bindings(),
+            ControlSettingValue::ResetGamepad => self.gamepad = default_gamepad_bindings(),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -447,7 +529,13 @@ mod tests {
     fn all_actions_have_defaults() {
         let bindings = ControlBindings::default();
         for action in all::<PlayerAction>() {
-            assert!(bindings.keyboard.contains_key(&action), "{action:?} missing key");
+            assert!(
+                bindings.keyboard.contains_key(&action),
+                "{action:?} missing key"
+            );
+            if !action.is_gamepad_bindable() {
+                continue;
+            }
             assert!(
                 bindings.gamepad.contains_key(&action),
                 "{action:?} missing gamepad button"

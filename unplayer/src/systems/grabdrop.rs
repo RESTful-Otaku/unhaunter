@@ -7,13 +7,13 @@ use uncore::components::game::GameSprite;
 use uncore::components::player::HeldObject;
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::components::sprite_type::SpriteType;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::types::gear::equipmentposition::Hand;
 use uncore::types::root::game_assets::GameAssets;
 use ungear::components::deployedgear::{DeployedGear, DeployedGearData};
 use ungear::components::playergear::PlayerGear;
 use ungear::gear_stuff::GearStuff;
 use ungear::gear_usable::GearUsable;
-use uncore::input::{ActionState, PlayerAction};
 
 /// Allows the player to pick up a pickable object from the environment.
 ///
@@ -29,7 +29,7 @@ fn grab_object(
     pickables: Query<(Entity, &Position, &Behavior)>,
     mut gs: GearStuff,
 ) {
-    for (mut player_gear, player_pos, player_dir, player) in players.iter_mut() {
+    for (mut player_gear, player_pos, player_dir, _player) in players.iter_mut() {
         if actions.just_pressed(PlayerAction::Grab) && player_gear.held_item.is_none() {
             // If there's any gear deployed nearby do not consider furniture.
             if deployables
@@ -109,7 +109,7 @@ fn drop_object(
     mut objects: Query<(Entity, &mut Position), (Without<PlayerSprite>, With<FloorItemCollidable>)>,
     mut gs: GearStuff,
 ) {
-    for (mut player_gear, player_pos, player) in players.iter_mut() {
+    for (mut player_gear, player_pos, _player) in players.iter_mut() {
         if actions.just_pressed(PlayerAction::Drop) {
             // Take the held object from the player's gear (this removes it temporarily)
             if let Some(held_object) = player_gear.held_item.take() {
@@ -208,7 +208,7 @@ fn deploy_gear(
     mut gs: GearStuff,
     handles: Res<GameAssets>,
 ) {
-    for (mut player_gear, player_pos, player, dir) in players.iter_mut() {
+    for (mut player_gear, player_pos, _player, dir) in players.iter_mut() {
         if actions.just_pressed(PlayerAction::Drop)
             && player_gear.right_hand.kind.is_some()
             && player_gear.held_item.is_none()
@@ -270,7 +270,7 @@ fn retrieve_gear(
     // be solved, likely by handling the keypress event in one single system, then
     // routing the remaining stuff to do via an Event to the system that handles that
     // exact thing.
-    for (player_pos, player, mut player_gear) in players.iter_mut() {
+    for (player_pos, _player, mut player_gear) in players.iter_mut() {
         if actions.just_pressed(PlayerAction::Grab) {
             // Find the closest deployed gear
             let mut closest_gear: Option<(Entity, f32)> = None;

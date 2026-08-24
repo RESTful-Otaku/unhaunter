@@ -3,8 +3,8 @@
 use super::{CurrentManualPage, Manual};
 use bevy::prelude::*;
 use uncore::difficulty::CurrentDifficulty;
-use uncore::input::{ActionState, PlayerAction};
 use uncore::events::loadlevel::LoadLevelEvent;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::platform::plt::FONT_SCALE;
 use uncore::resources::difficulty_state::DifficultySelectionState;
 use uncore::resources::maps::Maps;

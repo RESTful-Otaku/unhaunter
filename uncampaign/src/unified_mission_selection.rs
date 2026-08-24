@@ -23,6 +23,7 @@ use bevy_persistent::Persistent;
 use uncore::colors;
 use uncore::difficulty::CurrentDifficulty;
 use uncore::events::loadlevel::LoadLevelEvent;
+use uncore::input::{ActionState, PlayerAction};
 use uncore::platform::plt::FONT_SCALE;
 use uncore::resources::maps::Maps;
 use uncore::resources::mission_select_mode::{CurrentMissionSelectMode, MissionSelectMode};
@@ -30,7 +31,6 @@ use uncore::states::{AppState, MapHubState};
 use uncore::types::grade::Grade;
 use uncore::types::root::game_assets::GameAssets;
 use uncoremenu::components::MenuMouseTracker;
-use uncore::input::{ActionState, PlayerAction};
 use uncoremenu::events::KeyboardNavigate;
 use uncoremenu::scrollbar::ScrollableListContainer;
 use uncoremenu::{

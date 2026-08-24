@@ -1,3 +1,12 @@
+### Unreleased
+
+**Gamepad Support**
+
+* Full gamepad/controller support on top of the existing keyboard controls (any device works simultaneously by default).
+* New "Controls" section in Settings: choose input device mode, view connected gamepads, rebind every keyboard key and gamepad button, and tune stick deadzone/sensitivity/response curve and aim inversion.
+* Right analog stick aims the flashlight; movement supports full analog speed.
+* Menus can be navigated with the D-Pad, left stick, A/B (or equivalent) buttons.
+
 ### Version 0.3.1 - 2025-07-10
 
 **Mouse Aiming**

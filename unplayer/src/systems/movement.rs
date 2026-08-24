@@ -1,3 +1,4 @@
+use crate::systems::input::gamepad_aim as unplayer_aim;
 use bevy::prelude::*;
 use uncore::behavior::Behavior;
 use uncore::behavior::component::{Interactive, RoomState};
@@ -9,9 +10,8 @@ use uncore::components::player_sprite::PlayerSprite;
 use uncore::difficulty::CurrentDifficulty;
 use uncore::events::npc_help::NpcHelpEvent;
 use uncore::events::roomchanged::{InteractionExecutionType, RoomChangedEvent};
-use uncore::resources::board_data::BoardData;
 use uncore::input::{ActionState, PlayerAction, StickAimTracker};
-use crate::systems::input::gamepad_aim as unplayer_aim;
+use uncore::resources::board_data::BoardData;
 use uncore::resources::mouse_visibility::MouseVisibility;
 use uncore::resources::player_input::PlayerInput;
 use uncore::systemparam::collision_handler::CollisionHandler;

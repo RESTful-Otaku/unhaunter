@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use uncore::{
     components::{
         board::{PERSPECTIVE_X, PERSPECTIVE_Y, direction::Direction},
-        game::GCameraArena,
         player_sprite::PlayerSprite,
     },
     input::{ActionState, StickAimTracker},

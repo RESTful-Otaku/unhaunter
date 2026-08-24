@@ -181,11 +181,17 @@ pub fn user_manual_system(
         }
     }
 
-    if keyboard_input.just_pressed(KeyCode::ArrowLeft) {
+    if actions.just_pressed(PlayerAction::MenuLeft)
+        || keyboard_input.just_pressed(KeyCode::ArrowLeft)
+    {
         ev_navigation.write(ManualNavigationEvent::PreviousPage);
-    } else if keyboard_input.just_pressed(KeyCode::ArrowRight) {
+    } else if actions.just_pressed(PlayerAction::MenuRight)
+        || keyboard_input.just_pressed(KeyCode::ArrowRight)
+    {
         ev_navigation.write(ManualNavigationEvent::NextPage);
-    } else if keyboard_input.just_pressed(KeyCode::Escape) {
+    } else if actions.just_pressed(PlayerAction::Back)
+        || keyboard_input.just_pressed(KeyCode::Escape)
+    {
         ev_navigation.write(ManualNavigationEvent::Close);
     }
 }

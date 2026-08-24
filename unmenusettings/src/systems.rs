@@ -1,19 +1,24 @@
 use crate::components::{
-    AudioSettingSelected, GameplaySettingSelected, MenuEvBack, MenuEvent, MenuItem,
-    MenuSettingClassSelected, MenuType, SaveAudioSetting, SaveGameplaySetting, SettingsMenu,
-    SettingsState, SettingsStateTimer,
+    AudioSettingSelected, ControlSettingSelected, GameplaySettingSelected, MenuEvBack, MenuEvent,
+    MenuItem, MenuSettingClassSelected, MenuType, RebindRequest, SaveAudioSetting,
+    SaveControlSetting, SaveGameplaySetting, SettingsMenu, SettingsState, SettingsStateTimer,
 };
 use crate::menu_ui::setup_ui_main_cat;
 use crate::menus::{AudioSettingsMenu, GameplaySettingsMenu, MenuSettingsLevel1};
+use crate::menus_bindings::{BindDevice, ControlSettingsMenu, StickSettingsMenu, rebind_list_rows};
+use bevy::input::gamepad::GamepadButtonChangedEvent;
 use bevy::prelude::*;
 use bevy_persistent::Persistent;
+use strum::IntoEnumIterator;
 use uncore::colors::{MENU_ITEM_COLOR_OFF, MENU_ITEM_COLOR_ON};
+use uncore::input::GamepadStatus;
 use uncore::states::AppState;
 use uncore::types::root::game_assets::GameAssets;
 use uncoremenu::components::{MenuItemInteractive, MenuMouseTracker, MenuRoot};
 use uncoremenu::systems::MenuItemClicked;
 use uncoremenu::templates;
 use unsettings::audio::AudioSettings;
+use unsettings::bindings::{ControlBindings, ControlSettingValue, InputDeviceMode};
 use unsettings::game::GameplaySettings;
 
 pub(crate) fn app_setup(app: &mut App) {
@@ -28,6 +33,10 @@ pub(crate) fn app_setup(app: &mut App) {
             menu_save_audio_setting,
             menu_gameplay_setting_selected,
             menu_save_gameplay_setting,
+            menu_control_setting_selected,
+            menu_save_control_setting,
+            menu_rebind_request,
+            rebind_capture_system,
             menu_integration_system,
             handle_escape,
         )
@@ -39,7 +48,10 @@ pub(crate) fn app_setup(app: &mut App) {
     .add_event::<AudioSettingSelected>()
     .add_event::<SaveAudioSetting>()
     .add_event::<GameplaySettingSelected>()
-    .add_event::<SaveGameplaySetting>();
+    .add_event::<SaveGameplaySetting>()
+    .add_event::<ControlSettingSelected>()
+    .add_event::<SaveControlSetting>()
+    .add_event::<RebindRequest>();
 }
 
 fn item_highlight_system(
@@ -68,13 +80,16 @@ fn menu_routing_system(
     mut ev_save_audio_setting: EventWriter<SaveAudioSetting>,
     mut ev_game_setting: EventWriter<GameplaySettingSelected>,
     mut ev_save_game_setting: EventWriter<SaveGameplaySetting>,
+    mut ev_control_setting: EventWriter<ControlSettingSelected>,
+    mut ev_save_control_setting: EventWriter<SaveControlSetting>,
+    mut ev_rebind_request: EventWriter<RebindRequest>,
 ) {
     for ev in ev_menu.read() {
         match ev {
             MenuEvent::Back(menu_back) => {
                 ev_back.write(menu_back.to_owned());
             }
-            MenuEvent::None => {}
+            MenuEvent::None | MenuEvent::BindingInfo => {}
             MenuEvent::SettingClassSelected(menu_settings_level1) => {
                 ev_class.write(MenuSettingClassSelected {
                     menu: menu_settings_level1.to_owned(),
@@ -100,6 +115,20 @@ fn menu_routing_system(
                     value: *setting_value,
                 });
             }
+            MenuEvent::EditControlSetting(control_settings_menu) => {
+                ev_control_setting.write(ControlSettingSelected {
+                    setting: *control_settings_menu,
+                });
+            }
+            MenuEvent::SaveControlSetting(value) => {
+                ev_save_control_setting.write(SaveControlSetting { value: *value });
+            }
+            MenuEvent::RebindRequest(device, action) => {
+                ev_rebind_request.write(RebindRequest {
+                    device: *device,
+                    action: *action,
+                });
+            }
         }
     }
 }
@@ -113,6 +142,8 @@ fn menu_back_event(
     mut commands: Commands,
     handles: Res<GameAssets>,
     qtui: Query<Entity, With<SettingsMenu>>,
+    control_bindings: Res<Persistent<ControlBindings>>,
+    gamepad_status: Res<GamepadStatus>,
 ) {
     for _ev in events.read() {
         match settings_state.get() {
@@ -129,6 +160,20 @@ fn menu_back_event(
             SettingsState::Lv3ValueEdit(menu) => {
                 ev_menu.write(MenuSettingClassSelected { menu: *menu });
             }
+            // Fallback safety net: a Back during capture returns to the
+            // Controls category page (normally handled by the capture system).
+            SettingsState::RebindCapture { .. } => {
+                let menu_items =
+                    ControlSettingsMenu::iter_events(&control_bindings, &gamepad_status.summary());
+                setup_ui_main_cat(
+                    &mut commands,
+                    &handles,
+                    &qtui,
+                    "Controls Settings",
+                    &menu_items,
+                );
+                next_state.set(SettingsState::Lv2List);
+            }
         }
     }
 }
@@ -141,6 +186,8 @@ fn menu_settings_class_selected(
     qtui: Query<Entity, With<SettingsMenu>>,
     audio_settings: Res<Persistent<AudioSettings>>,
     game_settings: Res<Persistent<GameplaySettings>>,
+    control_bindings: Res<Persistent<ControlBindings>>,
+    gamepad_status: Res<GamepadStatus>,
 ) {
     for ev in events.read() {
         warn!("Menu Setting Class Selected: {:?}", ev.menu);
@@ -163,6 +210,18 @@ fn menu_settings_class_selected(
                     &handles,
                     &qtui,
                     "Gameplay Settings",
+                    &menu_items,
+                );
+                next_state.set(SettingsState::Lv2List);
+            }
+            MenuSettingsLevel1::Controls => {
+                let menu_items =
+                    ControlSettingsMenu::iter_events(&control_bindings, &gamepad_status.summary());
+                setup_ui_main_cat(
+                    &mut commands,
+                    &handles,
+                    &qtui,
+                    "Controls Settings",
                     &menu_items,
                 );
                 next_state.set(SettingsState::Lv2List);
@@ -520,12 +579,424 @@ fn menu_integration_system(
 
 /// Handles the ESC key events from the core menu system
 fn handle_escape(
+    settings_state: Res<State<SettingsState>>,
     mut escape_events: EventReader<uncoremenu::systems::MenuEscapeEvent>,
     mut menu_events: EventWriter<MenuEvent>,
 ) {
+    // While capturing a new binding the capture system handles ESC itself
+    // (cancel and redraw), so it must not bubble up as a generic Back.
+    if matches!(settings_state.get(), SettingsState::RebindCapture { .. }) {
+        escape_events.clear();
+        return;
+    }
     if !escape_events.is_empty() {
         // If ESC was pressed, send a Back event
         menu_events.write(MenuEvent::Back(MenuEvBack));
         escape_events.clear();
     }
+}
+
+/// Spawns a level-3 style edit page with arbitrary selectable rows.
+fn spawn_edit_page(
+    commands: &mut Commands,
+    handles: &GameAssets,
+    qtui: &Query<Entity, With<SettingsMenu>>,
+    title: &str,
+    breadcrumb: &str,
+    help_text: Option<String>,
+    menu_items: Vec<(String, MenuEvent)>,
+) {
+    for e in qtui.iter() {
+        commands.entity(e).despawn();
+    }
+    commands
+        .spawn(Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            position_type: PositionType::Absolute,
+            ..default()
+        })
+        .insert(SettingsMenu {
+            menu_type: MenuType::SettingEdit,
+            selected_item_idx: 0,
+        })
+        .with_children(|parent| {
+            templates::create_background(parent, handles);
+            templates::create_logo(parent, handles);
+            templates::create_breadcrumb_navigation(parent, handles, title, breadcrumb);
+
+            let mut content_area = templates::create_selectable_content_area(parent, handles, 0);
+            content_area.insert(MenuMouseTracker::default());
+            content_area.insert(MenuRoot { selected_item: 0 });
+
+            content_area.with_children(|content| {
+                content
+                    .spawn(Node {
+                        width: Val::Percent(100.0),
+                        height: Val::Percent(100.0),
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::FlexStart,
+                        justify_content: JustifyContent::FlexStart,
+                        overflow: Overflow::scroll_y(),
+                        ..default()
+                    })
+                    .with_children(|menu_list| {
+                        let mut idx = 0;
+                        for (item_text, event) in menu_items.iter() {
+                            if !event.is_none() {
+                                templates::create_content_item(
+                                    menu_list,
+                                    item_text,
+                                    idx,
+                                    idx == 0,
+                                    handles,
+                                )
+                                .insert(MenuItem::new(idx, *event));
+                                idx += 1;
+                            }
+                        }
+                        templates::create_content_item(menu_list, "Go Back", idx, false, handles)
+                            .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
+                    });
+            });
+
+            templates::create_help_text(parent, handles, help_text);
+        });
+}
+
+/// Builds the level-3 rows shown when a Controls entry is activated.
+fn control_page_rows(
+    setting: ControlSettingsMenu,
+    bindings: &Persistent<ControlBindings>,
+) -> (String, Option<String>, Vec<(String, MenuEvent)>) {
+    match setting {
+        ControlSettingsMenu::DeviceMode => (
+            "Input Devices".to_string(),
+            Some("Auto lets keyboard and gamepads work together. Gamepad-only falls back to the keyboard when no pad is connected.".to_string()),
+            InputDeviceMode::iter()
+                .map(|m| {
+                    let label = if m == bindings.device_mode {
+                        format!("[{m}]")
+                    } else {
+                        m.to_string()
+                    };
+                    (
+                        label,
+                        MenuEvent::SaveControlSetting(ControlSettingValue::DeviceMode(m)),
+                    )
+                })
+                .collect(),
+        ),
+        ControlSettingsMenu::StickSettings => (
+            StickSettingsMenu::MoveDeadzone.to_string(),
+            Some("Fine-tune analog sticks. Deadzones ignore small drift; sensitivity scales deflection; the curve shapes precision near center.".to_string()),
+            StickSettingsMenu::build_rows(bindings),
+        ),
+        ControlSettingsMenu::KeyboardBindings => (
+            "Keyboard Bindings".to_string(),
+            Some("Select an action to assign a new key. Assigning a key already in use moves it here.".to_string()),
+            rebind_list_rows(BindDevice::Keyboard, bindings),
+        ),
+        ControlSettingsMenu::GamepadBindings => (
+            "Gamepad Bindings".to_string(),
+            Some("Select an action to assign a new button. Assigning a button already in use moves it here.".to_string()),
+            rebind_list_rows(BindDevice::Gamepad, bindings),
+        ),
+        ControlSettingsMenu::RunMode => (
+            "Run Mode".to_string(),
+            None,
+            [false, true]
+                .into_iter()
+                .map(|toggle| {
+                    let label = if toggle { "Toggle" } else { "Hold" }.to_string();
+                    let label = if toggle == bindings.run_is_toggle {
+                        format!("[{label}]")
+                    } else {
+                        label
+                    };
+                    (
+                        label,
+                        MenuEvent::SaveControlSetting(ControlSettingValue::RunIsToggle(toggle)),
+                    )
+                })
+                .collect(),
+        ),
+        ControlSettingsMenu::Rumble => (
+            "Rumble Feedback".to_string(),
+            None,
+            [false, true]
+                .into_iter()
+                .map(|on| {
+                    let label = if on { "On" } else { "Off" }.to_string();
+                    let label = if on == bindings.rumble_enabled {
+                        format!("[{label}]")
+                    } else {
+                        label
+                    };
+                    (
+                        label,
+                        MenuEvent::SaveControlSetting(ControlSettingValue::RumbleEnabled(on)),
+                    )
+                })
+                .collect(),
+        ),
+        // Display-only entries never route here.
+        ControlSettingsMenu::ConnectedPads => ("Connected Gamepads".to_string(), None, vec![]),
+        ControlSettingsMenu::ResetKeyboard | ControlSettingsMenu::ResetGamepad => {
+            unreachable!("reset entries save directly")
+        }
+    }
+}
+
+fn menu_control_setting_selected(
+    mut commands: Commands,
+    mut events: EventReader<ControlSettingSelected>,
+    mut next_state: ResMut<NextState<SettingsState>>,
+    handles: Res<GameAssets>,
+    qtui: Query<Entity, With<SettingsMenu>>,
+    control_bindings: Res<Persistent<ControlBindings>>,
+) {
+    for ev in events.read() {
+        warn!("Control Setting Selected: {:?}", ev.setting);
+        let (breadcrumb, help, rows) = control_page_rows(ev.setting, &control_bindings);
+        spawn_edit_page(
+            &mut commands,
+            &handles,
+            &qtui,
+            "Controls Settings",
+            &format!("Controls > {breadcrumb}"),
+            help,
+            rows,
+        );
+        next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Controls));
+    }
+}
+
+fn menu_save_control_setting(
+    mut events: EventReader<SaveControlSetting>,
+    mut ev_back: EventWriter<MenuEvBack>,
+    mut control_bindings: ResMut<Persistent<ControlBindings>>,
+) {
+    for ev in events.read() {
+        warn!("Save Control Setting: {:?}", ev.value);
+        control_bindings.apply_setting(ev.value);
+        if let Err(e) = control_bindings.persist() {
+            error!("Error persisting Control Bindings: {e:?}");
+        }
+        ev_back.write(MenuEvBack);
+    }
+}
+
+fn menu_rebind_request(
+    mut commands: Commands,
+    mut events: EventReader<RebindRequest>,
+    mut next_state: ResMut<NextState<SettingsState>>,
+    handles: Res<GameAssets>,
+    qtui: Query<Entity, With<SettingsMenu>>,
+) {
+    for ev in events.read() {
+        warn!("Rebind Request: {:?} {:?}", ev.device, ev.action);
+        for e in qtui.iter() {
+            commands.entity(e).despawn();
+        }
+        commands
+            .spawn(Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                position_type: PositionType::Absolute,
+                ..default()
+            })
+            .insert(SettingsMenu {
+                menu_type: MenuType::SettingEdit,
+                selected_item_idx: 0,
+            })
+            .with_children(|parent| {
+                templates::create_background(parent, &handles);
+                templates::create_breadcrumb_navigation(
+                    parent,
+                    &handles,
+                    "Controls Settings",
+                    match ev.device {
+                        BindDevice::Keyboard => "Controls > Keyboard Bindings > Rebind",
+                        BindDevice::Gamepad => "Controls > Gamepad Bindings > Rebind",
+                    },
+                );
+                let prompt = format!(
+                    "Press a {} for \"{}\"",
+                    match ev.device {
+                        BindDevice::Keyboard => "key",
+                        BindDevice::Gamepad => "button",
+                    },
+                    ev.action.label()
+                );
+                templates::create_help_text(
+                    parent,
+                    &handles,
+                    Some(format!("{prompt}\nPress [Escape] to cancel")),
+                );
+            });
+        next_state.set(SettingsState::RebindCapture {
+            device: ev.device,
+            action: ev.action,
+        });
+    }
+}
+
+/// Listens for raw input while waiting for a rebind, applies it, persists and
+/// returns to the binding list.
+#[allow(clippy::too_many_arguments)]
+fn rebind_capture_system(
+    mut commands: Commands,
+    settings_state: Res<State<SettingsState>>,
+    mut next_state: ResMut<NextState<SettingsState>>,
+    mut key_input: ResMut<ButtonInput<KeyCode>>,
+    mut gamepad_button_events: EventReader<GamepadButtonChangedEvent>,
+    mut control_bindings: ResMut<Persistent<ControlBindings>>,
+    handles: Res<GameAssets>,
+    qtui: Query<Entity, With<SettingsMenu>>,
+    mut frames_since_enter: Local<u32>,
+) {
+    let Ok((device, action)) = (match settings_state.get() {
+        SettingsState::RebindCapture { device, action } => Ok((*device, *action)),
+        _ => Err(()),
+    }) else {
+        *frames_since_enter = 0;
+        return;
+    };
+    *frames_since_enter = frames_since_enter.saturating_add(1);
+    // Grace period so the Enter/click that opened this page is not captured.
+    if *frames_since_enter < 2 {
+        return;
+    }
+
+    // Keyboard capture. Escape cancels.
+    for key in key_input.get_just_pressed().copied().collect::<Vec<_>>() {
+        key_input.clear_just_pressed(key);
+        if key == KeyCode::Escape {
+            cancel_rebind(
+                &mut commands,
+                &handles,
+                &qtui,
+                device,
+                action,
+                &control_bindings,
+                &mut next_state,
+            );
+            return;
+        }
+        match device {
+            BindDevice::Keyboard => {
+                control_bindings.set_key(action, key);
+                finish_rebind(
+                    &mut commands,
+                    &handles,
+                    &qtui,
+                    device,
+                    action,
+                    &control_bindings,
+                    &mut next_state,
+                );
+            }
+            BindDevice::Gamepad => continue,
+        }
+        return;
+    }
+
+    // Gamepad capture.
+    if matches!(device, BindDevice::Keyboard) {
+        return;
+    }
+    for ev in gamepad_button_events.read() {
+        if ev.state != bevy::input::ButtonState::Pressed || ev.value < 0.5 {
+            continue;
+        }
+        control_bindings.set_button(action, ev.button);
+        finish_rebind(
+            &mut commands,
+            &handles,
+            &qtui,
+            device,
+            action,
+            &control_bindings,
+            &mut next_state,
+        );
+        return;
+    }
+}
+
+fn cancel_rebind(
+    commands: &mut Commands,
+    handles: &GameAssets,
+    qtui: &Query<Entity, With<SettingsMenu>>,
+    device: BindDevice,
+    action: unsettings::bindings::PlayerAction,
+    control_bindings: &Persistent<ControlBindings>,
+    next_state: &mut NextState<SettingsState>,
+) {
+    redraw_rebind_list(
+        commands,
+        handles,
+        qtui,
+        device,
+        action,
+        control_bindings,
+        next_state,
+    );
+}
+
+fn finish_rebind(
+    commands: &mut Commands,
+    handles: &GameAssets,
+    qtui: &Query<Entity, With<SettingsMenu>>,
+    device: BindDevice,
+    action: unsettings::bindings::PlayerAction,
+    control_bindings: &Persistent<ControlBindings>,
+    next_state: &mut NextState<SettingsState>,
+) {
+    if let Err(e) = control_bindings.persist() {
+        error!("Error persisting Control Bindings: {e:?}");
+    }
+    redraw_rebind_list(
+        commands,
+        handles,
+        qtui,
+        device,
+        action,
+        control_bindings,
+        next_state,
+    );
+}
+
+fn redraw_rebind_list(
+    commands: &mut Commands,
+    handles: &GameAssets,
+    qtui: &Query<Entity, With<SettingsMenu>>,
+    device: BindDevice,
+    action: unsettings::bindings::PlayerAction,
+    control_bindings: &Persistent<ControlBindings>,
+    next_state: &mut NextState<SettingsState>,
+) {
+    info!(
+        "Rebound {} on {}: done",
+        action.label(),
+        match device {
+            BindDevice::Keyboard => "keyboard",
+            BindDevice::Gamepad => "gamepad",
+        }
+    );
+    let _ = action;
+    let rows = rebind_list_rows(device, control_bindings);
+    spawn_edit_page(
+        commands,
+        handles,
+        qtui,
+        "Controls Settings",
+        &match device {
+            BindDevice::Keyboard => "Controls > Keyboard Bindings".to_string(),
+            BindDevice::Gamepad => "Controls > Gamepad Bindings".to_string(),
+        },
+        Some("Select an action to assign a new input. Press [Escape] to go back.".to_string()),
+        rows,
+    );
+    next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Controls));
 }

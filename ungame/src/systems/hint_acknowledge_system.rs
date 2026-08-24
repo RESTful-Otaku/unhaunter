@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_persistent::Persistent;
-use uncore::states::AppState;
 use uncore::input::{ActionState, PlayerAction};
+use uncore::states::AppState;
 use uncore::{
     components::player_sprite::PlayerSprite, resources::looking_gear::LookingGear,
     types::evidence::Evidence,

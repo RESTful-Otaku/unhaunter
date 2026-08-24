@@ -19,7 +19,7 @@ use bevy_persistent::Persistent;
 use enum_iterator::all;
 use std::collections::HashMap;
 pub use unsettings::bindings::{
-    process_stick, ControlBindings, InputDeviceMode, PlayerAction, StickResponseCurve,
+    ControlBindings, InputDeviceMode, PlayerAction, StickResponseCurve, process_stick,
 };
 
 /// Capacity for per-action state arrays. Guarded by a unit test against
@@ -171,10 +171,11 @@ fn synthesize(
     let mut out = ActionState::default();
     let mode = bindings.device_mode;
     let any_pad = q_gamepads.iter().next().is_some();
-    let mut use_keyboard =
-        matches!(mode, InputDeviceMode::Auto | InputDeviceMode::KeyboardAndMouse);
-    let use_gamepad =
-        matches!(mode, InputDeviceMode::Auto | InputDeviceMode::Gamepad) && any_pad;
+    let mut use_keyboard = matches!(
+        mode,
+        InputDeviceMode::Auto | InputDeviceMode::KeyboardAndMouse
+    );
+    let use_gamepad = matches!(mode, InputDeviceMode::Auto | InputDeviceMode::Gamepad) && any_pad;
     // Gamepad-only mode falls back to keyboard when no pad is connected, so
     // the player can never lock themselves out of the game.
     let keyboard_fallback = mode == InputDeviceMode::Gamepad && !any_pad;
@@ -184,10 +185,10 @@ fn synthesize(
 
     if use_keyboard {
         for action in all::<PlayerAction>() {
-            if let Some(key) = bindings.key(action) {
-                if keyboard.pressed(key) {
-                    out.pressed[ActionState::idx(action)] = true;
-                }
+            if let Some(key) = bindings.key(action)
+                && keyboard.pressed(key)
+            {
+                out.pressed[ActionState::idx(action)] = true;
             }
         }
     }
@@ -195,10 +196,10 @@ fn synthesize(
     if use_gamepad {
         for (_, pad) in q_gamepads.iter() {
             for action in all::<PlayerAction>() {
-                if let Some(button) = bindings.button(action) {
-                    if pad.pressed(button) {
-                        out.pressed[ActionState::idx(action)] = true;
-                    }
+                if let Some(button) = bindings.button(action)
+                    && pad.pressed(button)
+                {
+                    out.pressed[ActionState::idx(action)] = true;
                 }
             }
         }
@@ -406,14 +407,14 @@ mod tests {
 
     #[test]
     fn dominant_axis_picks_strongest_direction() {
-        assert_eq!(
-            StickMenuRepeat::dominant_axis(Vec2::new(0.9, 0.2)),
-            Vec2::X
-        );
+        assert_eq!(StickMenuRepeat::dominant_axis(Vec2::new(0.9, 0.2)), Vec2::X);
         assert_eq!(
             StickMenuRepeat::dominant_axis(Vec2::new(0.2, -0.9)),
             -Vec2::Y
         );
-        assert_eq!(StickMenuRepeat::dominant_axis(Vec2::new(0.2, 0.2)), Vec2::ZERO);
+        assert_eq!(
+            StickMenuRepeat::dominant_axis(Vec2::new(0.2, 0.2)),
+            Vec2::ZERO
+        );
     }
 }

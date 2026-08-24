@@ -14,6 +14,8 @@ pub enum MenuSettingsLevel1 {
     Video,
     Audio,
     Profile,
+    #[strum(to_string = "Controls")]
+    Controls,
 }
 
 impl MenuSettingsLevel1 {
@@ -22,6 +24,7 @@ impl MenuSettingsLevel1 {
         match self {
             MenuSettingsLevel1::Gameplay => MenuEvent::SettingClassSelected(m::Gameplay),
             MenuSettingsLevel1::Audio => MenuEvent::SettingClassSelected(m::Audio),
+            MenuSettingsLevel1::Controls => MenuEvent::SettingClassSelected(m::Controls),
             // We disable Video and Profile for now
             MenuSettingsLevel1::Video => MenuEvent::None,
             MenuSettingsLevel1::Profile => MenuEvent::None,

@@ -6,7 +6,7 @@ use uncore::{
         player_sprite::PlayerSprite,
         waypoint::{Waypoint, WaypointOwner, WaypointQueue},
     },
-    input::{ActionState, PlayerAction},
+    input::ActionState,
     resources::player_input::PlayerInput,
 };
 use unsettings::game::{GameplaySettings, MovementStyle};

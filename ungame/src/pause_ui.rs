@@ -24,15 +24,11 @@ fn keyboard(
         return;
     }
     // Resume: [ESC]/[Start] again, or confirm ([Enter]/[A]).
-    if actions.just_pressed(PlayerAction::Back)
-        || actions.just_pressed(PlayerAction::Confirm)
-    {
+    if actions.just_pressed(PlayerAction::Back) || actions.just_pressed(PlayerAction::Confirm) {
         game_next_state.set(GameState::None);
     }
     // Quit: [Q] (legacy keyboard shortcut) or [B/East].
-    if keyboard_input.just_pressed(KeyCode::KeyQ)
-        || actions.just_pressed(PlayerAction::Drop)
-    {
+    if keyboard_input.just_pressed(KeyCode::KeyQ) || actions.just_pressed(PlayerAction::Drop) {
         game_next_state.set(GameState::None);
         next_state.set(AppState::MissionSelect);
     }

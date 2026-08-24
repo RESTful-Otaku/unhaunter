@@ -135,7 +135,7 @@ pub fn create_help_text(
     text: Option<String>,
 ) {
     let default_help_text = format!(
-        "Unhaunter {}    |    [Up]/[Down]: Change    |    [Enter]: Select    |    [ESC]: Go Back",
+        "Unhaunter {}    |    [Up]/[Down]: Change    |    [Enter]: Select    |    [ESC]: Go Back    |    Gamepad: D-Pad/A/B",
         VERSION
     );
 

@@ -57,6 +57,27 @@ Once you're done, you can click "End Mission" on the van and you'll get the miss
 *   **[C]:** Record Evidence
 *   **[ShiftLeft]:** Run (hold)
 
+All of these can be rebound in **Settings > Controls**, which also offers full gamepad support:
+
+*   **Left stick / D-Pad:** Movement
+*   **Right stick:** Aim flashlight (the mouse cursor is hidden while aiming with the stick)
+*   **A / Cross:** Interact & Confirm
+*   **X / Square:** Grab item
+*   **B / Circle:** Drop item
+*   **Y / Triangle:** Activate right-hand gear
+*   **LT / L2:** Activate left-hand item
+*   **LB / L1:** Cycle right-hand inventory
+*   **RB / R1:** Swap hands
+*   **Back / Share:** Record Evidence
+*   **RT / R2:** Run
+*   **L3:** Look at left gear (hold) — **R3:** toggle
+*   **Start / Options:** Pause / Back
+
+Every gamepad button is rebindable too, and the Controls menu shows connected pads. Stick deadzones,
+sensitivity, response curve and aim inversion are configurable for accessibility. By default all
+input devices work simultaneously ("Auto" mode); you can restrict input to keyboard+mouse or
+gamepad-only in Settings > Controls > Input Devices.
+
 ### Ghost Hunting
 
 Beware! Ghosts can enter a hunting phase, becoming more aggressive and directly pursuing players to inflict damage. The likelihood of a hunt increases as the ghost's rage grows, and its duration is determined by the ghost's "hunting" state. Before a hunt begins, the ghost will often give a warning, such as a loud roar, giving you time to prepare. During a hunt, you can try to hide behind certain objects by holding down the [E] key. If the ghost catches you during a hunt, it will damage your health.
