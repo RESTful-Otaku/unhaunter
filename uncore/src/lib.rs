@@ -4,6 +4,7 @@ pub mod colors;
 pub mod components;
 pub mod difficulty;
 pub mod events;
+pub mod input;
 pub mod metric_recorder;
 pub mod noise;
 pub mod platform;

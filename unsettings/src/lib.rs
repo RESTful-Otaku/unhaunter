@@ -1,4 +1,5 @@
 pub mod audio;
+pub mod bindings;
 pub mod controls;
 pub mod game;
 pub mod plugin;

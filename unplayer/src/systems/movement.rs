@@ -39,7 +39,7 @@ const DIR_RED: f32 = 1.001;
 /// and click-to-move input to use the same movement implementation.
 pub fn player_movement_system(
     time: Res<Time>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     player_input: Res<PlayerInput>,
     mut players: Query<(
         &mut Position,

@@ -20,6 +20,9 @@ impl Plugin for UnhaunterSettingsPlugin {
         ))
         .insert_resource(create_persistent::<crate::controls::ControlKeys>(
             "control_settings.ron",
+        ))
+        .insert_resource(create_persistent::<crate::bindings::ControlBindings>(
+            "control_bindings.ron",
         ));
     }
 }

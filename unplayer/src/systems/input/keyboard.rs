@@ -6,17 +6,19 @@ use uncore::{
         player_sprite::PlayerSprite,
         waypoint::{Waypoint, WaypointOwner, WaypointQueue},
     },
+    input::{ActionState, PlayerAction},
     resources::player_input::PlayerInput,
 };
 use unsettings::game::{GameplaySettings, MovementStyle};
 
-/// System that handles keyboard input for player movement.
+/// System that merges all movement sources into the [`PlayerInput`] resource.
 ///
-/// This system reads keyboard input and converts it to movement vectors in the PlayerInput resource.
-/// It also handles movement style transformations (e.g., screen-space orthogonal movement) and
-/// clears any active click-to-move targets and waypoint queues when keyboard movement is detected.
+/// Reads the analog/digital movement vector from the action-based
+/// [`ActionState`] (which already merges keyboard and gamepad), applies the
+/// configured [`MovementStyle`] transformation, and clears any active
+/// click-to-move targets and waypoint queues when direct movement is used.
 pub fn keyboard_input_system(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    actions: Res<ActionState>,
     mut commands: Commands,
     mut player_input: ResMut<PlayerInput>,
     players: Query<(Entity, &PlayerSprite)>,
@@ -24,23 +26,10 @@ pub fn keyboard_input_system(
     q_existing_waypoints: Query<Entity, (With<Waypoint>, With<WaypointOwner>)>,
     game_settings: Res<Persistent<GameplaySettings>>,
 ) {
-    for (entity, player) in players.iter() {
-        let mut movement = Vec2::ZERO;
+    for (entity, _player) in players.iter() {
+        let mut movement = actions.move_vector;
 
-        if keyboard_input.pressed(player.controls.up) {
-            movement.y += 1.0;
-        }
-        if keyboard_input.pressed(player.controls.down) {
-            movement.y -= 1.0;
-        }
-        if keyboard_input.pressed(player.controls.left) {
-            movement.x -= 1.0;
-        }
-        if keyboard_input.pressed(player.controls.right) {
-            movement.x += 1.0;
-        }
-
-        // Apply MovementStyle transformation (from original keyboard_player)
+        // Apply MovementStyle transformation (e.g. screen-space orthogonal).
         if matches!(
             game_settings.movement_style,
             MovementStyle::ScreenSpaceOrthogonal
@@ -53,10 +42,8 @@ pub fn keyboard_input_system(
         }
 
         if movement != Vec2::ZERO {
-            // Normalize the movement vector if it's not zero
-            movement = movement.normalize();
-
-            // Clear any click-to-move target and waypoint queue when using keyboard
+            // Preserve analog magnitude; keyboard stays at unit length.
+            // Clear any click-to-move target when using direct movement.
             commands.entity(entity).remove::<MoveToTarget>();
 
             // Clear waypoint queue and despawn waypoint entities
