@@ -23,6 +23,16 @@ pub fn gamepad_pointer_id() -> PointerId {
     PointerId::Custom(uuid::Uuid::from_u128(0x00C0_4711_57A7_D500))
 }
 
+/// Builds a [`Location`] for the primary window at `position`.
+pub(crate) fn window_location(window_entity: Entity, position: Vec2) -> Option<Location> {
+    use bevy::window::WindowRef;
+    let target = WindowRef::Entity(window_entity).normalize(Some(window_entity))?;
+    Some(Location {
+        target: NormalizedRenderTarget::Window(target),
+        position,
+    })
+}
+
 /// Cursor travel speed at full stick deflection (pixels/second), before the
 /// quadratic ease.
 const CURSOR_SPEED: f32 = 1100.0;
@@ -30,9 +40,22 @@ const CURSOR_SPEED: f32 = 1100.0;
 const CURSOR_SIZE: f32 = 18.0;
 
 #[derive(Resource, Debug, Default)]
-struct GamepadCursorState {
-    position: Vec2,
-    active: bool,
+pub(crate) struct GamepadCursorState {
+    /// Current on-screen position (pixels).
+    pub position: Vec2,
+    /// Whether the pointer is currently usable.
+    pub active: bool,
+}
+
+impl GamepadCursorState {
+    /// Moves the virtual cursor to `position`, returning the delta traveled
+    /// so callers can emit a matching `PointerAction::Move` (the picking
+    /// backend tracks position incrementally).
+    pub fn teleport(&mut self, position: Vec2) -> Vec2 {
+        let delta = position - self.position;
+        self.position = position;
+        delta
+    }
 }
 
 /// Marker for the visual ring following the virtual cursor.
@@ -46,6 +69,7 @@ pub struct GamepadPointerPlugin;
 impl Plugin for GamepadPointerPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<GamepadCursorState>()
+            .add_plugins(crate::picking::truck_nav::TruckNavPlugin)
             .add_systems(Startup, spawn_gamepad_pointer)
             .add_systems(
                 Update,
@@ -79,15 +103,6 @@ fn spawn_gamepad_pointer(mut commands: Commands) {
             GlobalZIndex(10_000),
             GamepadCursorVisual,
         ));
-}
-
-fn window_location(window_entity: Entity, position: Vec2) -> Option<Location> {
-    use bevy::window::WindowRef;
-    let target = WindowRef::Entity(window_entity).normalize(Some(window_entity))?;
-    Some(Location {
-        target: NormalizedRenderTarget::Window(target),
-        position,
-    })
 }
 
 /// Whether the virtual cursor should be usable right now: a controller must be
@@ -146,10 +161,13 @@ fn gamepad_pointer_input(
         return;
     }
 
-    // Move with the left stick (movement systems are idle while these
-    // overlays are open).
+    // Free cursor movement with the left stick. In the truck screen the
+    // stick instead drives the focus navigator (`truck_nav`), which snaps
+    // the cursor between interactive elements; movement systems are idle
+    // while these overlays are open.
+    let free_cursor = !matches!(game_state.get(), GameState::Truck);
     let stick = actions.move_vector;
-    if stick.length_squared() > 0.0 {
+    if free_cursor && stick.length_squared() > 0.0 {
         // Quadratic response for precise small adjustments.
         let delta = stick * stick.length() * CURSOR_SPEED * time.delta_secs();
         state.position = (state.position + delta).clamp(Vec2::ZERO, viewport);
@@ -159,7 +177,7 @@ fn gamepad_pointer_input(
         return;
     };
 
-    if stick.length_squared() > 0.0 {
+    if free_cursor && stick.length_squared() > 0.0 {
         ev_pointer.write(PointerInput::new(
             gamepad_pointer_id(),
             location.clone(),

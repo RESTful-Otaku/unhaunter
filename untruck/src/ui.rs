@@ -1,15 +1,22 @@
 // untruck/src/ui.rs
 use super::{activity, journalui, loadoutui, sanity, sensors};
 use bevy::prelude::*;
+use bevy_persistent::Persistent;
 use uncore::colors;
 use uncore::components::truck::TruckUI;
 use uncore::components::truck_ui::{TabContents, TabState, TruckTab}; // TruckTab is now imported from uncore
 use uncore::difficulty::CurrentDifficulty;
+use uncore::input::{GamepadStatus, truck_nav_help};
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
 use uncore::states::{AppState, GameState};
 use uncore::types::root::game_assets::GameAssets;
 use uncore::types::truck_button::TruckButtonType; // Assuming this is where TruckButtonType is for .into_component()
+use unsettings::bindings::ControlBindings;
 use unstd::materials::UIPanelMaterial;
+
+/// Marker for the contextual control-hint line at the bottom of the truck UI.
+#[derive(Component)]
+pub struct TruckHelpTextContent;
 
 /// Trait to prevent CurrentDifficulty spilling to uncore
 pub trait FromTab {
@@ -350,6 +357,49 @@ fn setup_ui(
         ))
         .insert(TruckUI)
         .with_children(truck_ui);
+
+    // Contextual control hints, kept in sync with the active device and
+    // live rebinds by `update_truck_help_text`.
+    commands
+        .spawn(Node {
+            position_type: PositionType::Absolute,
+            bottom: Val::Px(6.0 * UI_SCALE),
+            left: Val::Percent(0.0),
+            width: Val::Percent(100.0),
+            justify_content: JustifyContent::Center,
+            ..default()
+        })
+        .insert(TruckUI)
+        .with_children(|bar| {
+            bar.spawn((
+                Text::new(String::new()),
+                TextFont {
+                    font: handles.fonts.titillium.w300_light.clone(),
+                    font_size: 15.0 * FONT_SCALE,
+                    ..default()
+                },
+                TextColor(colors::MENU_ITEM_COLOR_OFF),
+                TextLayout {
+                    justify: JustifyText::Center,
+                    ..default()
+                },
+                TruckHelpTextContent,
+            ));
+        });
+}
+
+/// Keeps the truck help bar in sync with the active control scheme.
+fn update_truck_help_text(
+    bindings: Res<Persistent<ControlBindings>>,
+    gamepad_status: Res<GamepadStatus>,
+    mut texts: Query<&mut Text, With<TruckHelpTextContent>>,
+) {
+    let new_text = truck_nav_help(&bindings, &gamepad_status);
+    for mut text in texts.iter_mut() {
+        if text.0 != new_text {
+            text.0 = new_text.clone();
+        }
+    }
 }
 
 fn update_tab_interactions(
@@ -423,6 +473,6 @@ pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), setup_ui)
         .add_systems(
             Update,
-            update_tab_interactions.run_if(in_state(GameState::Truck)),
+            (update_tab_interactions, update_truck_help_text).run_if(in_state(GameState::Truck)),
         );
 }

@@ -79,10 +79,13 @@ input devices work simultaneously ("Auto" mode); you can restrict input to keybo
 gamepad-only in Settings > Controls > Input Devices.
 
 In-game screens (truck computer, pause menu) can be driven entirely from the controller: the left
-stick moves an on-screen cursor and A clicks. Rumble feedback (hunts, deaths, gear interactions,
-evidence recording) can be toggled and tuned in Settings > Controls. Help bars, the pause screen and
-the in-game control legend always reflect whichever device you are using, including live rebinds.
-Run can be switched between hold-to-run and toggle-to-run in Settings > Controls for accessibility.
+stick moves an on-screen cursor and A clicks. Inside the truck computer, the D-Pad/stick snaps the
+cursor between tools and journal entries, the shoulder buttons (LB/RB) switch between Loadout and
+Journal tabs, A selects — including hold-to-complete buttons like End Mission — and B leaves the
+truck. Rumble feedback (hunts, deaths, gear interactions, evidence recording) can be toggled and
+tuned in Settings > Controls. Help bars, the pause screen and the in-game control legend always
+reflect whichever device you are using, including live rebinds. Run can be switched between
+hold-to-run and toggle-to-run in Settings > Controls for accessibility.
 
 ### Video
 

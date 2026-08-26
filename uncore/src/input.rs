@@ -497,6 +497,31 @@ pub fn menu_nav_help(bindings: &ControlBindings, status: &GamepadStatus) -> Stri
     format!("{up}/{down}: Change    |    {confirm}: Select    |    {back}: Go Back")
 }
 
+/// Contextual control hint line for the truck computer screen, derived from
+/// the live bindings and the active device.
+///
+/// While inside the truck the "cycle inventory" / "swap hands" bindings act as
+/// previous/next tab, mirroring how console games repurpose shoulder buttons.
+pub fn truck_nav_help(bindings: &ControlBindings, status: &GamepadStatus) -> String {
+    let prev_tab = action_prompt(bindings, PlayerAction::CycleInventory, Some(status));
+    let next_tab = action_prompt(bindings, PlayerAction::SwapHands, Some(status));
+    let left = action_prompt(bindings, PlayerAction::MenuLeft, Some(status));
+    let right = action_prompt(bindings, PlayerAction::MenuRight, Some(status));
+    let select = action_prompt(bindings, PlayerAction::Confirm, Some(status));
+    let leave = action_prompt(bindings, PlayerAction::Back, Some(status));
+    if prefers_gamepad(bindings, Some(status)) {
+        format!(
+            "{prev_tab}/{next_tab} Tab    |    D-Pad / Stick: Move    |    \
+             {select}: Select (hold)    |    {leave}: Leave Truck"
+        )
+    } else {
+        format!(
+            "{left}/{right} or {prev_tab}/{next_tab} Switch Tab    |    Click: Select    |    \
+             {leave}: Leave Truck"
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
