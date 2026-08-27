@@ -283,8 +283,10 @@ fn apply_lighting(
     let elapsed = time.elapsed_secs();
 
     let board_dim = bf.collision_field.dim();
-    if bf.map_size.0 == 0 {
-        // If we don't have a valid map, skip this
+    if bf.map_size.0 == 0 || vf.visibility_field.is_empty() {
+        // If we don't have a valid map or the visibility field hasn't been
+        // initialised yet (player_visibility_system may not have run yet),
+        // skip this frame.
         return;
     }
     // Deployed gear
