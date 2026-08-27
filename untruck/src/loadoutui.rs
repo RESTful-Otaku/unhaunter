@@ -457,6 +457,10 @@ fn button_clicked(
 pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(
         Update,
-        (update_loadout_buttons, button_clicked).run_if(in_state(GameState::Truck)),
+        (
+            update_loadout_buttons.after(unstd::picking::truck_focus_nav),
+            button_clicked,
+        )
+            .run_if(in_state(GameState::Truck)),
     );
 }

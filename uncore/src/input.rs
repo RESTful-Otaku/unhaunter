@@ -508,8 +508,10 @@ pub fn truck_nav_help(bindings: &ControlBindings, status: &GamepadStatus) -> Str
     let left = action_prompt(bindings, PlayerAction::MenuLeft, Some(status));
     let right = action_prompt(bindings, PlayerAction::MenuRight, Some(status));
     let select = action_prompt(bindings, PlayerAction::Confirm, Some(status));
-    let leave = action_prompt(bindings, PlayerAction::Back, Some(status));
+    let back = action_prompt(bindings, PlayerAction::Back, Some(status));
     if prefers_gamepad(bindings, Some(status)) {
+        // On a controller, B (the Drop binding) doubles as "back" inside the truck.
+        let leave = action_prompt(bindings, PlayerAction::Drop, Some(status));
         format!(
             "{prev_tab}/{next_tab} Tab    |    D-Pad / Stick: Move    |    \
              {select}: Select (hold)    |    {leave}: Leave Truck"
@@ -517,7 +519,7 @@ pub fn truck_nav_help(bindings: &ControlBindings, status: &GamepadStatus) -> Str
     } else {
         format!(
             "{left}/{right} or {prev_tab}/{next_tab} Switch Tab    |    Click: Select    |    \
-             {leave}: Leave Truck"
+             {back}: Leave Truck"
         )
     }
 }

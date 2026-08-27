@@ -373,7 +373,9 @@ pub(crate) fn app_setup(app: &mut App) {
             force_discard_evidence_system.run_if(in_state(AppState::InGame)),
         )
         .add_systems(
-            FixedUpdate,
-            button_system.run_if(in_state(GameState::Truck)),
+            Update,
+            button_system
+                .after(unstd::picking::truck_focus_nav)
+                .run_if(in_state(GameState::Truck)),
         );
 }

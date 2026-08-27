@@ -26,7 +26,7 @@ use unprofile::plugin::UnhaunterProfilePlugin;
 use unsettings::plugin::UnhaunterSettingsPlugin;
 use unsettings::video::VideoSettings;
 use unstd::materials::{CustomMaterial1, UIPanelMaterial};
-use unstd::picking::{CustomSpritePickingPlugin, GamepadPointerPlugin};
+use unstd::picking::{CustomSpritePickingPlugin, TruckNavPlugin};
 use unstd::plugins::board::UnhaunterBoardPlugin;
 use unstd::plugins::manual::UnhaunterManualPlugin;
 use unstd::plugins::root::UnhaunterRootPlugin;
@@ -70,7 +70,7 @@ pub fn app_run(cli_options: CliOptions) {
         .add_plugins(UiMaterialPlugin::<UIPanelMaterial>::default());
 
     // Add picking support for our custom sprites
-    app.add_plugins((CustomSpritePickingPlugin, GamepadPointerPlugin));
+    app.add_plugins((CustomSpritePickingPlugin, TruckNavPlugin));
 
     app.add_plugins((
         UnhaunterCorePlugin,

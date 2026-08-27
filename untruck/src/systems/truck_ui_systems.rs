@@ -99,7 +99,7 @@ fn keyboard(
     if *game_state.get() != GameState::Truck {
         return;
     }
-    if actions.just_pressed(PlayerAction::Back) {
+    if actions.just_pressed(PlayerAction::Back) || actions.just_pressed(PlayerAction::Drop) {
         game_next_state.set(GameState::None);
     }
 }
@@ -464,7 +464,7 @@ pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(
         Update,
         (
-            hold_button_system,
+            hold_button_system.after(unstd::picking::truck_focus_nav),
             truckui_event_handle.after(hold_button_system),
             update_craft_button_text,
         )

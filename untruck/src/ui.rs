@@ -473,6 +473,10 @@ pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), setup_ui)
         .add_systems(
             Update,
-            (update_tab_interactions, update_truck_help_text).run_if(in_state(GameState::Truck)),
+            (
+                update_tab_interactions.after(unstd::picking::truck_focus_nav),
+                update_truck_help_text,
+            )
+                .run_if(in_state(GameState::Truck)),
         );
 }
