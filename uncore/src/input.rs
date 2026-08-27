@@ -79,6 +79,36 @@ impl ActionState {
     pub fn any_just_pressed(&self, actions: &[PlayerAction]) -> Option<PlayerAction> {
         actions.iter().copied().find(|a| self.just_pressed(*a))
     }
+
+    /// Test-only hooks for injecting synthetic digital input in headless
+    /// integration tests. Enabled by the `testing` feature, never in release.
+    #[cfg(feature = "testing")]
+    pub fn test_press(&mut self, action: PlayerAction) {
+        let i = Self::idx(action);
+        if !self.pressed[i] {
+            self.pressed[i] = true;
+            self.just_pressed[i] = true;
+            self.just_released[i] = false;
+        }
+    }
+
+    /// Test-only: clear the `just_*` flags, simulating the start of a new
+    /// frame while a held action stays held.
+    #[cfg(feature = "testing")]
+    pub fn test_clear_frame(&mut self) {
+        self.just_pressed = [false; ACTION_CAPACITY];
+        self.just_released = [false; ACTION_CAPACITY];
+    }
+
+    /// Test-only: lift a held action, marking it released this frame.
+    #[cfg(feature = "testing")]
+    pub fn test_release(&mut self, action: PlayerAction) {
+        let i = Self::idx(action);
+        if self.pressed[i] {
+            self.pressed[i] = false;
+            self.just_released[i] = true;
+        }
+    }
 }
 
 /// Tracks connected gamepads for detection UIs.
@@ -505,8 +535,6 @@ pub fn menu_nav_help(bindings: &ControlBindings, status: &GamepadStatus) -> Stri
 pub fn truck_nav_help(bindings: &ControlBindings, status: &GamepadStatus) -> String {
     let prev_tab = action_prompt(bindings, PlayerAction::CycleInventory, Some(status));
     let next_tab = action_prompt(bindings, PlayerAction::SwapHands, Some(status));
-    let left = action_prompt(bindings, PlayerAction::MenuLeft, Some(status));
-    let right = action_prompt(bindings, PlayerAction::MenuRight, Some(status));
     let select = action_prompt(bindings, PlayerAction::Confirm, Some(status));
     let back = action_prompt(bindings, PlayerAction::Back, Some(status));
     if prefers_gamepad(bindings, Some(status)) {
@@ -517,9 +545,12 @@ pub fn truck_nav_help(bindings: &ControlBindings, status: &GamepadStatus) -> Str
              {select}: Select (hold)    |    {leave}: Leave Truck"
         )
     } else {
+        // Keyboard + mouse: arrows drive the same focus ring as a gamepad.
+        let up = action_prompt(bindings, PlayerAction::MenuUp, Some(status));
+        let down = action_prompt(bindings, PlayerAction::MenuDown, Some(status));
         format!(
-            "{left}/{right} or {prev_tab}/{next_tab} Switch Tab    |    Click: Select    |    \
-             {back}: Leave Truck"
+            "Arrows / {up}{down}: Move    |    {prev_tab}/{next_tab}: Tab    |    \
+             {select}: Select (hold)    |    {back}: Leave Truck    |    Mouse: Click"
         )
     }
 }

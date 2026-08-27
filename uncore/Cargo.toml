@@ -25,3 +25,9 @@ ndarray = { workspace = true }
 noise = { workspace = true }
 
 unsettings = { path = "../unsettings" }
+
+[features]
+default = []
+# Adds test-only hooks (e.g. synthetic input injection) used by integration
+# tests in dependent crates. Never enabled in normal or release builds.
+testing = []

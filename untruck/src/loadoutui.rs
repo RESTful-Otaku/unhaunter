@@ -46,6 +46,7 @@ pub fn setup_loadout_ui(
     let button = || {
         (
             Button,
+            Interaction::None,
             BackgroundColor(colors::TRUCKUI_ACCENT2_COLOR),
             BorderColor(colors::TRUCKUI_ACCENT_COLOR),
             Node {
