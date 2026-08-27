@@ -453,13 +453,18 @@ fn apply_lighting(
     let update_radius: usize = rng.random_range(8..32);
     let player_bpos = player_pos.to_board_position();
     let (map_width, map_height, map_depth) = bf.map_size;
+    let (vf_width, vf_height, vf_depth) = vf.visibility_field.dim();
     let player_ndidx = player_bpos.ndidx();
     let min_x = (player_ndidx.0).saturating_sub(update_radius);
-    let max_x = (player_ndidx.0 + update_radius).min(map_width - 1);
+    let max_x = (player_ndidx.0 + update_radius)
+        .min(map_width - 1)
+        .min(vf_width - 1);
     let min_y = (player_ndidx.1).saturating_sub(update_radius);
-    let max_y = (player_ndidx.1 + update_radius).min(map_height - 1);
+    let max_y = (player_ndidx.1 + update_radius)
+        .min(map_height - 1)
+        .min(vf_height - 1);
     let min_z = player_ndidx.2.saturating_sub(1);
-    let max_z = (player_ndidx.2 + 1).min(map_depth - 1);
+    let max_z = (player_ndidx.2 + 1).min(map_depth - 1).min(vf_depth - 1);
     let mut entities = Vec::with_capacity(256);
 
     for z in min_z..=max_z {
