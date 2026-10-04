@@ -37,29 +37,30 @@ fn trigger_evidence_gear_explanations(
     if let Ok(player_gear) = player_gear_query.single() {
         for gear_item in [&player_gear.left_hand, &player_gear.right_hand] {
             let gear_kind = &gear_item.kind;
-            match gear_kind {
+            let is_evidence_gear = matches!(
+                gear_kind,
                 GearKind::Flashlight
-                | GearKind::Thermometer
-                | GearKind::EMFMeter
-                | GearKind::UVTorch
-                | GearKind::Videocam
-                | GearKind::Recorder
-                | GearKind::GeigerCounter
-                | GearKind::SpiritBox
-                | GearKind::RedTorch => {
-                    if gear_item.is_enabled()
-                        && walkie_play.set(
-                            WalkieEvent::GearExplanation(*gear_kind),
-                            time.elapsed_secs_f64(),
-                        )
-                    {
-                        info!(
-                            "Evidence gear explanation triggered for {:?} because it's enabled.",
-                            gear_kind
-                        );
-                    }
-                }
-                _ => {} // Not an evidence tool of interest for this system
+                    | GearKind::Thermometer
+                    | GearKind::EMFMeter
+                    | GearKind::UVTorch
+                    | GearKind::Videocam
+                    | GearKind::Recorder
+                    | GearKind::GeigerCounter
+                    | GearKind::SpiritBox
+                    | GearKind::RedTorch
+            );
+            // Not an evidence tool of interest for this system otherwise.
+            if is_evidence_gear
+                && gear_item.is_enabled()
+                && walkie_play.set(
+                    WalkieEvent::GearExplanation(*gear_kind),
+                    time.elapsed_secs_f64(),
+                )
+            {
+                info!(
+                    "Evidence gear explanation triggered for {:?} because it's enabled.",
+                    gear_kind
+                );
             }
         }
     }

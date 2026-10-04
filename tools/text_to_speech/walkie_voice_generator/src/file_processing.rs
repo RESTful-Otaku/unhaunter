@@ -276,13 +276,13 @@ pub fn cleanup_unused_files(
             Ok(mut iter) => {
                 if iter.next().is_none() {
                     // Directory is empty
-                    println!("Deleting empty directory: {:?}", &dir_path);
+                    println!("Deleting empty directory: {:?}", dir_path);
                     fs::remove_dir(&dir_path).map_err(|e| {
                         anyhow::anyhow!("Failed to delete empty directory {:?}: {}", dir_path, e)
                     })?;
                     deleted_dir_count += 1;
                 } else {
-                    println!("Directory {:?} is not empty, not deleting.", &dir_path);
+                    println!("Directory {:?} is not empty, not deleting.", dir_path);
                 }
             }
             Err(e) => {

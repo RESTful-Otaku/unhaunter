@@ -211,20 +211,10 @@ fn apply_ambient_light_to_walls(bf: &BoardData, lfs: &mut Array3<LightFieldData>
 
             // Weight based on wall orientation
             let weight = match collision.wall_orientation {
-                Orientation::XAxis => {
-                    if dy != 0 {
-                        2.0
-                    } else {
-                        1.0
-                    }
-                }
-                Orientation::YAxis => {
-                    if dx != 0 {
-                        2.0
-                    } else {
-                        1.0
-                    }
-                }
+                Orientation::XAxis if dy != 0 => 2.0,
+                Orientation::XAxis => 1.0,
+                Orientation::YAxis if dx != 0 => 2.0,
+                Orientation::YAxis => 1.0,
                 _ => 1.0,
             } * w_factor;
 

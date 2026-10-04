@@ -123,14 +123,14 @@ Run the tool from the Unhaunter project's root directory.
 ### 1. Generate a Sample RON File (Optional)
 To see an example of the input RON structure:
 ```bash
-cargo run --bin walkie_voice_generator -- --generate-sample-ron > tools/text_to_speech/walkie_phrases/new_lines.ron
+cargo run -p walkie_voice_generator --bin walkie_voice_generator -- --generate-sample-ron > tools/text_to_speech/walkie_phrases/new_lines.ron
 ```
 Edit `new_lines.ron` with your actual voice line definitions.
 
 ### 2. Process All Definitions & Generate Assets
 This is the main command to run after defining or modifying your `.ron` files:
 ```bash
-cargo run --bin walkie_voice_generator
+cargo run -p walkie_voice_generator --bin walkie_voice_generator
 ```
 This command will:
 1.  Scan `tools/text_to_speech/walkie_phrases/` for `.ron` files.

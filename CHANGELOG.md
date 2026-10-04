@@ -1,5 +1,14 @@
 ### Unreleased
 
+**Stability & Tooling**
+
+* Fixed a failing `unwalkiecore` test so the intended one-time-event priority downgrade (VeryHigh → VeryLow after a single play) is verified correctly, matching upstream behaviour.
+* Fixed an out-of-date `object_charge` bug where attractive-object tracking leaked across missions via reused entity IDs; stale entries are now pruned each frame.
+* Replaced a panic-prone, infinite-looping input path in the `ghost_radio` dev tool: it now accepts bounds-checked 1–N choices and exits cleanly on EOF / Ctrl-D.
+* Removed a duplicate `walkie_voice_generator` binary target that triggered a Cargo output-filename warning; the tool now builds only from its own member crate.
+* Workspace-wide clippy cleanup (collapsible matches, redundant borrows, `sort_by_key`, `?` operator) and `cargo fmt` compliance.
+* Added native CLI options: `--verbose`/`-v` (repeatable log verbosity) and `--mute` (silence audio at startup) for automated QA and benchmarking runs.
+
 **Gamepad Support**
 
 * Full gamepad/controller support on top of the existing keyboard controls (any device works simultaneously by default).
