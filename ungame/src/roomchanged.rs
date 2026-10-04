@@ -49,6 +49,7 @@ fn roomchanged_event(
     ev_bdr.write(BoardDataToRebuild {
         lighting: true,
         collision: true,
+        initialize: ev.initialize,
     });
     if ev.open_van {
         interactive_stuff.game_next_state.set(GameState::Truck);

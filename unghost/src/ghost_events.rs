@@ -120,6 +120,7 @@ pub fn trigger_ghost_events(
                             ev_bdr.write(BoardDataToRebuild {
                                 lighting: true,
                                 collision: true,
+                                initialize: false,
                             });
                         }
                         // warn!("Slamming door: {:?}", door_to_slam);
@@ -156,6 +157,7 @@ pub fn trigger_ghost_events(
                             ev_bdr.write(BoardDataToRebuild {
                                 lighting: true,
                                 collision: true,
+                                initialize: false,
                             });
                         }
                     }
@@ -180,6 +182,7 @@ fn update_flicker_timers(
             ev_bdr.write(BoardDataToRebuild {
                 lighting: true,
                 collision: true,
+                initialize: false,
             });
         }
     }

@@ -12,6 +12,7 @@ use uncore::components::game_config::GameConfig;
 use uncore::components::ghost_sprite::GhostSprite;
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::components::sprite_type::SpriteType;
+use uncore::events::board_data_rebuild::BoardDataToRebuild;
 use uncore::events::loadlevel::LevelReadyEvent;
 use uncore::metric_recorder::SendMetric;
 use uncore::random_seed;
@@ -300,9 +301,16 @@ fn update_miasma(
     gc: Res<GameConfig>,
     qp: Query<(&Position, &PlayerSprite)>,
     ghost_query: Query<&GhostSprite>,
+    mut bdr_events: EventReader<BoardDataToRebuild>,
     mut room_present: Local<Array3<bool>>,
 ) {
     let measure = metrics::UPDATE_MIASMA.time_measure();
+
+    // A full board (re)load can change the room layout without changing the map
+    // dimensions, so we must not rely on the dimension check alone.
+    let board_reloaded = bdr_events
+        .read()
+        .any(|ev| ev.initialize || ev.collision || ev.lighting);
 
     let mut rng = random_seed::rng();
     let mut arr = [0u8; 97];
@@ -319,12 +327,16 @@ fn update_miasma(
     let mut pressure_changes = Array3::from_elem(board_data.map_size, 0.0);
     let mut velocity_changes = Array3::from_elem(board_data.map_size, Vec2::ZERO);
 
-    if room_present.dim() != board_data.map_size {
-        // FIXME: This will introduce a bug, if the player loads a new map with exact same size, it will not update.
+    if board_reloaded || room_present.dim() != board_data.map_size {
         *room_present = Array3::from_elem(board_data.map_size, false);
         for bpos in roomdb.room_tiles.keys() {
             let p = bpos.ndidx();
-            room_present[p] = true;
+            if p.0 < board_data.map_size.0
+                && p.1 < board_data.map_size.1
+                && p.2 < board_data.map_size.2
+            {
+                room_present[p] = true;
+            }
         }
     }
 
