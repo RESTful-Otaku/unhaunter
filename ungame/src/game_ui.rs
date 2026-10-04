@@ -14,7 +14,6 @@ use uncore::states::{AppState, GameState};
 use uncore::types::root::game_assets::GameAssets;
 use ungear::components::playergear::PlayerGear;
 use unsettings::bindings::ControlBindings;
-use unsettings::game::GameplaySettings;
 
 fn cleanup(
     mut commands: Commands,
@@ -45,7 +44,6 @@ fn resume(mut qg: Query<&mut Visibility, With<GameUI>>) {
 fn setup_ui(
     mut commands: Commands,
     handles: Res<GameAssets>,
-    game_settings: Res<Persistent<GameplaySettings>>,
     bindings: Res<Persistent<ControlBindings>>,
     gamepad_status: Res<uncore::input::GamepadStatus>,
 ) {
@@ -116,11 +114,12 @@ fn setup_ui(
     // Spawn game UI
     type Cb<'a, 'b> = &'b mut ChildSpawnerCommands<'a>;
     let key_legend = |p: Cb| {
-        // Reminder of the active control scheme.
+        // Reminder of the active control scheme. All prompts are derived from
+        // the live bindings so rebinds and device switches are always reflected.
         let prompt =
             |action| uncore::input::action_prompt(&bindings, action, Some(&gamepad_status));
-        let ch_control = game_settings.character_controls.to_string();
-        let controls = if uncore::input::prefers_gamepad(&bindings, Some(&gamepad_status)) {
+        let gamepad = uncore::input::prefers_gamepad(&bindings, Some(&gamepad_status));
+        let controls = if gamepad {
             vec![
                 "Left Stick / D-Pad: Movement".to_string(),
                 format!("{}: Sprint", prompt(PlayerAction::Run)),
@@ -134,15 +133,20 @@ fn setup_ui(
             ]
         } else {
             vec![
-                format!("[{ch_control}]: Movement"),
-                "[Shift]: Sprint".to_string(),
-                "[Ctrl]: Left Hand".to_string(),
-                "[E]: Interact".to_string(),
-                "[F]: Grab/Move".to_string(),
-                "[G]: Drop".to_string(),
-                "[Q]: Next".to_string(),
-                "[T]: Swap Hands".to_string(),
-                "[C]: Change Evidence".to_string(),
+                format!(
+                    "{}: Movement",
+                    uncore::input::key_label(
+                        bindings.key(PlayerAction::MoveUp).unwrap_or(KeyCode::KeyW)
+                    )
+                ),
+                format!("{}: Sprint", prompt(PlayerAction::Run)),
+                format!("{}: Left Hand", prompt(PlayerAction::TorchLeftHand)),
+                format!("{}: Interact", prompt(PlayerAction::Activate)),
+                format!("{}: Grab/Move", prompt(PlayerAction::Grab)),
+                format!("{}: Drop", prompt(PlayerAction::Drop)),
+                format!("{}: Next", prompt(PlayerAction::CycleInventory)),
+                format!("{}: Swap Hands", prompt(PlayerAction::SwapHands)),
+                format!("{}: Change Evidence", prompt(PlayerAction::ChangeEvidence)),
             ]
         };
         for ctrl in controls {

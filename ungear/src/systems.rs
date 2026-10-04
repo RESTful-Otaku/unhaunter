@@ -83,6 +83,13 @@ fn sound_playback_system(
             adjusted_volume /= 1.0 + dist * 0.4;
         }
 
+        // Feedback EQ optionally softens harsh high frequencies on feedback
+        // sounds at the cost of a little clarity. Implemented as a gentle
+        // loudness trim for now; a full filter graph can slot in later.
+        if audio_settings.feedback_eq == unsettings::audio::FeedbackEQ::No {
+            adjusted_volume *= 0.9;
+        }
+
         // Spawn an AudioBundle with the adjusted volume
 
         let mut sound = commands.spawn(AudioPlayer::<AudioSource>(
@@ -98,14 +105,17 @@ fn sound_playback_system(
             speed: 1.0,
             paused: false,
             spatial: sound_event.position.is_some()
-                && audio_settings.sound_output != SoundOutput::Mono,
+                && audio_settings.sound_output != SoundOutput::Mono
+                && audio_settings.audio_positioning.spatial(),
             spatial_scale: Some(SpatialScale::new(0.005)),
             ..default()
         });
 
         if let Some(position) = sound_event.position {
             let mut spos_vec = position.to_screen_coord();
-            spos_vec.z -= 10.0 / audio_settings.sound_output.to_ear_offset();
+            let ear_offset = audio_settings.sound_output.to_ear_offset()
+                * audio_settings.audio_positioning.ear_offset_multiplier();
+            spos_vec.z -= 10.0 / ear_offset.max(0.0001);
             sound.insert(Transform::from_translation(spos_vec));
         }
     }

@@ -107,7 +107,7 @@ pub fn app_run(cli_options: CliOptions) {
         UnhaunterProfilePlugin,
     ));
     app.add_systems(Update, crate::report_timer::report_performance);
-    app.add_systems(PostUpdate, apply_video_settings);
+    app.add_systems(PostUpdate, (apply_video_settings, apply_ui_scale));
     #[cfg(not(target_arch = "wasm32"))]
     {
         app.add_systems(Startup, set_window_icon);
@@ -130,6 +130,20 @@ fn apply_video_settings(
         window.resolution.set(width, height);
     }
     info!("Applied video settings: {}x{}", width as u32, height as u32);
+}
+
+/// Applies the persisted UI scale to Bevy's global [`UiScale`] resource. This
+/// scales all UI layout (menus, HUD, truck computer) uniformly, giving players
+/// a granular way to make the interface larger or smaller.
+fn apply_ui_scale(video: Res<Persistent<VideoSettings>>, mut ui_scale: ResMut<bevy::ui::UiScale>) {
+    if !video.is_changed() {
+        return;
+    }
+    let scale = video.ui_scale.as_f32();
+    if (ui_scale.0 - scale).abs() > f32::EPSILON {
+        ui_scale.0 = scale;
+        info!("Applied UI scale: {:.0}%", scale * 100.0);
+    }
 }
 
 fn default_resolution() -> WindowResolution {
