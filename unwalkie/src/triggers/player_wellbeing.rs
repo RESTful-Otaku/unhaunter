@@ -1,7 +1,6 @@
 use bevy::app::App;
 use bevy::prelude::*;
 use bevy::time::Stopwatch;
-use uncore::components::light::LightLevel;
 use uncore::{
     components::{
         board::position::Position,
@@ -12,7 +11,7 @@ use uncore::{
     resources::{board_data::BoardData, roomdb::RoomDB}, // Added BoardData
     states::{AppState, GameState},
 };
-use unwalkiecore::{WalkieEvent, WalkiePlay}; // Corrected import for LightLevel
+use unwalkiecore::{WalkieEvent, WalkiePlay};
 
 // Constants for SanityDroppedBelowThresholdDarkness
 const LOW_LUX_THRESHOLD: f32 = 0.1;
@@ -102,12 +101,15 @@ fn low_health_general_warning(
     }
 }
 
-/// System for SanityDroppedBelowThresholdDarkness
+/// System for SanityDroppedBelowThresholdDarkness.
+///
+/// Darkness is read directly from the board's light field at the player's
+/// position. (The old implementation queried a `LightLevel` component that is
+/// never inserted on any entity, so this trigger could never fire.)
 fn trigger_sanity_dropped_due_to_darkness_system(
     time: Res<Time>,
     mut walkie_play: ResMut<WalkiePlay>,
-    // FIXME: WTF is "LightLevel"? this does not exist, this seems a hallucination from the original code.
-    player_query: Query<(&PlayerSprite, &Position, &LightLevel), Without<Hiding>>,
+    player_query: Query<(&PlayerSprite, &Position), Without<Hiding>>,
     roomdb: Res<RoomDB>,
     board_data: Res<BoardData>,
     app_state: Res<State<AppState>>,
@@ -122,7 +124,7 @@ fn trigger_sanity_dropped_due_to_darkness_system(
         return;
     }
 
-    let Ok((player_sprite, player_pos, light_level)) = player_query.single() else {
+    let Ok((player_sprite, player_pos)) = player_query.single() else {
         *darkness_sanity_tracker = None;
         *hint_triggered_this_episode = false;
         return;
@@ -135,7 +137,12 @@ fn trigger_sanity_dropped_due_to_darkness_system(
         *hint_triggered_this_episode = false;
         return;
     }
-    let is_in_darkness = light_level.lux < LOW_LUX_THRESHOLD && !board_data.is_lit(player_bpos);
+    let player_lux = board_data
+        .light_field
+        .get(player_bpos.ndidx())
+        .map(|l| l.lux)
+        .unwrap_or(0.0);
+    let is_in_darkness = player_lux < LOW_LUX_THRESHOLD && !board_data.is_lit(player_bpos);
 
     // 3.c. Defining "Prolonged Darkness Period"
     if is_in_darkness {
@@ -300,10 +307,3 @@ pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(Update, trigger_sanity_dropped_due_to_darkness_system); // Added new system
     app.add_systems(Update, trigger_sanity_dropped_due_to_ghost_system); // Added new system
 }
-
-// FIXME: The LightLevel component seems to be here as a placeholder, we need to understand its purpose.
-// Dummy LightLevel component for compilation if not already defined elsewhere accessible
-// #[derive(Component)]
-// struct LightLevel {
-//     lux: f32,
-// }
