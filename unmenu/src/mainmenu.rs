@@ -224,25 +224,33 @@ pub fn manage_title_song(
     }
 }
 
+/// Fades the menu song in/out and despawns it **only once it has been told to
+/// despawn**. A silence guard prevents a feedback loop with
+/// [`manage_title_song`]: if the sink's volume ever reads as zero (for example
+/// because the global output volume is muted), the song must not be despawned,
+/// otherwise it would be respawned immediately and loop forever.
 pub fn despawn_sound(
     mut commands: Commands,
     mut qs: Query<(Entity, &mut AudioSink, &MenuSound)>,
     audio_settings: Res<Persistent<AudioSettings>>,
 ) {
     for (entity, mut sink, menusound) in &mut qs {
-        let vol = sink.volume().to_linear();
-        let v = if menusound.despawn {
-            vol / 1.02
-        } else {
+        if !menusound.despawn {
             let desired_vol =
                 audio_settings.volume_music.as_f32() * audio_settings.volume_master.as_f32();
             const STEPS: f32 = 120.0;
-            if vol < desired_vol / 2.0 {
+            let vol = sink.volume().to_linear();
+            let v = if vol < desired_vol / 2.0 {
                 vol * 1.02
             } else {
                 (vol * STEPS + desired_vol) / (STEPS + 1.0)
-            }
-        };
+            };
+            sink.set_volume(bevy::audio::Volume::Linear(v));
+            continue;
+        }
+
+        // Asked to despawn: fade out, then remove the entity.
+        let v = sink.volume().to_linear() / 1.02;
         sink.set_volume(bevy::audio::Volume::Linear(v));
         if v < 0.001 {
             commands.entity(entity).despawn();
