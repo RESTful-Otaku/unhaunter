@@ -37,6 +37,7 @@ use unwalkie::plugin::UnhaunterWalkiePlugin;
 
 pub fn app_run(cli_options: CliOptions) {
     let mut app = App::new();
+    let log_level = cli_options.log_level();
     app.insert_resource(cli_options);
     app.add_plugins(
         DefaultPlugins
@@ -51,7 +52,7 @@ pub fn app_run(cli_options: CliOptions) {
                 ..default()
             })
             .set(bevy::log::LogPlugin {
-                level: bevy::log::Level::INFO,
+                level: log_level,
                 ..default()
             }),
     )
@@ -59,6 +60,11 @@ pub fn app_run(cli_options: CliOptions) {
     .insert_resource(Time::<Fixed>::from_duration(Duration::from_secs_f32(
         1.0 / 15.0,
     )));
+
+    // `--mute` silences all audio at startup for automated testing / QA runs.
+    if cli_options.mute {
+        app.insert_resource(bevy::audio::GlobalVolume::new(bevy::audio::Volume::SILENT));
+    }
 
     app.init_resource::<CurrentDifficulty>()
         .init_resource::<ObjectInteractionConfig>();

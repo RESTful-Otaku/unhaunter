@@ -16,8 +16,12 @@ fn main() {
     let mut ghost_responses = load_ghost_responses("assets/phrasebooks/ghost.yaml");
     let ghosts = ["poltergeist", "shade"];
     console_ui::display_ghost_options(&ghosts);
-    let ghost_choice = get_user_choice();
-    let selected_ghost = ghosts[ghost_choice - 1].to_owned();
+    let Some(ghost_choice) =
+        console_ui::prompt_choice("Select a ghost (enter number): ", ghosts.len())
+    else {
+        return;
+    };
+    let selected_ghost = ghosts[ghost_choice].to_owned();
     let ghost_metadata =
         load_ghost_metadata(&format!("assets/sample_ghosts/{selected_ghost}.yaml"));
     let mut ghost_mood = ghost_metadata.mood.clone();
@@ -36,7 +40,10 @@ fn main() {
             ghost_mood.joy,
             ghost_mood.sadness
         );
-        let player_phrase = console_ui::get_player_phrase(&phrases);
+        let player_phrase = match console_ui::get_player_phrase(&phrases) {
+            Some(phrase) => phrase,
+            None => break,
+        };
         println!();
         println!("Player says: {}", player_phrase);
         let scores = ghost_ai::score_responses(
@@ -114,19 +121,4 @@ fn load_ghost_metadata(filepath: &str) -> data::GhostMetadata {
     let reader = BufReader::new(file);
     let metadata: data::GhostMetadata = from_reader(reader).unwrap();
     metadata
-}
-
-fn get_user_choice() -> usize {
-    loop {
-        let mut input = String::new();
-        if std::io::stdin().read_line(&mut input).is_ok() {
-            if let Ok(choice) = input.trim().parse::<usize>() {
-                return choice;
-            } else {
-                println!("Invalid input. Please enter a number.");
-            }
-        } else {
-            println!("Error reading input.");
-        }
-    }
 }

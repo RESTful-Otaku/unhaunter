@@ -4,8 +4,17 @@ use uncore::resources::cli_options::CliOptions;
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
+    /// Include draft/in-development maps that are hidden by default.
     #[clap(long, action)]
     draft_maps: bool,
+
+    /// Increase log verbosity. Repeat for more detail (-v = debug, -vv = trace).
+    #[clap(short, long, action = clap::ArgAction::Count)]
+    verbose: u8,
+
+    /// Mute all audio at startup (useful for automated testing/QA).
+    #[clap(long, action)]
+    mute: bool,
 }
 
 fn main() {
@@ -19,5 +28,7 @@ fn main() {
     }
     unhaunter::app_run(CliOptions {
         include_draft_maps: args.draft_maps,
+        verbose: args.verbose,
+        mute: args.mute,
     });
 }

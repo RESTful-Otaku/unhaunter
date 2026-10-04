@@ -28,10 +28,7 @@ fn parse_multiple_named_sets(
 ) -> Result<Vec<(String, HashSet<GhostType>)>, String> {
     let mut parsed_sets = Vec::new();
     for set_str in set_strs {
-        match parse_named_ghost_set(set_str) {
-            Ok(parsed_set) => parsed_sets.push(parsed_set),
-            Err(e) => return Err(e),
-        }
+        parsed_sets.push(parse_named_ghost_set(set_str)?);
     }
     if parsed_sets.len() < 2 {
         return Err("At least two sets are required for comparison.".to_string());
@@ -202,7 +199,7 @@ fn perform_detailed_comparison(sets: &[(String, HashSet<GhostType>)]) {
         .iter()
         .map(|(name, ghosts)| (name.as_str(), ghosts.len()))
         .collect();
-    size_comparison.sort_by(|a, b| b.1.cmp(&a.1)); // Sort by size descending
+    size_comparison.sort_by_key(|a| std::cmp::Reverse(a.1)); // Sort by size descending
 
     for (name, size) in &size_comparison {
         println!("  {}: {} ghosts", name, size);

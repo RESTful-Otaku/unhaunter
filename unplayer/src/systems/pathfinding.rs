@@ -570,19 +570,13 @@ fn detect_stair_direction(
         }
 
         match behavior.orientation() {
-            Orientation::XAxis => {
-                // For XAxis stairs, check if X coordinates are close and Y direction
-                if (paired_bpos.x - stair_bpos.x).abs() <= 2 {
-                    // If paired stair is at higher Y, stairs go in positive Y direction
-                    return paired_bpos.y > stair_bpos.y;
-                }
+            Orientation::XAxis if (paired_bpos.x - stair_bpos.x).abs() <= 2 => {
+                // If paired stair is at higher Y, stairs go in positive Y direction
+                return paired_bpos.y > stair_bpos.y;
             }
-            Orientation::YAxis => {
-                // For YAxis stairs, check if Y coordinates are close and X direction
-                if (paired_bpos.y - stair_bpos.y).abs() <= 2 {
-                    // If paired stair is at higher X, stairs go in positive X direction
-                    return paired_bpos.x > stair_bpos.x;
-                }
+            Orientation::YAxis if (paired_bpos.y - stair_bpos.y).abs() <= 2 => {
+                // If paired stair is at higher X, stairs go in positive X direction
+                return paired_bpos.x > stair_bpos.x;
             }
             _ => {}
         }

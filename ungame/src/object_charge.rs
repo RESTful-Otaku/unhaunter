@@ -44,7 +44,9 @@ fn check_ghost_proximity(
     mut ghost_query: Query<(&Position, &mut GhostSprite)>,
     // Query for object positions and GhostInfluence
     object_query: Query<(Entity, &Position, &GhostInfluence)>,
-    // FIXME: This parameter would not reset between missions.
+    // Tracks attractive objects that have been removed from any room.
+    // Entries are pruned below so stale entities from previous missions
+    // (whose IDs may be reused) can never leak into a new mission.
     mut removed_attractive_objects: Local<HashSet<Entity>>,
     // Access commands to add/remove components
     mut commands: Commands,
@@ -60,6 +62,11 @@ fn check_ghost_proximity(
         return;
     };
     let breach_position = ghost_sprite.spawn_point.to_position();
+
+    // Drop entries whose entities no longer exist (e.g. after a level change).
+    // This prevents entity-ID reuse from marking newly spawned objects as
+    // "removed" and incorrectly enraging the ghost across missions.
+    removed_attractive_objects.retain(|entity| object_query.get(*entity).is_ok());
 
     // Iterate through objects with GhostInfluence
     for (entity, object_position, ghost_influence) in &object_query {
