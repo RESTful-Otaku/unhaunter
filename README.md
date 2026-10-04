@@ -90,7 +90,11 @@ hold-to-run and toggle-to-run in Settings > Controls for accessibility.
 ### Video
 
 **Settings > Video** offers window size and aspect ratio presets that apply immediately and persist
-across sessions.
+across sessions. A **UI Scale** control (80%–120%) scales all menus, the HUD and the truck computer
+for improved readability on large displays or at a distance.
+
+**Settings > Audio** includes master/music/effects/ambient/voice volumes, sound output width, audio
+positioning (screen space, isometric or character-relative) and a feedback EQ switch.
 
 ### Ghost Hunting
 

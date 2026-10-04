@@ -197,13 +197,30 @@ impl SoundOutput {
     strum::Display,
 )]
 pub enum AudioPositioning {
-    /// Audio is positioned in screen space.
+    /// Audio is positioned in screen space (left/right only, no distance attenuation).
     ScreenSpace,
     /// Audio is positioned relative to the isometric view.
     Isometric,
-    /// Audio is positioned relative to the character (default).
+    /// Audio is positioned relative to the character (default), with full
+    /// stereo and a subtle inter-ear delay for headphone imaging.
     #[default]
     CharacterRelative,
+}
+
+impl AudioPositioning {
+    /// True when positional 3D audio should be applied to sound events.
+    pub fn spatial(&self) -> bool {
+        !matches!(self, AudioPositioning::ScreenSpace)
+    }
+
+    /// Relative stereo widening applied on top of [`SoundOutput`].
+    pub fn ear_offset_multiplier(&self) -> f32 {
+        match self {
+            AudioPositioning::ScreenSpace => 0.0,
+            AudioPositioning::Isometric => 1.5,
+            AudioPositioning::CharacterRelative => 1.0,
+        }
+    }
 }
 
 /// Represents the different feedback delay settings.

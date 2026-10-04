@@ -551,9 +551,6 @@ fn menu_save_gameplay_setting(
             v::camera_controls(camera_controls) => {
                 gameplay_settings.camera_controls = camera_controls;
             }
-            v::character_controls(character_controls) => {
-                gameplay_settings.character_controls = character_controls;
-            }
         }
         if let Err(e) = gameplay_settings.persist() {
             error!("Error persisting Gameplay Settings: {e:?}");

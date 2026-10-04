@@ -1,5 +1,12 @@
 ### Unreleased
 
+**Accessibility & Granular Settings**
+
+* **UI Scale** is now a Video setting (80%–120%). It applies live to every menu, the HUD and the truck computer, and persists across sessions.
+* Finished wiring previously inert audio options: **Audio Positioning** (Screen Space / Isometric / Character Relative) now controls 3D spatialisation, and **Feedback EQ** applies a gentle tone trim. Both are selectable in Settings → Audio.
+* The in-game control legend now reflects live rebinds and the active device instead of hard-coded keys, so customising controls is immediately visible.
+* Removed the obsolete `CharacterControls` setting (superseded by per-action rebinding). Existing profiles migrate automatically.
+
 **Stability & Tooling**
 
 * Fixed a failing `unwalkiecore` test so the intended one-time-event priority downgrade (VeryHigh → VeryLow after a single play) is verified correctly, matching upstream behaviour.

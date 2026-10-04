@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 pub struct GameplaySettings {
     pub movement_style: MovementStyle,
     pub camera_controls: CameraControls,
-    pub character_controls: CharacterControls,
 }
 
 #[expect(non_camel_case_types)]
@@ -16,7 +15,6 @@ pub struct GameplaySettings {
 pub enum GameplaySettingsValue {
     movement_style(MovementStyle),
     camera_controls(CameraControls),
-    character_controls(CharacterControls),
 }
 
 #[derive(
@@ -68,25 +66,4 @@ impl CameraControls {
             CameraControls::Off => false,
         }
     }
-}
-
-#[derive(
-    Reflect,
-    Component,
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Default,
-    Sequence,
-    strum::Display,
-    strum::EnumIter,
-)]
-pub enum CharacterControls {
-    #[default]
-    WASD,
-    Arrows,
 }

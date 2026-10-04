@@ -72,7 +72,9 @@ impl AudioSettingsMenu {
             | Self::VolumeAmbient
             | Self::VolumeVoiceChat => MenuEvent::EditAudioSetting(*self),
             Self::SoundOutput => MenuEvent::EditAudioSetting(*self),
-            _ => MenuEvent::None,
+            Self::AudioPositioning => MenuEvent::EditAudioSetting(*self),
+            Self::FeedbackDelay => MenuEvent::EditAudioSetting(*self),
+            Self::FeedbackEq => MenuEvent::EditAudioSetting(*self),
         }
     }
 
@@ -160,7 +162,60 @@ impl AudioSettingsMenu {
                     })
                     .collect::<Vec<_>>()
             }
-            _ => vec![],
+            AudioSettingsMenu::AudioPositioning => {
+                use unsettings::audio::AudioPositioning;
+                let to_string = |s: AudioPositioning, v: &AudioPositioning| -> String {
+                    if s == *v {
+                        format!("[{s}]")
+                    } else {
+                        s.to_string()
+                    }
+                };
+                AudioPositioning::iter()
+                    .map(|s| {
+                        (
+                            to_string(s, &audio_settings.audio_positioning),
+                            MenuEvent::SaveAudioSetting(AudioSettingsValue::audio_positioning(s)),
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            }
+            AudioSettingsMenu::FeedbackDelay => {
+                use unsettings::audio::FeedbackDelay;
+                let to_string = |s: FeedbackDelay, v: &FeedbackDelay| -> String {
+                    if s == *v {
+                        format!("[{s}]")
+                    } else {
+                        s.to_string()
+                    }
+                };
+                FeedbackDelay::iter()
+                    .map(|s| {
+                        (
+                            to_string(s, &audio_settings.feedback_delay),
+                            MenuEvent::SaveAudioSetting(AudioSettingsValue::feedback_delay(s)),
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            }
+            AudioSettingsMenu::FeedbackEq => {
+                use unsettings::audio::FeedbackEQ;
+                let to_string = |s: FeedbackEQ, v: &FeedbackEQ| -> String {
+                    if s == *v {
+                        format!("[{s}]")
+                    } else {
+                        s.to_string()
+                    }
+                };
+                FeedbackEQ::iter()
+                    .map(|s| {
+                        (
+                            to_string(s, &audio_settings.feedback_eq),
+                            MenuEvent::SaveAudioSetting(AudioSettingsValue::feedback_eq(s)),
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            }
         }
     }
 
@@ -256,6 +311,8 @@ pub enum VideoSettingsMenu {
     WindowSize,
     #[strum(to_string = "Aspect Ratio")]
     AspectRatio,
+    #[strum(to_string = "UI Scale")]
+    UiScale,
 }
 
 impl VideoSettingsMenu {
@@ -271,6 +328,7 @@ impl VideoSettingsMenu {
                 AspectRatio::Ar16_10 => "16:10".to_string(),
                 AspectRatio::Ar16_9 => "16:9".to_string(),
             },
+            Self::UiScale => video_settings.ui_scale.to_string(),
         }
     }
 
@@ -292,6 +350,7 @@ impl VideoSettingsMenu {
         &self,
         video_settings: &Res<Persistent<VideoSettings>>,
     ) -> Vec<(String, MenuEvent)> {
+        use unsettings::video::Scale;
         match self {
             Self::WindowSize => WindowSize::iter()
                 .map(|s| {
@@ -319,6 +378,18 @@ impl VideoSettingsMenu {
                             label
                         },
                         MenuEvent::SaveVideoSetting(VideoSettingsValue::aspect_ratio(s)),
+                    )
+                })
+                .collect::<Vec<_>>(),
+            Self::UiScale => Scale::iter()
+                .map(|s| {
+                    (
+                        if s == video_settings.ui_scale {
+                            format!("[{s}]")
+                        } else {
+                            s.to_string()
+                        },
+                        MenuEvent::SaveVideoSetting(VideoSettingsValue::ui_scale(s)),
                     )
                 })
                 .collect::<Vec<_>>(),
