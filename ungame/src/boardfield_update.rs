@@ -33,6 +33,16 @@ fn boardfield_update(
         if b.lighting {
             bdr.lighting = true;
         }
+        if b.initialize {
+            bdr.initialize = true;
+        }
+    }
+
+    // Rebuild the lighting field on a full board load even if no explicit
+    // lighting/collision rebuild was requested, so per-map caches keyed on
+    // dimensions cannot go stale.
+    if bdr.initialize {
+        bdr.lighting = true;
     }
 
     if bdr.collision {

@@ -13,6 +13,7 @@
 * Fixed an out-of-date `object_charge` bug where attractive-object tracking leaked across missions via reused entity IDs; stale entries are now pruned each frame.
 * Replaced a panic-prone, infinite-looping input path in the `ghost_radio` dev tool: it now accepts bounds-checked 1–N choices and exits cleanly on EOF / Ctrl-D.
 * Fixed a main-menu bug where the looping title song was despawned and respawned every frame whenever the audio output was silent (e.g. muted). The song now only despawns after being explicitly asked to.
+* Fixed stale miasma/room data when loading a new map of the same dimensions: the board now emits an explicit "initialize" signal on full load instead of relying on a size comparison, and out-of-range room tiles are ignored defensively.
 * Removed a duplicate `walkie_voice_generator` binary target that triggered a Cargo output-filename warning; the tool now builds only from its own member crate.
 * Workspace-wide clippy cleanup (collapsible matches, redundant borrows, `sort_by_key`, `?` operator) and `cargo fmt` compliance.
 * Added native CLI options: `--verbose`/`-v` (repeatable log verbosity) and `--mute` (silence audio at startup) for automated QA and benchmarking runs.
