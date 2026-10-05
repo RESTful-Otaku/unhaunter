@@ -2,9 +2,8 @@ use bevy::prelude::*;
 use enum_iterator::Sequence;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Component, Resource, Serialize, Deserialize, Debug, Default, Clone, Copy, PartialEq, Eq,
-)]
+#[derive(Component, Resource, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
+#[serde(default)]
 pub struct VideoSettings {
     pub window_size: WindowSize,
     pub aspect_ratio: AspectRatio,
@@ -12,6 +11,10 @@ pub struct VideoSettings {
     pub font_scale: Scale,
     pub fullscreen: FullscreenMode,
     pub vsync: VSyncMode,
+    /// Whether the red hunt-warning screen-edge pulse may flash. Disable this for
+    /// photosensitive players; the hunt is still telegraphed by audio and by the
+    /// ghost turning red.
+    pub hunt_warning_flash: bool,
 }
 
 #[derive(
@@ -108,6 +111,7 @@ pub enum VideoSettingsValue {
     ui_scale(Scale),
     fullscreen(FullscreenMode),
     vsync(VSyncMode),
+    hunt_warning_flash(bool),
 }
 
 impl VideoSettingsValue {
@@ -119,6 +123,7 @@ impl VideoSettingsValue {
             VideoSettingsValue::ui_scale(v) => settings.ui_scale = *v,
             VideoSettingsValue::fullscreen(v) => settings.fullscreen = *v,
             VideoSettingsValue::vsync(v) => settings.vsync = *v,
+            VideoSettingsValue::hunt_warning_flash(v) => settings.hunt_warning_flash = *v,
         }
     }
 }
@@ -182,6 +187,20 @@ pub enum VSyncMode {
     Off,
 }
 
+impl Default for VideoSettings {
+    fn default() -> Self {
+        Self {
+            window_size: WindowSize::default(),
+            aspect_ratio: AspectRatio::default(),
+            ui_scale: Scale::default(),
+            font_scale: Scale::default(),
+            fullscreen: FullscreenMode::default(),
+            vsync: VSyncMode::default(),
+            hunt_warning_flash: true,
+        }
+    }
+}
+
 impl VideoSettings {
     /// Base window height in pixels for each size preset.
     pub fn resolution(&self) -> (f32, f32) {
@@ -217,6 +236,39 @@ mod tests {
         assert_eq!(settings.ui_scale, Scale::Scale120);
         VideoSettingsValue::ui_scale(Scale::Scale080).apply(&mut settings);
         assert_eq!(settings.ui_scale, Scale::Scale080);
+    }
+
+    #[test]
+    fn video_settings_deserialize_when_new_fields_are_missing() {
+        // Simulates an older config file written before a field existed: the
+        // loader must fall back to the default rather than dropping all settings.
+        let old = r#"(
+            window_size: Big,
+            aspect_ratio: Ar16_9,
+            ui_scale: Scale120,
+            font_scale: Scale100,
+            fullscreen: Borderless,
+            vsync: Off,
+        )"#;
+        let settings: VideoSettings = ron::from_str(old).expect("old config should still parse");
+        assert_eq!(settings.window_size, WindowSize::Big);
+        assert_eq!(settings.vsync, VSyncMode::Off);
+        assert!(
+            settings.hunt_warning_flash,
+            "missing field falls back to on"
+        );
+    }
+
+    #[test]
+    fn hunt_warning_flash_defaults_on_and_can_be_disabled() {
+        let mut settings = VideoSettings::default();
+        assert!(settings.hunt_warning_flash);
+
+        VideoSettingsValue::hunt_warning_flash(false).apply(&mut settings);
+        assert!(!settings.hunt_warning_flash);
+
+        VideoSettingsValue::hunt_warning_flash(true).apply(&mut settings);
+        assert!(settings.hunt_warning_flash);
     }
 
     #[test]

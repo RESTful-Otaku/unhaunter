@@ -317,6 +317,8 @@ pub enum VideoSettingsMenu {
     Fullscreen,
     #[strum(to_string = "V-Sync")]
     VSync,
+    #[strum(to_string = "Hunt Warning Flash")]
+    HuntWarningFlash,
 }
 
 impl VideoSettingsMenu {
@@ -335,6 +337,7 @@ impl VideoSettingsMenu {
             Self::UiScale => video_settings.ui_scale.to_string(),
             Self::Fullscreen => video_settings.fullscreen.to_string(),
             Self::VSync => video_settings.vsync.to_string(),
+            Self::HuntWarningFlash => video_settings.hunt_warning_flash.to_string(),
         }
     }
 
@@ -429,6 +432,20 @@ impl VideoSettingsMenu {
                     })
                     .collect::<Vec<_>>()
             }
+            Self::HuntWarningFlash => [true, false]
+                .map(|enabled| {
+                    (
+                        if enabled == video_settings.hunt_warning_flash {
+                            format!("[{enabled}]")
+                        } else {
+                            enabled.to_string()
+                        },
+                        MenuEvent::SaveVideoSetting(VideoSettingsValue::hunt_warning_flash(
+                            enabled,
+                        )),
+                    )
+                })
+                .into(),
         }
     }
 }

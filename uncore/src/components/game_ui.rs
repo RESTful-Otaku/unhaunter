@@ -36,6 +36,10 @@ pub struct StaminaBarFill;
 #[derive(Component, Debug)]
 pub struct StaminaBarRoot;
 
+/// Marker for the full-screen vignette that pulses during a hunt warning.
+#[derive(Component, Debug)]
+pub struct HuntWarningVignette;
+
 #[derive(Component, Debug, Default)]
 pub struct WalkieTextUIRoot;
 

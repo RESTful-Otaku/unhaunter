@@ -4,9 +4,10 @@ use bevy_persistent::Persistent;
 use uncore::behavior::Behavior;
 use uncore::colors;
 use uncore::components::game_ui::{
-    DamageBackground, ElementObjectUI, EvidenceUI, GameUI, RightSideGearUI, StaminaBarFill,
-    StaminaBarRoot, WalkieText, WalkieTextUIRoot,
+    DamageBackground, ElementObjectUI, EvidenceUI, GameUI, HuntWarningVignette, RightSideGearUI,
+    StaminaBarFill, StaminaBarRoot, WalkieText, WalkieTextUIRoot,
 };
+use uncore::components::ghost_sprite::GhostSprite;
 use uncore::components::player::Stamina;
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::input::PlayerAction;
@@ -15,6 +16,7 @@ use uncore::states::{AppState, GameState};
 use uncore::types::root::game_assets::GameAssets;
 use ungear::components::playergear::PlayerGear;
 use unsettings::bindings::ControlBindings;
+use unsettings::video::VideoSettings;
 
 fn cleanup(
     mut commands: Commands,
@@ -144,6 +146,26 @@ fn setup_ui(
         .insert(ZIndex(-4))
         .insert(GameUI)
         .insert(DamageBackground::new(0.7));
+
+    // Hunt-warning vignette. Sits above the damage overlays so it stays legible
+    // even when the player is already hurt. Alpha is driven every frame by
+    // `update_hunt_warning_vignette` from the ghost's hunt warning state.
+    commands
+        .spawn(ImageNode {
+            image: handles.images.vignette.clone(),
+            color: Color::Srgba(css::RED.with_alpha(0.0)),
+            ..default()
+        })
+        .insert(Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            position_type: PositionType::Absolute,
+            ..default()
+        })
+        .insert(Pickable::IGNORE)
+        .insert(ZIndex(-3))
+        .insert(GameUI)
+        .insert(HuntWarningVignette);
 
     // Spawn game UI
     type Cb<'a, 'b> = &'b mut ChildSpawnerCommands<'a>;
@@ -542,6 +564,56 @@ fn toggle_held_object_ui(
     }
 }
 
+/// Pulses a red vignette at the screen edges while the ghost is winding up for
+/// a hunt, so the danger is readable even when the ghost itself is off-screen or
+/// hidden in darkness.
+///
+/// The pulse ramps with `hunt_warning_intensity` (which the ghost already ramps
+/// up over the warning window) and fades out quickly once the warning ends, so
+/// it never lingers after the player is safe.
+fn update_hunt_warning_vignette(
+    time: Res<Time>,
+    ghosts: Query<&GhostSprite>,
+    video_settings: Res<Persistent<VideoSettings>>,
+    mut vignette: Query<&mut ImageNode, With<HuntWarningVignette>>,
+) {
+    if !video_settings.hunt_warning_flash {
+        for mut node in vignette.iter_mut() {
+            if node.color != Color::NONE {
+                node.color = Color::NONE;
+            }
+        }
+        return;
+    }
+
+    let intensity = ghosts
+        .iter()
+        .map(|g| {
+            if g.hunt_target {
+                // During the actual hunt the warning is fully engaged.
+                1.0
+            } else if g.hunt_warning_active {
+                g.hunt_warning_intensity.clamp(0.0, 1.0)
+            } else {
+                0.0
+            }
+        })
+        .fold(0.0_f32, f32::max);
+
+    // ~1.6 pulses per second: fast enough to feel urgent, slow enough to read
+    // as a warning rather than strobing.
+    let pulse = (time.elapsed_secs() * 10.0).sin() * 0.5 + 0.5;
+    let alpha = (intensity * pulse * 0.55).clamp(0.0, 1.0);
+
+    let new_color = Color::Srgba(css::RED.with_alpha(alpha));
+
+    for mut node in vignette.iter_mut() {
+        if node.color != new_color {
+            node.color = new_color;
+        }
+    }
+}
+
 pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), setup_ui)
         .add_systems(OnExit(AppState::InGame), cleanup)
@@ -549,7 +621,12 @@ pub(crate) fn app_setup(app: &mut App) {
         .add_systems(OnExit(GameState::None), pause)
         .add_systems(
             Update,
-            (toggle_held_object_ui, update_stamina_bar).run_if(in_state(GameState::None)),
+            (
+                toggle_held_object_ui,
+                update_stamina_bar,
+                update_hunt_warning_vignette,
+            )
+                .run_if(in_state(GameState::None)),
         );
 }
 

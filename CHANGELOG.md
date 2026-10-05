@@ -6,7 +6,12 @@
 
 **Rendering & VFX**
 
+* Added a **hunt-warning vignette**: a red pulse at the screen edges during the pre-hunt warning, ramping with the ghost's warning intensity. Previously the only cues were the ghost turning red (invisible if it is dark or off-screen) and the walkie audio.
 * Turned off the development `DEBUG_HUNTS` flag, which was left `true` and logged ghost rage/hunt state periodically in every normal playthrough.
+
+**Accessibility**
+
+* Added a **Hunt Warning Flash** toggle in Video settings (default on) to disable the new vignette pulse for photosensitive players. The hunt is still telegraphed by audio and the ghost turning red.
 
 **UI/UX Polish**
 
