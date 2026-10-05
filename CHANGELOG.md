@@ -4,6 +4,11 @@
 
 * Added a CI workflow (`.github/workflows/ci.yml`) that runs on `main` and feature branches: `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, the full test suite, a native binary build, and builds of the QA/dev tools (`ghost_list`, `ghost_radio`, `walkie_voice_generator`) so they cannot silently rot.
 
+**UI/UX Polish**
+
+* The Settings menu navigation bar now reflects the **live control bindings and active device** (e.g. `[A]/[B]` on a controller, `[Esc]`/`[Enter]` on keyboard) instead of hard-coded keys.
+* Rebinding a gamepad button can now be **cancelled** with the bound Back/Start button, mirroring keyboard Escape; the cancel prompt is device-aware.
+
 **Gameplay Fixes**
 
 * Fixed the EMF Meter's journal hint staying stuck on: once it read EMF Level 5, the blink never cleared when the reading dropped. It now clears correctly.

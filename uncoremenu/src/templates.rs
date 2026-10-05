@@ -166,6 +166,38 @@ pub fn create_help_text(
         });
 }
 
+/// Creates a help text bar whose content is driven by the live control
+/// bindings via `systems::update_menu_help_text` (the same mechanism the main
+/// menu uses). Use this for menu navigation help so it always reflects the
+/// active device and any rebinds.
+pub fn create_bindable_help_text(parent: &mut ChildSpawnerCommands, handles: &GameAssets) {
+    parent
+        .spawn(Node {
+            position_type: PositionType::Absolute,
+            bottom: Val::Px(10.0 * UI_SCALE),
+            left: Val::Percent(0.0),
+            width: Val::Percent(100.0),
+            justify_content: JustifyContent::Center,
+            ..default()
+        })
+        .insert(MenuHelpText)
+        .with_children(|bottom_bar| {
+            bottom_bar
+                .spawn(Text::new(format!("Unhaunter {}", VERSION)))
+                .insert(MenuHelpTextContent)
+                .insert(TextFont {
+                    font: handles.fonts.titillium.w300_light.clone(),
+                    font_size: 14.0 * FONT_SCALE,
+                    ..default()
+                })
+                .insert(TextColor(colors::MENU_ITEM_COLOR_OFF))
+                .insert(TextLayout {
+                    justify: JustifyText::Center,
+                    ..default()
+                });
+        });
+}
+
 /// Creates a small status line showing detected gamepads. The text content is
 /// kept up to date by `systems::update_gamepad_status_text`.
 pub fn create_gamepad_status_text(

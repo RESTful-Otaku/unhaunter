@@ -16,7 +16,14 @@ fn setup_ui_main_cat_system(
     qtui: Query<Entity, With<SettingsMenu>>,
 ) {
     let menu_items = MenuSettingsLevel1::iter_events();
-    setup_ui_main_cat(&mut commands, &handles, &qtui, "Settings", &menu_items);
+    setup_ui_main_cat(
+        &mut commands,
+        &handles,
+        &qtui,
+        "Settings",
+        &menu_items,
+        true,
+    );
 }
 
 /// Helper function to set up the main categories UI for settings menu (not a system)
@@ -26,6 +33,7 @@ pub(crate) fn setup_ui_main_cat(
     qtui: &Query<Entity, With<SettingsMenu>>,
     title: impl Into<String>,
     menu_items: &[(String, MenuEvent)],
+    bindable_help: bool,
 ) {
     for e in qtui.iter() {
         commands.entity(e).despawn();
@@ -52,25 +60,18 @@ pub(crate) fn setup_ui_main_cat(
 
             // Create breadcrumb navigation with title
             templates::create_breadcrumb_navigation(
-                parent,
-                handles,
-                title,
-                "" // No subtitle for this level
+                parent, handles, title, "", // No subtitle for this level
             );
 
             // Create content area for settings items
             let mut content_area_entity = templates::create_selectable_content_area(
-                parent,
-                handles,
-                0 // Initial selection
+                parent, handles, 0, // Initial selection
             );
 
             // Add mouse tracker to prevent unwanted initial hover selection
             content_area_entity.insert(MenuMouseTracker::default());
 
-            let content_area = content_area_entity.insert(MenuRoot {
-                selected_item: 0,
-            });
+            let content_area = content_area_entity.insert(MenuRoot { selected_item: 0 });
 
             // Add a column container inside the content area for vertical layout
             content_area.with_children(|content| {
@@ -95,38 +96,30 @@ pub(crate) fn setup_ui_main_cat(
                                     item_text,
                                     idx,
                                     idx == 0, // First item selected by default
-                                    handles
+                                    handles,
                                 )
                                 .insert(MenuItem::new(idx, *event));
                                 idx += 1;
                             } else {
                                 // Add disabled item with gray color
                                 templates::create_content_item_disabled(
-                                    menu_list,
-                                    item_text,
-                                    handles
+                                    menu_list, item_text, handles,
                                 );
                             }
                         }
 
                         // Add "Go Back" option
-                        templates::create_content_item(
-                            menu_list,
-                            "Go Back",
-                            idx,
-                            false,
-                            handles
-                        )
-                        .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
+                        templates::create_content_item(menu_list, "Go Back", idx, false, handles)
+                            .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
                     });
             });
 
             // Help text
-            templates::create_help_text(
-                parent,
-                handles,
-                Some("[Up]/[Down] arrows to navigate. Press [Enter] to select or [Escape] to go back".to_string())
-            );
+            if bindable_help {
+                templates::create_bindable_help_text(parent, handles);
+            } else {
+                templates::create_help_text(parent, handles, None);
+            }
         })
         .id();
 
