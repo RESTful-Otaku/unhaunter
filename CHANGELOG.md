@@ -1,5 +1,9 @@
 ### Unreleased
 
+**Mission Summary**
+
+* The end-of-mission screen now shows the mission statistics that were previously calculated but never displayed: **Ghosts unhaunted**, **Repellent charges used** and **Average Sanity**. These already fed into the final score, so players can now see the numbers behind their grade.
+
 **Accessibility & Granular Settings**
 
 * **UI Scale** is now a Video setting (80%–120%). It applies live to every menu, the HUD and the truck computer, and persists across sessions.

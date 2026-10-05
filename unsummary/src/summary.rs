@@ -237,6 +237,36 @@ pub fn setup_ui(
                         .insert(TextColor(css::GRAY.into()))
                         .insert(SummaryUIType::PlayersAlive);
 
+                    parent
+                        .spawn(Text::new("Average Sanity: 0.0%"))
+                        .insert(TextFont {
+                            font: handles.fonts.londrina.w300_light.clone(),
+                            font_size: 24.0 * FONT_SCALE,
+                            ..default()
+                        })
+                        .insert(TextColor(css::GRAY.into()))
+                        .insert(SummaryUIType::AvgSanity);
+
+                    parent
+                        .spawn(Text::new("Ghosts unhaunted: 0/0"))
+                        .insert(TextFont {
+                            font: handles.fonts.londrina.w300_light.clone(),
+                            font_size: 24.0 * FONT_SCALE,
+                            ..default()
+                        })
+                        .insert(TextColor(css::GRAY.into()))
+                        .insert(SummaryUIType::GhostUnhaunted);
+
+                    parent
+                        .spawn(Text::new("Repellent charges used: 0"))
+                        .insert(TextFont {
+                            font: handles.fonts.londrina.w300_light.clone(),
+                            font_size: 24.0 * FONT_SCALE,
+                            ..default()
+                        })
+                        .insert(TextColor(css::GRAY.into()))
+                        .insert(SummaryUIType::RepellentUsed);
+
                     // Separator
                     parent
                         .spawn(Node {
