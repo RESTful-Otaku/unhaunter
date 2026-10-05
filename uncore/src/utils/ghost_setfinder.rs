@@ -222,6 +222,5 @@ fn test_find_and_score_ghost_sets() {
     .collect();
 
     let result = find_and_score_ghost_sets(&wanted_evidence, 20);
-    println!("{result:?}");
     assert!(!result.is_empty());
 }

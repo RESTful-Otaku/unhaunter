@@ -609,18 +609,25 @@ pub fn calculate_stair_waypoints(
                     // Going up: start at bottom, end at top + offset
                     (stair_pos.y - 2.0, stair_pos.y + 2.0)
                 } else {
-                    // Going down: start at top, end at bottom + offset
-                    // This one is possibly unused.
-                    panic!("this case should not happen")
-                    // dbg!(stair_pos.y + 1.0, stair_pos.y - 1.0)
+                    // Going down: start at top, end at bottom + offset.
+                    // Rarely produced by the map data; fall back to a safe pair
+                    // instead of crashing the game.
+                    warn!(
+                        "Unexpected stair configuration (XAxis, +dir, going down) at {:?}; using fallback waypoints",
+                        stair_pos
+                    );
+                    (stair_pos.y + 1.0, stair_pos.y - 1.0)
                 }
             } else {
                 // Stairs go in negative Y direction (mirrored)
                 if stair_component.z > 0 {
-                    // Going up: start at top, end at bottom + offset
-                    // This one is possibly unused.
-                    panic!("this case should not happen")
-                    // dbg!(stair_pos.y + 1.0, stair_pos.y - 1.0)
+                    // Going up: start at top, end at bottom + offset.
+                    // Rarely produced by the map data; graceful fallback.
+                    warn!(
+                        "Unexpected stair configuration (XAxis, -dir, going up) at {:?}; using fallback waypoints",
+                        stair_pos
+                    );
+                    (stair_pos.y + 1.0, stair_pos.y - 1.0)
                 } else {
                     // Going down: start at bottom, end at top + offset
                     (stair_pos.y + 1.0, stair_pos.y - 3.0)
@@ -648,22 +655,30 @@ pub fn calculate_stair_waypoints(
             let (start_x, end_x) = if positive_direction {
                 // Stairs go in positive X direction (normal)
                 if stair_component.z > 0 {
-                    // Going up: start at left, end at right + offset
-                    // dbg!(stair_pos.x - 1.0, stair_pos.x + 1.0)
-                    panic!("this case should not happen")
+                    // Going up: start at left, end at right + offset.
+                    // Rarely produced by the map data; graceful fallback.
+                    warn!(
+                        "Unexpected stair configuration (YAxis, +dir, going up) at {:?}; using fallback waypoints",
+                        stair_pos
+                    );
+                    (stair_pos.x - 1.0, stair_pos.x + 1.0)
                 } else {
                     // Going down: start at right, end at left + offset
-                    dbg!(stair_pos.x - 1.0, stair_pos.x + 3.0)
+                    (stair_pos.x - 1.0, stair_pos.x + 3.0)
                 }
             } else {
                 // Stairs go in negative X direction (mirrored)
                 if stair_component.z > 0 {
                     // Going up: start at right, end at left + offset
-                    dbg!(stair_pos.x + 2.0, stair_pos.x - 2.0)
+                    (stair_pos.x + 2.0, stair_pos.x - 2.0)
                 } else {
-                    // Going down: start at left, end at right + offset
-                    // dbg!(stair_pos.x - 1.0, stair_pos.x + 1.0)
-                    panic!("this case should not happen")
+                    // Going down: start at left, end at right + offset.
+                    // Rarely produced by the map data; graceful fallback.
+                    warn!(
+                        "Unexpected stair configuration (YAxis, -dir, going down) at {:?}; using fallback waypoints",
+                        stair_pos
+                    );
+                    (stair_pos.x - 1.0, stair_pos.x + 1.0)
                 }
             };
 

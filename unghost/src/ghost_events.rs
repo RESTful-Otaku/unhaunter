@@ -99,7 +99,7 @@ pub fn trigger_ghost_events(
                             // FIXME: This is not correct! We're using a player interaction function for a
                             // ghost event, which leads to awkward workarounds and potential bugs. We should
                             // create a separate mechanism for handling ghost events.
-                            dbg!(interactive_stuff.execute_interaction(
+                            let _ = interactive_stuff.execute_interaction(
                                 door_to_slam,
                                 // Pass the door's position
                                 door_position,
@@ -108,7 +108,7 @@ pub fn trigger_ghost_events(
                                 behavior,
                                 None,
                                 InteractionExecutionType::ChangeState,
-                            ));
+                            );
 
                             // Play door slam sound effect
                             interactive_stuff.sound_events.write(SoundEvent {

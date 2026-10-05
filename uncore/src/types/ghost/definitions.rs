@@ -59,17 +59,15 @@ mod tests {
 
     #[test]
     fn test_generate_evidence_combinations() {
+        // There are exactly C(8,5) = 56 masks with five bits set.
+        let mut five_bit_masks = 0;
         for i in 0..256 {
-            let mut nbits = 0;
-            for n in 0..8 {
-                if (i >> n) & 0x1 > 0 {
-                    nbits += 1;
-                }
-            }
+            let nbits = (0..8).filter(|n| (i >> n) & 0x1 > 0).count();
             if nbits == 5 {
-                println!("0b{:08b}", i);
+                five_bit_masks += 1;
             }
         }
+        assert_eq!(five_bit_masks, 56);
     }
 
     #[test]
@@ -120,9 +118,6 @@ mod tests {
         // Assuming a balanced distribution, each evidence should be used roughly the same
         // number of times.
         let avg_use = evidence_count.values().sum::<usize>() / evidence_count.len();
-        for (&evidence, &count) in &evidence_count {
-            println!("Evidence {:?} used {} times", evidence, count);
-        }
         for (&evidence, &count) in &evidence_count {
             assert!(
                 (count as i32 - avg_use as i32).abs() <= 3,

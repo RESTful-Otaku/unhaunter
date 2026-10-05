@@ -79,7 +79,12 @@ fn lose_sanity(
             ps.health = 100.0;
         }
         if timer.just_finished() && DEBUG_PLAYER {
-            dbg!(ps.sanity(), mean_sound.0, ps.health);
+            debug!(
+                "Player sanity={:.1} mean_sound={:.3} health={:.1}",
+                ps.sanity(),
+                mean_sound.0,
+                ps.health
+            );
         }
     }
 }
@@ -110,8 +115,8 @@ fn recover_sanity(
             } else {
                 ps.crazyness /= 1.005_f32.powf(dt);
             }
-            if timer.just_finished() {
-                dbg!(ps.sanity());
+            if timer.just_finished() && DEBUG_PLAYER {
+                debug!("Player sanity in truck={:.1}", ps.sanity());
             }
         }
     }
