@@ -4,6 +4,10 @@
 
 * Added a CI workflow (`.github/workflows/ci.yml`) that runs on `main` and feature branches: `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, the full test suite, a native binary build, and builds of the QA/dev tools (`ghost_list`, `ghost_radio`, `walkie_voice_generator`) so they cannot silently rot.
 
+**Rendering & VFX**
+
+* Turned off the development `DEBUG_HUNTS` flag, which was left `true` and logged ghost rage/hunt state periodically in every normal playthrough.
+
 **UI/UX Polish**
 
 * The Settings menu navigation bar now reflects the **live control bindings and active device** (e.g. `[A]/[B]` on a controller, `[Esc]`/`[Enter]` on keyboard) instead of hard-coded keys.
