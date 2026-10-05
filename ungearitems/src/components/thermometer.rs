@@ -25,6 +25,48 @@ pub struct Thermometer {
     pub frame_counter: u16,
     pub display_glitch_timer: f32,
     pub blinking_hint_active: bool,
+    /// The last temperature band reported to the player, used to fire a one-shot
+    /// notification (sound + icon) when the reading crosses a threshold.
+    pub last_band: TempBand,
+}
+
+/// Coarse temperature classification used to give the player clear feedback.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TempBand {
+    /// Still warming up / not yet meaningful.
+    #[default]
+    Unknown,
+    /// Freezing: at or below the evidence threshold.
+    Cold,
+    /// Normal ambient range.
+    Normal,
+    /// Unusually hot.
+    Hot,
+}
+
+/// Temperature (in Celsius) at or below which the Freezing Temps evidence shows.
+pub const COLD_THRESHOLD_C: f32 = -0.1;
+/// Temperature (in Celsius) at or above which the reading is considered "hot".
+pub const HOT_THRESHOLD_C: f32 = 5.1;
+/// Hysteresis margin so the notification does not retrigger on tiny wobbles.
+const BAND_HYSTERESIS_C: f32 = 0.5;
+
+/// Classifies a Celsius reading into a [`TempBand`], reusing `previous` for
+/// hysteresis so a reading hovering at a threshold does not flap.
+pub fn classify_temp(celsius: f32, previous: TempBand) -> TempBand {
+    match previous {
+        TempBand::Cold if celsius < COLD_THRESHOLD_C + BAND_HYSTERESIS_C => TempBand::Cold,
+        TempBand::Hot if celsius > HOT_THRESHOLD_C - BAND_HYSTERESIS_C => TempBand::Hot,
+        _ => {
+            if celsius <= COLD_THRESHOLD_C {
+                TempBand::Cold
+            } else if celsius >= HOT_THRESHOLD_C {
+                TempBand::Hot
+            } else {
+                TempBand::Normal
+            }
+        }
+    }
 }
 
 impl Default for Thermometer {
@@ -37,6 +79,7 @@ impl Default for Thermometer {
             frame_counter: Default::default(),
             display_glitch_timer: Default::default(),
             blinking_hint_active: false,
+            last_band: TempBand::Unknown,
         }
     }
 }
@@ -75,6 +118,11 @@ impl GearUsable for Thermometer {
         // Regular display
         let msg = if self.enabled {
             let temp_celsius = kelvin_to_celsius(self.temp);
+            let icon = match self.last_band {
+                TempBand::Cold => " \u{2744}", // snowflake
+                TempBand::Hot => " \u{2668}",  // hot springs
+                _ => "",
+            };
             if self.blinking_hint_active {
                 let temp_str = format!("{:>5.1}ºC", temp_celsius);
                 let blinking_temp_str = if self.frame_counter % 30 < 15 {
@@ -82,9 +130,9 @@ impl GearUsable for Thermometer {
                 } else {
                     format!("  {}  ", temp_str.trim())
                 };
-                format!("Temperature: {}", blinking_temp_str)
+                format!("Temperature: {}{}", blinking_temp_str, icon)
             } else {
-                format!("Temperature: {:>5.1}ºC", temp_celsius)
+                format!("Temperature: {:>5.1}ºC{}", temp_celsius, icon)
             }
         } else {
             "".to_string()
@@ -93,8 +141,6 @@ impl GearUsable for Thermometer {
     }
 
     fn update(&mut self, gs: &mut super::GearStuff, pos: &Position, _ep: &EquipmentPosition) {
-        // TODO: Add two thresholds: LO: -0.1 and HI: 5.1, with sound effects to notify +
-        // distintive icons.
         let mut rng = random_seed::rng();
         self.frame_counter += 1;
         self.frame_counter %= 65413;
@@ -148,6 +194,24 @@ impl GearUsable for Thermometer {
             // Possibly play crackling/static sounds during glitches
             if self.enabled && random_seed::rng().random_range(0.0..1.0) < 0.3 {
                 gs.play_audio("sounds/effects-chirp-short.ogg".into(), 0.3, &pos);
+            }
+        }
+
+        // Threshold notification: when the reading crosses into the freezing or
+        // hot band while enabled and not glitching, give a one-shot audible cue.
+        if self.enabled && self.display_glitch_timer <= 0.0 {
+            let band = classify_temp(kelvin_to_celsius(self.temp), self.last_band);
+            if band != self.last_band {
+                match band {
+                    TempBand::Cold => {
+                        gs.play_audio("sounds/effects-dingdingding.ogg".into(), 0.6, &pos);
+                    }
+                    TempBand::Hot => {
+                        gs.play_audio("sounds/invalid-action-buzz.ogg".into(), 0.4, &pos);
+                    }
+                    _ => {}
+                }
+                self.last_band = band;
             }
         }
 
@@ -539,4 +603,36 @@ fn temperature_update(
 
 pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(Update, temperature_update);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{COLD_THRESHOLD_C, HOT_THRESHOLD_C, TempBand, classify_temp};
+
+    #[test]
+    fn classifies_core_bands() {
+        assert_eq!(
+            classify_temp(COLD_THRESHOLD_C, TempBand::Unknown),
+            TempBand::Cold
+        );
+        assert_eq!(classify_temp(2.0, TempBand::Unknown), TempBand::Normal);
+        assert_eq!(
+            classify_temp(HOT_THRESHOLD_C, TempBand::Unknown),
+            TempBand::Hot
+        );
+    }
+
+    #[test]
+    fn hysteresis_keeps_cold_until_clearly_warmer() {
+        // Just above the cold threshold but within hysteresis stays Cold...
+        assert_eq!(classify_temp(0.2, TempBand::Cold), TempBand::Cold);
+        // ...and only clears once clearly out of the band.
+        assert_eq!(classify_temp(1.0, TempBand::Cold), TempBand::Normal);
+    }
+
+    #[test]
+    fn hysteresis_keeps_hot_until_clearly_cooler() {
+        assert_eq!(classify_temp(4.8, TempBand::Hot), TempBand::Hot);
+        assert_eq!(classify_temp(4.0, TempBand::Hot), TempBand::Normal);
+    }
 }
