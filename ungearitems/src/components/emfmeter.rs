@@ -228,17 +228,20 @@ impl GearUsable for EMFMeter {
             self.emf = self.emf.max(new_emf);
             self.emf_level = EMFLevel::from_milligauss(self.emf);
 
-            // Update blinking_hint_active
-            const HINT_ACKNOWLEDGE_THRESHOLD: u32 = 3;
-            if self.emf_level == EMFLevel::EMF5 {
+            // Update blinking_hint_active. This must be cleared when the
+            // reading is no longer EMF5, otherwise a single EMF5 reading would
+            // leave the journal hint blinking forever.
+            self.blinking_hint_active = if self.emf_level == EMFLevel::EMF5 {
                 let count = gs
                     .player_profile
                     .times_evidence_acknowledged_on_gear
                     .get(&Evidence::EMFLevel5)
                     .copied()
                     .unwrap_or(0);
-                self.blinking_hint_active = count < HINT_ACKNOWLEDGE_THRESHOLD;
-            }
+                should_blink_hint(true, count)
+            } else {
+                should_blink_hint(false, 0)
+            };
         }
         if self.enabled {
             let delta = 10.0 / (self.emf + 0.5).powf(1.5);
@@ -332,5 +335,43 @@ impl GearUsable for EMFMeter {
 impl From<EMFMeter> for Gear {
     fn from(value: EMFMeter) -> Self {
         Gear::new_from_kind(GearKind::EMFMeter, value.box_clone())
+    }
+}
+
+/// How many times a player must acknowledge EMF5 evidence before the hint stops.
+const HINT_ACKNOWLEDGE_THRESHOLD: u32 = 3;
+
+/// Whether the EMF5 journal hint should blink, given whether the evidence is
+/// currently showing and how often the player has already acknowledged it.
+fn should_blink_hint(is_emf5: bool, acknowledge_count: u32) -> bool {
+    is_emf5 && acknowledge_count < HINT_ACKNOWLEDGE_THRESHOLD
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hint_clears_when_reading_drops_below_emf5() {
+        // Even if the player has never acknowledged it, a non-EMF5 reading must
+        // not keep the hint blinking.
+        assert!(!should_blink_hint(false, 0));
+        assert!(!should_blink_hint(false, 1));
+    }
+
+    #[test]
+    fn hint_blinks_for_unacknowledged_emf5() {
+        assert!(should_blink_hint(true, 0));
+        assert!(should_blink_hint(true, HINT_ACKNOWLEDGE_THRESHOLD - 1));
+        assert!(!should_blink_hint(true, HINT_ACKNOWLEDGE_THRESHOLD));
+    }
+
+    #[test]
+    fn emf_level_thresholds_are_ordered() {
+        assert_eq!(EMFLevel::from_milligauss(0.0), EMFLevel::None);
+        assert_eq!(EMFLevel::from_milligauss(2.0), EMFLevel::EMF2);
+        assert_eq!(EMFLevel::from_milligauss(5.0), EMFLevel::EMF3);
+        assert_eq!(EMFLevel::from_milligauss(15.0), EMFLevel::EMF4);
+        assert_eq!(EMFLevel::from_milligauss(25.0), EMFLevel::EMF5);
     }
 }

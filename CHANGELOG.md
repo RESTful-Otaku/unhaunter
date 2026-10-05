@@ -2,6 +2,7 @@
 
 **Gameplay Fixes**
 
+* Fixed the EMF Meter's journal hint staying stuck on: once it read EMF Level 5, the blink never cleared when the reading dropped. It now clears correctly.
 * Implemented the Thermometer's long-standing TODO for temperature-threshold feedback: crossing into the **freezing** range now plays a distinct chime and shows a snowflake icon, while unusually **hot** readings buzz and show a hot-springs icon. A hysteresis band prevents the cue from flapping at the threshold.
 * Added a **stamina bar** to the in-game HUD. Sprinting, recovering and exhaustion were previously invisible; the bar now appears while stamina is being used or regenerating and turns amber while exhausted, giving clear feedback on when you can sprint again.
 * Removed four `panic!()` calls from click-to-move stair pathfinding: unexpected stair orientations (rare map configurations) now log a warning and fall back to safe waypoints instead of crashing the game.
