@@ -28,6 +28,14 @@ pub struct HeldObjectUI;
 #[derive(Component, Debug)]
 pub struct RightSideGearUI;
 
+/// Marker for the stamina bar fill node (child of [`StaminaBarRoot`]).
+#[derive(Component, Debug)]
+pub struct StaminaBarFill;
+
+/// Marker for the stamina bar container.
+#[derive(Component, Debug)]
+pub struct StaminaBarRoot;
+
 #[derive(Component, Debug, Default)]
 pub struct WalkieTextUIRoot;
 
