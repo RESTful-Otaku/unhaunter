@@ -46,6 +46,13 @@ pub struct SummaryData {
 
     /// Costs deducted from the deposit
     pub costs_deducted_from_deposit: i64,
+
+    /// The previous best score for this map/difficulty, captured before this
+    /// mission's result was recorded. Used to recognise a new personal best.
+    pub previous_best_score: i64,
+
+    /// True when this mission set a new best score for its map/difficulty.
+    pub is_new_personal_best: bool,
 }
 
 impl SummaryData {

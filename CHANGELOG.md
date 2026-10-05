@@ -6,6 +6,7 @@
 
 **Mission Summary**
 
+* A **"NEW PERSONAL BEST!"** banner (with the previous and new score) now appears on the summary screen whenever a successful run beats the stored best for that map and difficulty, adding a clear replay incentive.
 * The end-of-mission screen now shows the mission statistics that were previously calculated but never displayed: **Ghosts unhaunted**, **Repellent charges used** and **Average Sanity**. These already fed into the final score, so players can now see the numbers behind their grade.
 
 **Accessibility & Granular Settings**

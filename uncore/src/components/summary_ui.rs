@@ -25,4 +25,5 @@ pub enum SummaryUIType {
     DepositReturned,
     NetChange,
     FinalBankTotal,
+    NewPersonalBest,
 }
