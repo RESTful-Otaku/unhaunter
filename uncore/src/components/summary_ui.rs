@@ -28,4 +28,5 @@ pub enum SummaryUIType {
     NewPersonalBest,
     XpEarned,
     LevelUp,
+    AchievementFirstGhost,
 }

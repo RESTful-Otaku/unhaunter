@@ -65,6 +65,9 @@ pub struct SummaryData {
 
     /// True when this mission caused the player to gain one or more levels.
     pub leveled_up: bool,
+
+    /// True when this mission unlocked the "first ghost expelled" achievement.
+    pub unlocked_first_expulsion: bool,
 }
 
 impl SummaryData {
