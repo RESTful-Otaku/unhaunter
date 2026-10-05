@@ -45,6 +45,11 @@ impl ProgressionData {
     pub fn get_level_progress(&self) -> f32 {
         (Self::calculate_player_level(self.player_xp).fract()) as f32
     }
+
+    /// Returns the player level that `player_xp` corresponds to.
+    pub fn level_for_xp(player_xp: i64) -> i32 {
+        Self::calculate_player_level(player_xp).floor() as i32
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -112,4 +117,26 @@ pub struct PlayerProfileData {
     pub times_evidence_acknowledged_on_gear: HashMap<Evidence, u32>,
     #[serde(default)]
     pub times_evidence_acknowledged_in_journal: HashMap<Evidence, u32>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ProgressionData;
+
+    #[test]
+    fn level_for_xp_matches_update_level() {
+        let mut p = ProgressionData {
+            player_xp: 12_000,
+            ..Default::default()
+        };
+        p.update_level();
+        assert_eq!(p.player_level, ProgressionData::level_for_xp(12_000));
+    }
+
+    #[test]
+    fn more_xp_never_lowers_level() {
+        let low = ProgressionData::level_for_xp(0);
+        let high = ProgressionData::level_for_xp(100_000);
+        assert!(high >= low, "level should be monotonic in xp");
+    }
 }

@@ -282,6 +282,28 @@ pub fn setup_ui(
                         })
                         .insert(SummaryUIType::NewPersonalBest);
 
+                    // XP earned this mission.
+                    parent
+                        .spawn(Text::new("XP earned: 0"))
+                        .insert(TextFont {
+                            font: handles.fonts.londrina.w300_light.clone(),
+                            font_size: 24.0 * FONT_SCALE,
+                            ..default()
+                        })
+                        .insert(TextColor(css::GRAY.into()))
+                        .insert(SummaryUIType::XpEarned);
+
+                    // Level-up banner (hidden unless the player gained a level).
+                    parent
+                        .spawn(Text::new(""))
+                        .insert(TextFont {
+                            font: handles.fonts.londrina.w300_light.clone(),
+                            font_size: 26.0 * FONT_SCALE,
+                            ..default()
+                        })
+                        .insert(TextColor(css::LIGHT_GREEN.into()))
+                        .insert(SummaryUIType::LevelUp);
+
                     // Separator
                     parent
                         .spawn(Node {
@@ -601,6 +623,19 @@ pub fn update_ui(
                     String::new()
                 };
             }
+            SummaryUIType::XpEarned => {
+                text.0 = format!("XP earned: {}", rsd.xp_earned);
+            }
+            SummaryUIType::LevelUp => {
+                text.0 = if rsd.leveled_up {
+                    format!(
+                        "\u{2B06} LEVEL UP!  Lv {} \u{2192} Lv {}",
+                        rsd.level_before, rsd.level_after
+                    )
+                } else {
+                    String::new()
+                };
+            }
         }
     }
 }
@@ -716,6 +751,14 @@ pub fn calculate_rewards_and_grades(
         sd.full_score,
         previous_best,
     );
+
+    // XP / level progression feedback. `finalize_profile_update` applies the XP
+    // afterwards; here we only predict the resulting level for the summary.
+    sd.xp_earned = sd.full_score;
+    sd.level_before = player_profile.progression.player_level;
+    let projected_xp = player_profile.progression.player_xp + sd.xp_earned;
+    sd.level_after = unprofile::data::ProgressionData::level_for_xp(projected_xp);
+    sd.leveled_up = sd.level_after > sd.level_before;
 }
 
 /// Whether a mission result constitutes a new personal best.
