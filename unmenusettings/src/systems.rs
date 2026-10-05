@@ -175,7 +175,14 @@ fn menu_back_event(
                 next_state.set(SettingsState::Lv1ClassSelection);
                 // Redraw Main Menu:
                 let menu_items = MenuSettingsLevel1::iter_events();
-                setup_ui_main_cat(&mut commands, &handles, &qtui, "Settings", &menu_items);
+                setup_ui_main_cat(
+                    &mut commands,
+                    &handles,
+                    &qtui,
+                    "Settings",
+                    &menu_items,
+                    true,
+                );
             }
             SettingsState::Lv3ValueEdit(menu) => {
                 ev_menu.write(MenuSettingClassSelected { menu: *menu });
@@ -191,6 +198,7 @@ fn menu_back_event(
                     &qtui,
                     "Controls Settings",
                     &menu_items,
+                    true,
                 );
                 next_state.set(SettingsState::Lv2List);
             }
@@ -221,6 +229,7 @@ fn menu_settings_class_selected(
                     &qtui,
                     "Audio Settings",
                     &menu_items,
+                    false,
                 );
                 next_state.set(SettingsState::Lv2List);
             }
@@ -232,6 +241,7 @@ fn menu_settings_class_selected(
                     &qtui,
                     "Gameplay Settings",
                     &menu_items,
+                    false,
                 );
                 next_state.set(SettingsState::Lv2List);
             }
@@ -244,6 +254,7 @@ fn menu_settings_class_selected(
                     &qtui,
                     "Controls Settings",
                     &menu_items,
+                    true,
                 );
                 next_state.set(SettingsState::Lv2List);
             }
@@ -255,6 +266,7 @@ fn menu_settings_class_selected(
                     &qtui,
                     "Video Settings",
                     &menu_items,
+                    false,
                 );
                 next_state.set(SettingsState::Lv2List);
             }
@@ -305,22 +317,18 @@ fn menu_audio_setting_selected(
                     parent,
                     &handles,
                     "Audio Settings",
-                    ev.setting.to_string()
+                    ev.setting.to_string(),
                 );
 
                 // Create content area for settings items
                 let mut content_area = templates::create_selectable_content_area(
-                    parent,
-                    &handles,
-                    0 // Initial selection
+                    parent, &handles, 0, // Initial selection
                 );
 
                 // Add mouse tracker to prevent unwanted initial hover selection
                 content_area.insert(MenuMouseTracker::default());
 
-                content_area.insert(MenuRoot {
-                    selected_item: 0,
-                });
+                content_area.insert(MenuRoot { selected_item: 0 });
 
                 // Add a column container inside the content area for vertical layout
                 content_area.with_children(|content| {
@@ -345,7 +353,7 @@ fn menu_audio_setting_selected(
                                         item_text,
                                         idx,
                                         idx == 0, // First item selected by default
-                                        &handles
+                                        &handles,
                                     )
                                     .insert(MenuItem::new(idx, *event));
                                     idx += 1;
@@ -354,22 +362,14 @@ fn menu_audio_setting_selected(
 
                             // Add "Go Back" option
                             templates::create_content_item(
-                                menu_list,
-                                "Go Back",
-                                idx,
-                                false,
-                                &handles
+                                menu_list, "Go Back", idx, false, &handles,
                             )
                             .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
                         });
                 });
 
                 // Help text
-                templates::create_help_text(
-                    parent,
-                    &handles,
-                    Some("[Up]/[Down] arrows to navigate. Press [Enter] to select or [Escape] to go back".to_string())
-                );
+                templates::create_bindable_help_text(parent, &handles);
             });
 
         next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Audio));
@@ -469,17 +469,13 @@ fn menu_gameplay_setting_selected(
 
                 // Create content area for settings items
                 let mut content_area = templates::create_selectable_content_area(
-                    parent,
-                    &handles,
-                    0 // Initial selection
+                    parent, &handles, 0, // Initial selection
                 );
 
                 // Add mouse tracker to prevent unwanted initial hover selection
                 content_area.insert(MenuMouseTracker::default());
 
-                content_area.insert(MenuRoot {
-                    selected_item: 0,
-                });
+                content_area.insert(MenuRoot { selected_item: 0 });
 
                 // Add a column container inside the content area for vertical layout
                 content_area.with_children(|content| {
@@ -504,7 +500,7 @@ fn menu_gameplay_setting_selected(
                                         item_text,
                                         idx,
                                         idx == 0, // First item selected by default
-                                        &handles
+                                        &handles,
                                     )
                                     .insert(MenuItem::new(idx, *event));
                                     idx += 1;
@@ -513,22 +509,14 @@ fn menu_gameplay_setting_selected(
 
                             // Add "Go Back" option
                             templates::create_content_item(
-                                menu_list,
-                                "Go Back",
-                                idx,
-                                false,
-                                &handles
+                                menu_list, "Go Back", idx, false, &handles,
                             )
                             .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
                         });
                 });
 
                 // Help text
-                templates::create_help_text(
-                    parent,
-                    &handles,
-                    Some("[Up]/[Down] arrows to navigate. Press [Enter] to select or [Escape] to go back".to_string())
-                );
+                templates::create_bindable_help_text(parent, &handles);
             });
 
         next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Gameplay));
@@ -652,6 +640,9 @@ fn menu_video_setting_selected(
                             .insert(MenuItem::new(idx, MenuEvent::Back(MenuEvBack)));
                         });
                 });
+
+                // Help text (reflects live bindings/device).
+                templates::create_bindable_help_text(parent, &handles);
             });
 
         next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Video));
@@ -802,7 +793,11 @@ fn spawn_edit_page(
                     });
             });
 
-            templates::create_help_text(parent, handles, help_text);
+            if let Some(help) = help_text {
+                templates::create_help_text(parent, handles, Some(help));
+            } else {
+                templates::create_bindable_help_text(parent, handles);
+            }
         });
 }
 
@@ -951,6 +946,8 @@ fn menu_rebind_request(
     mut next_state: ResMut<NextState<SettingsState>>,
     handles: Res<GameAssets>,
     qtui: Query<Entity, With<SettingsMenu>>,
+    bindings: Res<Persistent<ControlBindings>>,
+    gamepad_status: Res<GamepadStatus>,
 ) {
     for ev in events.read() {
         warn!("Rebind Request: {:?} {:?}", ev.device, ev.action);
@@ -987,10 +984,15 @@ fn menu_rebind_request(
                     },
                     ev.action.label()
                 );
+                let cancel = uncore::input::action_prompt(
+                    &bindings,
+                    uncore::input::PlayerAction::Back,
+                    Some(&gamepad_status),
+                );
                 templates::create_help_text(
                     parent,
                     &handles,
-                    Some(format!("{prompt}\nPress [Escape] to cancel")),
+                    Some(format!("{prompt}\nPress {cancel} to cancel")),
                 );
             });
         next_state.set(SettingsState::RebindCapture {
@@ -1064,9 +1066,24 @@ fn rebind_capture_system(
     if matches!(device, BindDevice::Keyboard) {
         return;
     }
+    // The player's currently-bound Back button cancels a gamepad rebind too,
+    // mirroring the keyboard Escape behaviour.
+    let cancel_button = control_bindings.button(unsettings::bindings::PlayerAction::Back);
     for ev in gamepad_button_events.read() {
         if ev.state != bevy::input::ButtonState::Pressed || ev.value < 0.5 {
             continue;
+        }
+        if Some(ev.button) == cancel_button {
+            cancel_rebind(
+                &mut commands,
+                &handles,
+                &qtui,
+                device,
+                action,
+                &control_bindings,
+                &mut next_state,
+            );
+            return;
         }
         control_bindings.set_button(action, ev.button);
         finish_rebind(
