@@ -313,6 +313,10 @@ pub enum VideoSettingsMenu {
     AspectRatio,
     #[strum(to_string = "UI Scale")]
     UiScale,
+    #[strum(to_string = "Fullscreen")]
+    Fullscreen,
+    #[strum(to_string = "V-Sync")]
+    VSync,
 }
 
 impl VideoSettingsMenu {
@@ -329,6 +333,8 @@ impl VideoSettingsMenu {
                 AspectRatio::Ar16_9 => "16:9".to_string(),
             },
             Self::UiScale => video_settings.ui_scale.to_string(),
+            Self::Fullscreen => video_settings.fullscreen.to_string(),
+            Self::VSync => video_settings.vsync.to_string(),
         }
     }
 
@@ -393,6 +399,36 @@ impl VideoSettingsMenu {
                     )
                 })
                 .collect::<Vec<_>>(),
+            Self::Fullscreen => {
+                use unsettings::video::FullscreenMode;
+                FullscreenMode::iter()
+                    .map(|s| {
+                        (
+                            if s == video_settings.fullscreen {
+                                format!("[{s}]")
+                            } else {
+                                s.to_string()
+                            },
+                            MenuEvent::SaveVideoSetting(VideoSettingsValue::fullscreen(s)),
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            }
+            Self::VSync => {
+                use unsettings::video::VSyncMode;
+                VSyncMode::iter()
+                    .map(|s| {
+                        (
+                            if s == video_settings.vsync {
+                                format!("[{s}]")
+                            } else {
+                                s.to_string()
+                            },
+                            MenuEvent::SaveVideoSetting(VideoSettingsValue::vsync(s)),
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            }
         }
     }
 }
