@@ -7,6 +7,7 @@
 **Mission Summary**
 
 * The summary now shows **XP earned** for the mission and a green **"⬆ LEVEL UP! Lv X → Lv Y"** banner whenever the run advances the player's level, closing the progression feedback loop.
+* The mission-selection list now shows each map's **Best** score (for the active difficulty) next to its grade badge, giving players a concrete target to beat.
 * A **"NEW PERSONAL BEST!"** banner (with the previous and new score) now appears on the summary screen whenever a successful run beats the stored best for that map and difficulty, adding a clear replay incentive.
 * The end-of-mission screen now shows the mission statistics that were previously calculated but never displayed: **Ghosts unhaunted**, **Repellent charges used** and **Average Sanity**. These already fed into the final score, so players can now see the numbers behind their grade.
 
