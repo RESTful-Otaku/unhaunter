@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+      - 'fix/**'
+      - 'chore/**'
+      - 'ci/**'
+      - 'perf/**'
+  pull_request:
+    branches:
+      - main
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  # Keep incremental builds off in CI for reproducibility and cache size.
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  # Fast, parallel code-quality checks that do not need system audio/display libs.
+  fmt:
+    name: Formatting
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+
+  # Full build + lint + tests. Needs the Linux dev libs Bevy links against.
+  test:
+    name: Build, Lint & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            g++ pkg-config \
+            libx11-dev libxkbcommon-x11-0 libasound2-dev libudev-dev \
+            libwayland-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Clippy (deny warnings)
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Tests
+        run: cargo test --workspace --all-features
+
+      - name: Check native binary builds
+        run: cargo build --bin unhaunter_game
+
+  # Build the QA/dev tool binaries so they cannot silently rot.
+  tools:
+    name: Dev Tools Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ pkg-config libx11-dev libxkbcommon-x11-0 libasound2-dev libudev-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build ghost_list
+        run: cargo build -p ghost_list
+
+      - name: Build ghost_radio
+        run: cargo build -p ghost_radio
+
+      - name: Build walkie_voice_generator
+        run: cargo build -p walkie_voice_generator
