@@ -4,9 +4,10 @@ use bevy_persistent::Persistent;
 use uncore::behavior::Behavior;
 use uncore::colors;
 use uncore::components::game_ui::{
-    DamageBackground, ElementObjectUI, EvidenceUI, GameUI, RightSideGearUI, WalkieText,
-    WalkieTextUIRoot,
+    DamageBackground, ElementObjectUI, EvidenceUI, GameUI, RightSideGearUI, StaminaBarFill,
+    StaminaBarRoot, WalkieText, WalkieTextUIRoot,
 };
+use uncore::components::player::Stamina;
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::input::PlayerAction;
 use uncore::platform::plt::{FONT_SCALE, UI_SCALE};
@@ -79,6 +80,39 @@ fn setup_ui(
                     ..default()
                 })
                 .insert(WalkieText);
+        });
+
+    // Stamina bar: a compact bar centred under the walkie text. Only shown
+    // while the player is sprinting or recovering (managed by
+    // `update_stamina_bar`), so it stays out of the way during normal play.
+    commands
+        .spawn((
+            StaminaBarRoot,
+            Node {
+                position_type: PositionType::Absolute,
+                top: Val::Px(40.0 * UI_SCALE),
+                left: Val::Percent(45.0),
+                width: Val::Percent(10.0),
+                height: Val::Px(8.0 * UI_SCALE),
+                border: UiRect::all(Val::Px(1.0 * UI_SCALE)),
+                ..default()
+            },
+            BackgroundColor(css::BLACK.with_alpha(0.5).into()),
+            BorderColor(colors::MENU_ITEM_COLOR_OFF),
+            Visibility::Hidden,
+            ZIndex(99),
+            Pickable::IGNORE,
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                StaminaBarFill,
+                Node {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    ..default()
+                },
+                BackgroundColor(colors::MENU_ITEM_COLOR_ON),
+            ));
         });
 
     // Spawn vignette for the damage background
@@ -515,6 +549,55 @@ pub(crate) fn app_setup(app: &mut App) {
         .add_systems(OnExit(GameState::None), pause)
         .add_systems(
             Update,
-            toggle_held_object_ui.run_if(in_state(GameState::None)),
+            (toggle_held_object_ui, update_stamina_bar).run_if(in_state(GameState::None)),
         );
+}
+
+/// Drives the stamina bar's fill and visibility.
+///
+/// The bar is hidden when stamina is full and the player is not running, and
+/// otherwise shows the remaining stamina. It turns amber while recovering from
+/// exhaustion so the player knows they cannot sprint yet.
+fn update_stamina_bar(
+    player_query: Query<&Stamina, With<PlayerSprite>>,
+    mut root_query: Query<&mut Visibility, With<StaminaBarRoot>>,
+    mut fill_query: Query<(&mut Node, &mut BackgroundColor), With<StaminaBarFill>>,
+) {
+    let Some(stamina) = player_query.iter().next() else {
+        return;
+    };
+
+    let ratio = if stamina.max > 0.0 {
+        (stamina.current / stamina.max).clamp(0.0, 1.0)
+    } else {
+        0.0
+    };
+
+    // Show while running, while not full, or while exhausted.
+    let should_show = stamina.running || stamina.exhausted || ratio < 0.999;
+    let desired_vis = if should_show {
+        Visibility::Visible
+    } else {
+        Visibility::Hidden
+    };
+    for mut vis in root_query.iter_mut() {
+        if *vis != desired_vis {
+            *vis = desired_vis;
+        }
+    }
+
+    let color = if stamina.exhausted {
+        css::ORANGE_RED.into()
+    } else {
+        colors::MENU_ITEM_COLOR_ON
+    };
+    for (mut node, mut bg) in fill_query.iter_mut() {
+        let width = Val::Percent(ratio * 100.0);
+        if node.width != width {
+            node.width = width;
+        }
+        if bg.0 != color {
+            bg.0 = color;
+        }
+    }
 }
