@@ -2,6 +2,8 @@
 
 **Gameplay Fixes**
 
+* Removed four `panic!()` calls from click-to-move stair pathfinding: unexpected stair orientations (rare map configurations) now log a warning and fall back to safe waypoints instead of crashing the game.
+* Removed leftover `dbg!()`/`println!` debug output from runtime systems (ghost door events, tile loading, level finalisation, player vitals), reducing log spam and per-frame overhead. Test-only diagnostics were converted to assertions.
 * Fixed a grab conflict where a single [Grab] press could both retrieve deployed gear and pick up nearby scenery when the player stood in a narrow overlap zone. The two systems now share one radius and the gear-retrieval system yields while furniture is held, so a press always does exactly one thing.
 
 **Mission Summary**

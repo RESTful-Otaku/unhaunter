@@ -220,7 +220,6 @@ fn process_pre_meshes(
             } => {
                 if let Some(image) = images.get(image_handle) {
                     let sz = image.texture_descriptor.size;
-                    println!("Physical image size: {} x {}", sz.width, sz.height);
                     let sprite_size = Vec2::new(sz.width as f32, sz.height as f32);
                     let sprite_anchor = Vec2::new(
                         sprite_size.x * sprite_anchor.x,
@@ -237,7 +236,6 @@ fn process_pre_meshes(
 
                     // Replace PreMesh with actual Mesh
                     commands.entity(entity).insert(mesh2d).remove::<PreMesh>();
-                    println!("Processed entity: {:?}", entity);
                 }
             }
         }
