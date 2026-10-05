@@ -833,23 +833,41 @@ fn create_mission_list_item(
                         MissionSelectMode::Custom => difficulty_resource.0.difficulty,
                     };
 
-                    let grade = if let Some(map_difficulties_stats) =
-                        player_profile.map_statistics.get(map_path)
-                    {
-                        if let Some(stats_for_target_difficulty) =
+                    let stats_for_target_difficulty = player_profile
+                        .map_statistics
+                        .get(map_path)
+                        .and_then(|map_difficulties_stats| {
                             map_difficulties_stats.get(&target_difficulty_for_badge)
-                        {
-                            if stats_for_target_difficulty.total_missions_completed > 0 {
-                                stats_for_target_difficulty.best_grade
-                            } else {
-                                Grade::NA
-                            }
-                        } else {
-                            Grade::NA // No stats for this specific difficulty
-                        }
-                    } else {
-                        Grade::NA // No stats for this map at all
+                        });
+                    let grade = match stats_for_target_difficulty {
+                        Some(stats) if stats.total_missions_completed > 0 => stats.best_grade,
+                        _ => Grade::NA,
                     };
+
+                    // Best score so far for this map/difficulty, if any. Gives
+                    // players a concrete target to beat on replay.
+                    if let Some(stats) = stats_for_target_difficulty
+                        && stats.total_missions_completed > 0
+                        && stats.best_score > 0
+                    {
+                        row.spawn((
+                            Text::new(format!("Best: {}", stats.best_score)),
+                            TextFont {
+                                font: handles.fonts.titillium.w400_regular.clone(),
+                                font_size: 18.0 * FONT_SCALE,
+                                ..default()
+                            },
+                            TextColor(colors::MENU_ITEM_COLOR_OFF),
+                            Node {
+                                margin: UiRect::right(Val::Px(8.0)),
+                                ..default()
+                            },
+                            Pickable {
+                                should_block_lower: false,
+                                ..default()
+                            },
+                        ));
+                    }
 
                     BadgeUtils::create_badge(row, handles, grade, 32.0, false);
                 });
