@@ -53,6 +53,18 @@ pub struct SummaryData {
 
     /// True when this mission set a new best score for its map/difficulty.
     pub is_new_personal_best: bool,
+
+    /// XP awarded for this mission (equal to the final score).
+    pub xp_earned: i64,
+
+    /// Player level before this mission's XP was applied.
+    pub level_before: i32,
+
+    /// Player level after applying this mission's XP.
+    pub level_after: i32,
+
+    /// True when this mission caused the player to gain one or more levels.
+    pub leveled_up: bool,
 }
 
 impl SummaryData {

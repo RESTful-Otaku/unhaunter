@@ -26,4 +26,6 @@ pub enum SummaryUIType {
     NetChange,
     FinalBankTotal,
     NewPersonalBest,
+    XpEarned,
+    LevelUp,
 }
