@@ -15,6 +15,19 @@ use ungear::components::playergear::PlayerGear;
 use ungear::gear_stuff::GearStuff;
 use ungear::gear_usable::GearUsable;
 
+/// Distance within which a player may retrieve deployed gear. Shared by the
+/// grab and retrieve systems so they agree on who owns a given [Grab] press.
+const GEAR_RETRIEVE_RADIUS: f32 = 1.2;
+
+/// Returns `true` when a nearby deployed gear should claim the player's [Grab]
+/// press instead of scenery interaction. Kept pure so the ownership rule is
+/// unit-testable independently of the ECS.
+fn gear_claims_grab(player_pos: &Position, gear_positions: impl Iterator<Item = Position>) -> bool {
+    gear_positions
+        .into_iter()
+        .any(|pos| player_pos.distance(&pos) < GEAR_RETRIEVE_RADIUS)
+}
+
 /// Allows the player to pick up a pickable object from the environment.
 ///
 /// This system checks if the player is pressing the 'grab' key and if there is a
@@ -32,11 +45,10 @@ fn grab_object(
 ) {
     for (mut player_gear, player_pos, player_dir, _player) in players.iter_mut() {
         if actions.just_pressed(PlayerAction::Grab) && player_gear.held_item.is_none() {
-            // If there's any gear deployed nearby do not consider furniture.
-            if deployables
-                .iter()
-                .any(|(_, object_pos)| player_pos.distance(object_pos) < 1.0)
-            {
+            // If there's any gear deployed nearby do not consider furniture; that
+            // press belongs to the gear-retrieval system. Use the same radius as
+            // `retrieve_gear` so the two can never both act on one press.
+            if gear_claims_grab(player_pos, deployables.iter().map(|(_, pos)| *pos)) {
                 return;
             }
 
@@ -270,19 +282,17 @@ fn retrieve_gear(
     mut gs: GearStuff,
     mut ev_rumble: EventWriter<uncore::rumble::RumbleFeedback>,
 ) {
-    // FIXME: This code, along with grabbing items are in conflict. It will be
-    // possible for a player to grab equipment from the floor and a location item at
-    // the same time if they are close enough for a well placed player. This needs to
-    // be solved, likely by handling the keypress event in one single system, then
-    // routing the remaining stuff to do via an Event to the system that handles that
-    // exact thing.
+    // NOTE: `grab_object` yields the [Grab] press to this system whenever any
+    // deployed gear is within `GEAR_RETRIEVE_RADIUS`, and we additionally bail
+    // out while the player is carrying furniture. Together these disjoint checks
+    // guarantee a single press can never both retrieve gear and grab scenery.
     for (player_pos, _player, mut player_gear) in players.iter_mut() {
-        if actions.just_pressed(PlayerAction::Grab) {
+        if actions.just_pressed(PlayerAction::Grab) && player_gear.held_item.is_none() {
             // Find the closest deployed gear
             let mut closest_gear: Option<(Entity, f32)> = None;
             for (entity, gear_pos, _) in q_deployed.iter() {
                 let distance = player_pos.distance(gear_pos);
-                if distance < 1.2 {
+                if distance < GEAR_RETRIEVE_RADIUS {
                     if let Some((_, closest_distance)) = closest_gear {
                         if distance < closest_distance {
                             closest_gear = Some((entity, distance));
@@ -339,4 +349,34 @@ pub(crate) fn app_setup(app: &mut App) {
         )
             .run_if(in_state(uncore::states::GameState::None)),
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn pos(x: f32, y: f32, z: f32) -> Position {
+        Position {
+            x,
+            y,
+            z,
+            global_z: 0.0,
+        }
+    }
+
+    #[test]
+    fn gear_claims_grab_within_radius() {
+        let player = pos(0.0, 0.0, 0.0);
+        // Inside the shared retrieval radius -> gear owns the press.
+        assert!(gear_claims_grab(&player, [pos(1.1, 0.0, 0.0)].into_iter()));
+        // Exactly at the edge is exclusive, matching the `< RADIUS` check.
+        assert!(!gear_claims_grab(&player, [pos(1.2, 0.0, 0.0)].into_iter()));
+    }
+
+    #[test]
+    fn no_gear_nearby_leaves_grab_for_scenery() {
+        let player = pos(0.0, 0.0, 0.0);
+        assert!(!gear_claims_grab(&player, std::iter::empty()));
+        assert!(!gear_claims_grab(&player, [pos(5.0, 0.0, 0.0)].into_iter()));
+    }
 }
