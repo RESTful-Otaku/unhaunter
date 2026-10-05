@@ -1,5 +1,9 @@
 ### Unreleased
 
+**Quality & Tooling**
+
+* Added a CI workflow (`.github/workflows/ci.yml`) that runs on `main` and feature branches: `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, the full test suite, a native binary build, and builds of the QA/dev tools (`ghost_list`, `ghost_radio`, `walkie_voice_generator`) so they cannot silently rot.
+
 **Gameplay Fixes**
 
 * Fixed the EMF Meter's journal hint staying stuck on: once it read EMF Level 5, the blink never cleared when the reading dropped. It now clears correctly.
