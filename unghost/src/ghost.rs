@@ -29,8 +29,9 @@ use ungearitems::components::salt::{SaltyTrace, SaltyTraceTimer, UVReactive};
 use crate::metrics::{GHOST_ENRAGE, GHOST_MOVEMENT};
 use uncore::events::ambient_sound_mute::AmbientSoundMuteEvent;
 
-/// Enables/disables debug logs for hunting behavior.
-const DEBUG_HUNTS: bool = true;
+/// Enables/disables debug logs for hunting behavior. Off by default; flip to
+/// `true` locally when investigating hunt/rage balance.
+const DEBUG_HUNTS: bool = false;
 
 // Constants for movement penalties
 const WALL_AVOIDANCE_PENALTY: f32 = -100.0; // Negative because it's added to score
