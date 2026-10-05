@@ -95,10 +95,6 @@ fn quartz_shattered_feedback(
     }
 }
 
-// TODO (David): Add `times_hunted_this_mission: u32` to `GhostSprite` struct
-// in `uncore/src/components/ghost_sprite.rs` and ensure it's incremented
-// when a hunt truly begins in `unghost/src/ghost.rs`. Initialize to 0.
-
 fn trigger_quartz_unused_in_relevant_situation_system(
     time: Res<Time>,
     app_state: Res<State<AppState>>,
@@ -133,8 +129,7 @@ fn trigger_quartz_unused_in_relevant_situation_system(
         return;
     };
 
-    // 4. First Hunt Check
-    // Assuming `times_hunted_this_mission` is added to GhostSprite
+    // 4. First Hunt Check: hint is only useful after experiencing >=1 hunt.
     if ghost_sprite.times_hunted_this_mission == 0 {
         return; // Hint is for after experiencing at least one hunt
     }
