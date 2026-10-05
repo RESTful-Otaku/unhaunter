@@ -23,6 +23,7 @@
 
 **Accessibility & Granular Settings**
 
+* Added **Fullscreen** (Windowed / Borderless / Exclusive) and **V-Sync** (Auto / On / Off) to Settings → Video, applied live to the window and persisted. V-Sync Off gives the lowest input latency for competitive play.
 * **UI Scale** is now a Video setting (80%–120%). It applies live to every menu, the HUD and the truck computer, and persists across sessions.
 * Finished wiring previously inert audio options: **Audio Positioning** (Screen Space / Isometric / Character Relative) now controls 3D spatialisation, and **Feedback EQ** applies a gentle tone trim. Both are selectable in Settings → Audio.
 * The in-game control legend now reflects live rebinds and the active device instead of hard-coded keys, so customising controls is immediately visible.

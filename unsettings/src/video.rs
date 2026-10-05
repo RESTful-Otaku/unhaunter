@@ -10,6 +10,8 @@ pub struct VideoSettings {
     pub aspect_ratio: AspectRatio,
     pub ui_scale: Scale,
     pub font_scale: Scale,
+    pub fullscreen: FullscreenMode,
+    pub vsync: VSyncMode,
 }
 
 #[derive(
@@ -104,6 +106,8 @@ pub enum VideoSettingsValue {
     window_size(WindowSize),
     aspect_ratio(AspectRatio),
     ui_scale(Scale),
+    fullscreen(FullscreenMode),
+    vsync(VSyncMode),
 }
 
 impl VideoSettingsValue {
@@ -113,8 +117,69 @@ impl VideoSettingsValue {
             VideoSettingsValue::window_size(v) => settings.window_size = *v,
             VideoSettingsValue::aspect_ratio(v) => settings.aspect_ratio = *v,
             VideoSettingsValue::ui_scale(v) => settings.ui_scale = *v,
+            VideoSettingsValue::fullscreen(v) => settings.fullscreen = *v,
+            VideoSettingsValue::vsync(v) => settings.vsync = *v,
         }
     }
+}
+
+/// Window presentation mode.
+#[derive(
+    Reflect,
+    Component,
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Default,
+    Sequence,
+    strum::Display,
+    strum::EnumIter,
+)]
+pub enum FullscreenMode {
+    /// A resizable window (default).
+    #[default]
+    Windowed,
+    /// Borderless fullscreen on the primary monitor.
+    Borderless,
+    /// Exclusive fullscreen on the primary monitor.
+    Exclusive,
+}
+
+impl FullscreenMode {
+    /// Whether this mode requests any form of fullscreen.
+    pub fn is_fullscreen(&self) -> bool {
+        !matches!(self, FullscreenMode::Windowed)
+    }
+}
+
+/// Vertical sync preference.
+#[derive(
+    Reflect,
+    Component,
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Default,
+    Sequence,
+    strum::Display,
+    strum::EnumIter,
+)]
+pub enum VSyncMode {
+    /// Let the driver choose (default; typically vsync on).
+    #[default]
+    Auto,
+    /// Force vsync on, capping the framerate to the display refresh.
+    On,
+    /// Disable vsync for the lowest input latency (may cause tearing).
+    Off,
 }
 
 impl VideoSettings {
@@ -152,5 +217,18 @@ mod tests {
         assert_eq!(settings.ui_scale, Scale::Scale120);
         VideoSettingsValue::ui_scale(Scale::Scale080).apply(&mut settings);
         assert_eq!(settings.ui_scale, Scale::Scale080);
+    }
+
+    #[test]
+    fn fullscreen_and_vsync_apply_and_default_to_windowed_auto() {
+        let mut settings = VideoSettings::default();
+        assert_eq!(settings.fullscreen, FullscreenMode::Windowed);
+        assert_eq!(settings.vsync, VSyncMode::Auto);
+        assert!(!settings.fullscreen.is_fullscreen());
+
+        VideoSettingsValue::fullscreen(FullscreenMode::Borderless).apply(&mut settings);
+        VideoSettingsValue::vsync(VSyncMode::Off).apply(&mut settings);
+        assert!(settings.fullscreen.is_fullscreen());
+        assert_eq!(settings.vsync, VSyncMode::Off);
     }
 }

@@ -1,7 +1,7 @@
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 use bevy::sprite::Material2dPlugin;
-use bevy::window::WindowResolution;
+use bevy::window::{MonitorSelection, VideoModeSelection, WindowResolution};
 use bevy_persistent::Persistent;
 use std::time::Duration;
 use uncampaign::plugin::UnhaunterCampaignPlugin;
@@ -24,7 +24,7 @@ use unnpc::plugin::UnhaunterNPCPlugin;
 use unplayer::plugin::UnhaunterPlayerPlugin;
 use unprofile::plugin::UnhaunterProfilePlugin;
 use unsettings::plugin::UnhaunterSettingsPlugin;
-use unsettings::video::VideoSettings;
+use unsettings::video::{FullscreenMode, VSyncMode, VideoSettings};
 use unstd::materials::{CustomMaterial1, UIPanelMaterial};
 use unstd::picking::{CustomSpritePickingPlugin, TruckNavPlugin};
 use unstd::plugins::board::UnhaunterBoardPlugin;
@@ -115,8 +115,8 @@ pub fn app_run(cli_options: CliOptions) {
     app.run();
 }
 
-/// Applies persisted video settings (window size / aspect ratio) to the
-/// primary window whenever they change.
+/// Applies persisted video settings (window size, aspect ratio, fullscreen and
+/// VSync) to the primary window whenever they change.
 fn apply_video_settings(
     video: Res<Persistent<VideoSettings>>,
     mut q_window: Query<&mut bevy::window::Window, With<bevy::window::PrimaryWindow>>,
@@ -124,12 +124,38 @@ fn apply_video_settings(
     if !video.is_changed() {
         return;
     }
+
     let (width, height) = video.resolution();
-    // Query returns one window typically.
+    let fullscreen = video.fullscreen;
+    let vsync = video.vsync;
     for mut window in q_window.iter_mut() {
-        window.resolution.set(width, height);
+        // VSync preference.
+        window.present_mode = match vsync {
+            VSyncMode::Auto => bevy::window::PresentMode::AutoVsync,
+            VSyncMode::On => bevy::window::PresentMode::Fifo,
+            VSyncMode::Off => bevy::window::PresentMode::AutoNoVsync,
+        };
+
+        // Window mode. In fullscreen the OS controls the size, so only set an
+        // explicit resolution when windowed.
+        window.mode = match fullscreen {
+            FullscreenMode::Windowed => bevy::window::WindowMode::Windowed,
+            FullscreenMode::Borderless => {
+                bevy::window::WindowMode::BorderlessFullscreen(MonitorSelection::Primary)
+            }
+            FullscreenMode::Exclusive => bevy::window::WindowMode::Fullscreen(
+                MonitorSelection::Primary,
+                VideoModeSelection::Current,
+            ),
+        };
+        if !fullscreen.is_fullscreen() {
+            window.resolution.set(width, height);
+        }
     }
-    info!("Applied video settings: {}x{}", width as u32, height as u32);
+    info!(
+        "Applied video settings: {}x{} {:?} vsync={:?}",
+        width as u32, height as u32, fullscreen, vsync
+    );
 }
 
 /// Applies the persisted UI scale to Bevy's global [`UiScale`] resource. This
