@@ -1,5 +1,9 @@
 ### Unreleased
 
+**Gameplay Fixes**
+
+* Fixed a grab conflict where a single [Grab] press could both retrieve deployed gear and pick up nearby scenery when the player stood in a narrow overlap zone. The two systems now share one radius and the gear-retrieval system yields while furniture is held, so a press always does exactly one thing.
+
 **Mission Summary**
 
 * The end-of-mission screen now shows the mission statistics that were previously calculated but never displayed: **Ghosts unhaunted**, **Repellent charges used** and **Average Sanity**. These already fed into the final score, so players can now see the numbers behind their grade.
