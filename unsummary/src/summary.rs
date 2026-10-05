@@ -267,6 +267,21 @@ pub fn setup_ui(
                         .insert(TextColor(css::GRAY.into()))
                         .insert(SummaryUIType::RepellentUsed);
 
+                    // Hidden unless this run set a new best for the map/difficulty.
+                    parent
+                        .spawn(Text::new(""))
+                        .insert(TextFont {
+                            font: handles.fonts.londrina.w300_light.clone(),
+                            font_size: 26.0 * FONT_SCALE,
+                            ..default()
+                        })
+                        .insert(TextColor(css::GOLD.into()))
+                        .insert(Node {
+                            grid_column: GridPlacement::span(3),
+                            ..default()
+                        })
+                        .insert(SummaryUIType::NewPersonalBest);
+
                     // Separator
                     parent
                         .spawn(Node {
@@ -576,6 +591,16 @@ pub fn update_ui(
                 let final_bank = player_profile.progression.bank + net_change;
                 text.0 = format!("Final Bank Total: ${}", final_bank);
             }
+            SummaryUIType::NewPersonalBest => {
+                text.0 = if rsd.is_new_personal_best {
+                    format!(
+                        "\u{2605} NEW PERSONAL BEST!  Previous: {}  \u{2192}  Now: {}",
+                        rsd.previous_best_score, rsd.full_score
+                    )
+                } else {
+                    String::new()
+                };
+            }
         }
     }
 }
@@ -593,6 +618,7 @@ pub fn update_score(mut sd: ResMut<SummaryData>, app_state: Res<State<AppState>>
 pub fn calculate_rewards_and_grades(
     mut sd: ResMut<SummaryData>,
     maps: Res<Maps>,
+    player_profile: Res<Persistent<PlayerProfileData>>,
     app_state: Res<State<AppState>>,
 ) {
     if *app_state != AppState::Summary {
@@ -672,6 +698,38 @@ pub fn calculate_rewards_and_grades(
         "Finalized grade: {}, multiplier: {:.1}, money_earned: ${}, base_reward_used: ${}",
         sd.grade_achieved, sd.grade_multiplier, sd.money_earned, sd.mission_reward_base
     );
+
+    // Recognise a new personal best for this map/difficulty. Must be read before
+    // `finalize_profile_update` mutates the stored best. Only successful runs
+    // with an actual score are eligible.
+    let difficulty_key = sd.difficulty.0.difficulty;
+    let previous_best = player_profile
+        .map_statistics
+        .get(&sd.map_path)
+        .and_then(|by_difficulty| by_difficulty.get(&difficulty_key))
+        .map(|stats| stats.best_score)
+        .unwrap_or(0);
+    sd.previous_best_score = previous_best;
+    sd.is_new_personal_best = is_new_personal_best(
+        sd.mission_successful,
+        sd.grade_achieved,
+        sd.full_score,
+        previous_best,
+    );
+}
+
+/// Whether a mission result constitutes a new personal best.
+///
+/// Only successful missions with a real grade and a strictly higher score than
+/// the previous best count. First-ever completions (previous best `0`) with a
+/// positive score do qualify.
+fn is_new_personal_best(
+    mission_successful: bool,
+    grade: Grade,
+    full_score: i64,
+    previous_best: i64,
+) -> bool {
+    mission_successful && grade != Grade::NA && full_score > previous_best
 }
 
 pub fn finalize_profile_update(
@@ -802,5 +860,33 @@ pub fn store_mission_id(
         }
     } else {
         info!("Using existing mission ID: {}", sd.map_path);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_new_personal_best;
+    use uncore::types::grade::Grade;
+
+    #[test]
+    fn first_completion_with_score_is_a_personal_best() {
+        assert!(is_new_personal_best(true, Grade::A, 500, 0));
+    }
+
+    #[test]
+    fn higher_score_beats_previous_best() {
+        assert!(is_new_personal_best(true, Grade::A, 800, 500));
+    }
+
+    #[test]
+    fn equal_or_lower_score_is_not_a_best() {
+        assert!(!is_new_personal_best(true, Grade::A, 500, 500));
+        assert!(!is_new_personal_best(true, Grade::A, 400, 500));
+    }
+
+    #[test]
+    fn failed_or_ungraded_runs_never_set_a_best() {
+        assert!(!is_new_personal_best(false, Grade::A, 9999, 0));
+        assert!(!is_new_personal_best(true, Grade::NA, 9999, 0));
     }
 }
