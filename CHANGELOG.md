@@ -9,6 +9,7 @@
 
 **Mission Summary**
 
+* The **"First Ghost Expelled"** achievement is now actually awarded and shown with a trophy banner on the summary the first time you unhaunt a ghost (previously the flag existed but was never set or displayed).
 * The summary now shows **XP earned** for the mission and a green **"⬆ LEVEL UP! Lv X → Lv Y"** banner whenever the run advances the player's level, closing the progression feedback loop.
 * The mission-selection list now shows each map's **Best** score (for the active difficulty) next to its grade badge, giving players a concrete target to beat.
 * A **"NEW PERSONAL BEST!"** banner (with the previous and new score) now appears on the summary screen whenever a successful run beats the stored best for that map and difficulty, adding a clear replay incentive.

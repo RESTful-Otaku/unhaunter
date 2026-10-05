@@ -304,6 +304,21 @@ pub fn setup_ui(
                         .insert(TextColor(css::LIGHT_GREEN.into()))
                         .insert(SummaryUIType::LevelUp);
 
+                    // Achievement banner (hidden unless newly unlocked).
+                    parent
+                        .spawn(Text::new(""))
+                        .insert(TextFont {
+                            font: handles.fonts.londrina.w300_light.clone(),
+                            font_size: 26.0 * FONT_SCALE,
+                            ..default()
+                        })
+                        .insert(TextColor(css::GOLD.into()))
+                        .insert(Node {
+                            grid_column: GridPlacement::span(3),
+                            ..default()
+                        })
+                        .insert(SummaryUIType::AchievementFirstGhost);
+
                     // Separator
                     parent
                         .spawn(Node {
@@ -636,6 +651,13 @@ pub fn update_ui(
                     String::new()
                 };
             }
+            SummaryUIType::AchievementFirstGhost => {
+                text.0 = if rsd.unlocked_first_expulsion {
+                    "\u{1F3C6} ACHIEVEMENT UNLOCKED: First Ghost Expelled!".to_string()
+                } else {
+                    String::new()
+                };
+            }
         }
     }
 }
@@ -759,6 +781,18 @@ pub fn calculate_rewards_and_grades(
     let projected_xp = player_profile.progression.player_xp + sd.xp_earned;
     sd.level_after = unprofile::data::ProgressionData::level_for_xp(projected_xp);
     sd.leveled_up = sd.level_after > sd.level_before;
+
+    // First-expulsion achievement: set it the first time a mission unhaunts a
+    // ghost, and flag it for celebration on this summary.
+    sd.unlocked_first_expulsion = should_unlock_first_expulsion(
+        player_profile.achievements.expelled_first_ghost,
+        sd.ghosts_unhaunted,
+    );
+}
+
+/// Whether the "first ghost expelled" achievement should unlock now.
+fn should_unlock_first_expulsion(already_unlocked: bool, ghosts_unhaunted: u32) -> bool {
+    !already_unlocked && ghosts_unhaunted > 0
 }
 
 /// Whether a mission result constitutes a new personal best.
@@ -787,6 +821,11 @@ pub fn finalize_profile_update(
 
     if sd.money_earned > 0 {
         player_profile.progression.bank += sd.money_earned;
+    }
+
+    // Persist the first-expulsion achievement once earned.
+    if sd.unlocked_first_expulsion && !player_profile.achievements.expelled_first_ghost {
+        player_profile.achievements.expelled_first_ghost = true;
     }
 
     // Always use the actual played difficulty from SummaryData (which is sourced from CurrentDifficulty)
@@ -909,7 +948,15 @@ pub fn store_mission_id(
 #[cfg(test)]
 mod tests {
     use super::is_new_personal_best;
+    use super::should_unlock_first_expulsion;
     use uncore::types::grade::Grade;
+
+    #[test]
+    fn first_expulsion_unlocks_only_once() {
+        assert!(should_unlock_first_expulsion(false, 1));
+        assert!(!should_unlock_first_expulsion(true, 1));
+        assert!(!should_unlock_first_expulsion(false, 0));
+    }
 
     #[test]
     fn first_completion_with_score_is_a_personal_best() {
