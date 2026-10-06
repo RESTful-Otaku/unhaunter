@@ -13,6 +13,7 @@
 **Accessibility**
 
 * Added a **Hunt Warning Flash** toggle in Video settings (default on) to disable the new vignette pulse for photosensitive players. The hunt is still telegraphed by audio and the ghost turning red.
+* Tuned the hunt-warning vignette for readability and safety: during the chase it holds a **sustained low level** rather than full strength (a full-strength red cast masked the scene exactly when you need to see it), and the pulse runs at **~1 Hz**, well below the 3-60 Hz photosensitive-epilepsy range, using a `sin²` curve so it reads as a slow breathing glow rather than a strobe.
 
 **UI/UX Polish**
 

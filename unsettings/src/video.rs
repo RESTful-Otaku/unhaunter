@@ -260,6 +260,15 @@ mod tests {
     }
 
     #[test]
+    fn hunt_warning_flash_is_a_plain_bool_that_round_trips_through_ron() {
+        let mut settings = VideoSettings::default();
+        VideoSettingsValue::hunt_warning_flash(false).apply(&mut settings);
+        let round_tripped: VideoSettings =
+            ron::from_str(&ron::to_string(&settings).unwrap()).unwrap();
+        assert!(!round_tripped.hunt_warning_flash);
+    }
+
+    #[test]
     fn hunt_warning_flash_defaults_on_and_can_be_disabled() {
         let mut settings = VideoSettings::default();
         assert!(settings.hunt_warning_flash);
