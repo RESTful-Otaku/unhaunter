@@ -131,6 +131,14 @@ impl GearUsable for Photocam {
         if self.verdict_secs_left > 0.0 && !self.is_enabled() {
             self.verdict_secs_left = 0.0;
         }
+
+        // Apply EMI so a ghost winding up to hunt can misfire the flash, like the
+        // other electronic gear. Without this the interference handler below was
+        // never reached.
+        if let Some(ghost_pos) = &gs.bf.ghost_warning_position {
+            let distance2 = pos.distance2(ghost_pos);
+            self.apply_electromagnetic_interference(gs.bf.ghost_warning_intensity, distance2);
+        }
     }
 
     fn box_clone(&self) -> Box<dyn GearUsable> {

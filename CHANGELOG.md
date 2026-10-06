@@ -8,6 +8,7 @@
 
 * Added a **hunt-warning vignette**: a red pulse at the screen edges during the pre-hunt warning, ramping with the ghost's warning intensity. Previously the only cues were the ghost turning red (invisible if it is dark or off-screen) and the walkie audio.
 * Fixed the hunt-warning intensity ramp. It was normalised against a hard-coded `10.0` while the warning window is `5.0` seconds, so intensity started at `0.5` and only ever reached `0.95` — the warning never began from silence and never hit full strength. The window length is now a single `HUNT_WARNING_SECS` constant that both the timer and the ramp derive from, with tests locking the range, monotonicity and clamping. This also smooths the electromagnetic interference on gear (flashlight, EMF/ion/geiger meters, spirit box, ...), which was previously jumping to near-full the instant a warning began instead of ramping in.
+* Fixed the **Photo Camera** ignoring electromagnetic interference. It implemented the interference handler but never called it, so its "flash misfires during strong interference" behaviour was unreachable dead code — the camera was the only electronic tool that could not be disrupted by a ghost winding up to hunt. All 13 electronic tools now respond.
 * Turned off the development `DEBUG_HUNTS` flag, which was left `true` and logged ghost rage/hunt state periodically in every normal playthrough.
 
 **Accessibility**
