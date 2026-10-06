@@ -564,6 +564,10 @@ fn toggle_held_object_ui(
     }
 }
 
+/// Vignette strength while the ghost is actively hunting the player. Lower than
+/// the warning peak so the screen stays readable during the chase.
+const HUNT_ACTIVE_INTENSITY: f32 = 0.45;
+
 /// Pulses a red vignette at the screen edges while the ghost is winding up for
 /// a hunt, so the danger is readable even when the ghost itself is off-screen or
 /// hidden in darkness.
@@ -590,8 +594,10 @@ fn update_hunt_warning_vignette(
         .iter()
         .map(|g| {
             if g.hunt_target {
-                // During the actual hunt the warning is fully engaged.
-                1.0
+                // The hunt itself is a sustained danger state. Keep it well below
+                // the warning's peak so the red cast never masks the scene while
+                // the player is trying to see and escape.
+                HUNT_ACTIVE_INTENSITY
             } else if g.hunt_warning_active {
                 g.hunt_warning_intensity.clamp(0.0, 1.0)
             } else {
@@ -600,9 +606,11 @@ fn update_hunt_warning_vignette(
         })
         .fold(0.0_f32, f32::max);
 
-    // ~1.6 pulses per second: fast enough to feel urgent, slow enough to read
-    // as a warning rather than strobing.
-    let pulse = (time.elapsed_secs() * 10.0).sin() * 0.5 + 0.5;
+    // ~1 Hz pulse (sin argument 2π·1·t), deliberately kept well below the 3-60 Hz
+    // photosensitive-epilepsy range. `sin²` spends longer at the extremes than a
+    // triangle wave, which reads as a breathing glow rather than a strobe.
+    let phase = time.elapsed_secs() * std::f32::consts::TAU;
+    let pulse = phase.sin().powi(2);
     let alpha = (intensity * pulse * 0.55).clamp(0.0, 1.0);
 
     let new_color = Color::Srgba(css::RED.with_alpha(alpha));
