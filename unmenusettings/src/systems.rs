@@ -1014,6 +1014,7 @@ fn rebind_capture_system(
     mut control_bindings: ResMut<Persistent<ControlBindings>>,
     handles: Res<GameAssets>,
     qtui: Query<Entity, With<SettingsMenu>>,
+    gamepad_status: Res<GamepadStatus>,
     mut frames_since_enter: Local<u32>,
 ) {
     let Ok((device, action)) = (match settings_state.get() {
@@ -1041,6 +1042,7 @@ fn rebind_capture_system(
                 action,
                 &control_bindings,
                 &mut next_state,
+                &gamepad_status,
             );
             return;
         }
@@ -1055,6 +1057,7 @@ fn rebind_capture_system(
                     action,
                     &control_bindings,
                     &mut next_state,
+                    &gamepad_status,
                 );
             }
             BindDevice::Gamepad => continue,
@@ -1082,6 +1085,7 @@ fn rebind_capture_system(
                 action,
                 &control_bindings,
                 &mut next_state,
+                &gamepad_status,
             );
             return;
         }
@@ -1094,6 +1098,7 @@ fn rebind_capture_system(
             action,
             &control_bindings,
             &mut next_state,
+            &gamepad_status,
         );
         return;
     }
@@ -1107,6 +1112,7 @@ fn cancel_rebind(
     action: unsettings::bindings::PlayerAction,
     control_bindings: &Persistent<ControlBindings>,
     next_state: &mut NextState<SettingsState>,
+    gamepad_status: &GamepadStatus,
 ) {
     redraw_rebind_list(
         commands,
@@ -1116,6 +1122,7 @@ fn cancel_rebind(
         action,
         control_bindings,
         next_state,
+        gamepad_status,
     );
 }
 
@@ -1127,6 +1134,7 @@ fn finish_rebind(
     action: unsettings::bindings::PlayerAction,
     control_bindings: &Persistent<ControlBindings>,
     next_state: &mut NextState<SettingsState>,
+    gamepad_status: &GamepadStatus,
 ) {
     if let Err(e) = control_bindings.persist() {
         error!("Error persisting Control Bindings: {e:?}");
@@ -1139,6 +1147,7 @@ fn finish_rebind(
         action,
         control_bindings,
         next_state,
+        gamepad_status,
     );
 }
 
@@ -1150,6 +1159,7 @@ fn redraw_rebind_list(
     action: unsettings::bindings::PlayerAction,
     control_bindings: &Persistent<ControlBindings>,
     next_state: &mut NextState<SettingsState>,
+    gamepad_status: &GamepadStatus,
 ) {
     info!(
         "Rebound {} on {}: done",
@@ -1161,6 +1171,11 @@ fn redraw_rebind_list(
     );
     let _ = action;
     let rows = rebind_list_rows(device, control_bindings);
+    let cancel = uncore::input::action_prompt(
+        control_bindings,
+        uncore::input::PlayerAction::Back,
+        Some(gamepad_status),
+    );
     spawn_edit_page(
         commands,
         handles,
@@ -1170,7 +1185,9 @@ fn redraw_rebind_list(
             BindDevice::Keyboard => "Controls > Keyboard Bindings".to_string(),
             BindDevice::Gamepad => "Controls > Gamepad Bindings".to_string(),
         },
-        Some("Select an action to assign a new input. Press [Escape] to go back.".to_string()),
+        Some(format!(
+            "Select an action to assign a new input. Press {cancel} to go back."
+        )),
         rows,
     );
     next_state.set(SettingsState::Lv3ValueEdit(MenuSettingsLevel1::Controls));
