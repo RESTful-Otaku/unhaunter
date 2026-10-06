@@ -37,6 +37,56 @@ const DEBUG_HUNTS: bool = false;
 const WALL_AVOIDANCE_PENALTY: f32 = -100.0; // Negative because it's added to score
 const FLOOR_CHANGE_PENALTY_BASE: f32 = -50.0; // Negative, base penalty for changing floors
 
+/// Length in seconds of the pre-hunt warning window, after which the ghost
+/// starts hunting. The warning intensity ramp is normalised against this so the
+/// ramp always spans 0.0 -> 1.0 across the window.
+const HUNT_WARNING_SECS: f32 = 5.0;
+
+/// Warning intensity for a given remaining time in the warning window.
+///
+/// Returns a value in `0.0..=1.0` that ramps from silent (0.0) at the start of
+/// the window to full intensity (1.0) at the end, so it can drive the ghost's
+/// colour shift and the hunt-warning vignette.
+pub fn hunt_warning_intensity(remaining_secs: f32) -> f32 {
+    (1.0 - (remaining_secs / HUNT_WARNING_SECS)).clamp(0.0, 1.0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hunt_warning_intensity_spans_full_range() {
+        assert_eq!(hunt_warning_intensity(HUNT_WARNING_SECS), 0.0);
+        assert_eq!(hunt_warning_intensity(0.0), 1.0);
+    }
+
+    #[test]
+    fn hunt_warning_intensity_is_monotonic_and_clamped() {
+        let mut previous = -1.0;
+        let mut remaining = HUNT_WARNING_SECS;
+        while remaining >= 0.0 {
+            let intensity = hunt_warning_intensity(remaining);
+            assert!(
+                (0.0..=1.0).contains(&intensity),
+                "intensity {intensity} out of range at {remaining}"
+            );
+            assert!(
+                intensity >= previous,
+                "intensity must not decrease as the window elapses"
+            );
+            previous = intensity;
+            remaining -= 0.25;
+        }
+    }
+
+    #[test]
+    fn hunt_warning_intensity_clamps_past_the_window() {
+        assert_eq!(hunt_warning_intensity(-3.0), 1.0);
+        assert_eq!(hunt_warning_intensity(HUNT_WARNING_SECS * 4.0), 0.0);
+    }
+}
+
 #[derive(Component)]
 struct FadeOut {
     pub timer: Timer,
@@ -476,7 +526,7 @@ fn ghost_enrage(
                 // Pre-warning timer expired, start actual hunt warning with roar
                 if !ghost.hunt_warning_active {
                     ghost.hunt_warning_active = true;
-                    ghost.hunt_warning_timer = 5.0;
+                    ghost.hunt_warning_timer = HUNT_WARNING_SECS;
                     ghost.hunt_warning_intensity = 0.0;
 
                     should_roar = RoarType::Full;
@@ -488,7 +538,8 @@ fn ghost_enrage(
         // --- Hunt Warning Logic ---
         if ghost.hunt_warning_active {
             ghost.hunt_warning_timer -= dt;
-            ghost.hunt_warning_intensity = 1.0 - (ghost.hunt_warning_timer / 10.0);
+            // Ramp 0.0 -> 1.0 across the warning window.
+            ghost.hunt_warning_intensity = hunt_warning_intensity(ghost.hunt_warning_timer);
 
             // Send stronger mute event when hunt is about to start (anticipatory)
             if ghost.hunt_warning_timer <= 0.5 && ghost.hunt_warning_timer > 0.5 - dt {
