@@ -19,6 +19,7 @@
 
 * The Settings menu navigation bar now reflects the **live control bindings and active device** (e.g. `[A]/[B]` on a controller, `[Esc]`/`[Enter]` on keyboard) instead of hard-coded keys.
 * Rebinding a gamepad button can now be **cancelled** with the bound Back/Start button, mirroring keyboard Escape; the cancel prompt is device-aware.
+* The keyboard/gamepad binding lists no longer hard-code `Press [Escape] to go back` — the prompt uses the live Back binding, so it shows `[Start]` on a controller.
 
 **Gameplay Fixes**
 
