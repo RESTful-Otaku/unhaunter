@@ -30,6 +30,8 @@
 * Removed four `panic!()` calls from click-to-move stair pathfinding: unexpected stair orientations (rare map configurations) now log a warning and fall back to safe waypoints instead of crashing the game.
 * Removed leftover `dbg!()`/`println!` debug output from runtime systems (ghost door events, tile loading, level finalisation, player vitals), reducing log spam and per-frame overhead. Test-only diagnostics were converted to assertions.
 * Fixed a grab conflict where a single [Grab] press could both retrieve deployed gear and pick up nearby scenery when the player stood in a narrow overlap zone. The two systems now share one radius and the gear-retrieval system yields while furniture is held, so a press always does exactly one thing.
+* Fixed the truck's **Craft Repellent button** having an unreliable enabled state. Three systems wrote its `disabled` flag every frame with no ordering between them, so whichever ran last silently discarded the others' conditions. Two of them also latched the button off and never cleared it, so returning a full, unopened flask to refund the allowance could not re-enable crafting for the rest of the truck visit. `journal::button_system` is now the single owner and folds in all three conditions (ghost selected, flask can be filled, allowance remaining), with tests covering the allowance, the limit cap, and the refund/re-enable path.
+* The Craft Repellent button no longer relabels itself **"End Mission - No More Repellents"** when the allowance is spent. It is not the end-mission button and does nothing when pressed in that state, so the label sent players down the wrong path; it now reads "Out of Repellent Bottles" and shows how many crafts remain otherwise.
 
 **Mission Summary**
 
