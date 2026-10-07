@@ -22,6 +22,11 @@
 * Rebinding a gamepad button can now be **cancelled** with the bound Back/Start button, mirroring keyboard Escape; the cancel prompt is device-aware.
 * The keyboard/gamepad binding lists no longer hard-code `Press [Escape] to go back` — the prompt uses the live Back binding, so it shows `[Start]` on a controller.
 
+**Upstream Sync**
+
+* Ported upstream's fix for **truck hold-button auto re-push** (`upstream/fix/truck-ui-button-cooldown`, commit `41be4a90`) onto this tree. Holding a hold-button (Craft Repellent, End Mission) through its activation re-fired it, because `holding` was cleared on activation while `Interaction` stayed `Pressed`, so the next frame began a fresh hold. Each re-hold also orphaned the previous hold-progress sound. `TruckUIButton` gains `cooldown_timer` and `require_release`, a `truck_button_cooldown_system` ticks the former, and the hold sound is despawned on activation and on gating.
+* Upstream's `upstream/fix/b23-flashlight-overheat-sound-spam` fix was **not** ported: this tree already guards the overheat ding with `self.status != FlashlightStatus::Off`, so it plays once per overheat event rather than per frame.
+
 **Gameplay Fixes**
 
 * Fixed the EMF Meter's journal hint staying stuck on: once it read EMF Level 5, the blink never cleared when the reading dropped. It now clears correctly.
