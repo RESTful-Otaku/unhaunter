@@ -69,6 +69,12 @@ pub struct GhostSprite {
     pub hunt_warning_intensity: f32,
     /// Number of times the ghost has hunted in the current mission.
     pub times_hunted_this_mission: i64,
+    /// Seconds the ghost has spent on its current floor.
+    ///
+    /// Used to damp vertical oscillation: the ghost gets a heavy floor-change
+    /// penalty until it has settled, which stops it ping-ponging between
+    /// adjacent floors while wandering.
+    pub floor_stay_timer: f32,
 }
 
 impl GhostSprite {
@@ -110,6 +116,7 @@ impl GhostSprite {
             hunt_warning_timer: 0.0,
             hunt_warning_intensity: 0.0,
             times_hunted_this_mission: 0,
+            floor_stay_timer: 0.0,
         }
     }
 

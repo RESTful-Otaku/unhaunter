@@ -85,6 +85,45 @@ mod tests {
         assert_eq!(hunt_warning_intensity(-3.0), 1.0);
         assert_eq!(hunt_warning_intensity(HUNT_WARNING_SECS * 4.0), 0.0);
     }
+
+    /// Upstream bug B18: the ghost ignored haunted objects on large maps
+    /// because influence fell off as `1/(d²+1)`, so at ten tiles an object
+    /// contributed ~1% of its charge and was swamped by the base score of 1.0.
+    /// Linear falloff keeps distant objects relevant.
+    #[test]
+    fn ghost_influence_stays_significant_at_large_map_ranges() {
+        let squared_falloff_at_ten_tiles = 1.0 / (10.0_f32 * 10.0 + 1.0);
+        assert!(
+            squared_falloff_at_ten_tiles < 0.01,
+            "precondition: squared falloff is negligible at range"
+        );
+
+        let near = ghost_influence_weight(0.0);
+        let at_ten = ghost_influence_weight(10.0);
+        let at_twenty = ghost_influence_weight(20.0);
+
+        assert!(
+            at_ten > 0.05,
+            "influence at 10 tiles was {at_ten}, too small to affect scoring"
+        );
+        assert!(
+            at_ten / at_twenty < 3.0,
+            "falloff should be gradual, not a cliff"
+        );
+        assert!(
+            near > at_ten && at_ten > at_twenty,
+            "influence must decrease monotonically with distance"
+        );
+    }
+
+    #[test]
+    fn ghost_influence_weight_is_finite_and_positive() {
+        assert!(ghost_influence_weight(0.0).is_finite());
+        assert!(ghost_influence_weight(0.0) > 0.0);
+        // Large map diagonal should not collapse to zero or blow up.
+        let far = ghost_influence_weight(1.0e4);
+        assert!(far.is_finite() && far > 0.0 && far < 1.0);
+    }
 }
 
 #[derive(Component)]
@@ -131,7 +170,13 @@ fn ghost_movement(
 
     let mut rng = random_seed::rng();
     let dt = time.delta_secs() * 60.0;
+    let dt_secs = time.delta_secs();
     for (mut ghost, mut pos, entity) in q.iter_mut() {
+        // Track how long the ghost has held this floor so `ghost_movement`'s
+        // destination scoring can damp vertical oscillation.
+        let floor_before_move = pos.z.round();
+        ghost.floor_stay_timer += dt_secs;
+
         if let Some(target_point) = ghost.target_point {
             let mut delta = target_point.delta(*pos);
             if rng.random_range(0..500) == 0 && delta.distance() > 3.0 && ghost.warp < 0.1 {
@@ -286,8 +331,14 @@ fn ghost_movement(
                         calculate_object_influence_score(candidate_dest, &object_query, &config)
                             / difficulty.0.ghost_attraction_to_breach.max(0.1); // Scale object influence
                     let penalty = 1.0
-                        + calculate_movement_penalties(candidate_dest, &pos, &bf, &difficulty)
-                            .abs()
+                        + calculate_movement_penalties(
+                            candidate_dest,
+                            &pos,
+                            &ghost,
+                            &bf,
+                            &difficulty,
+                        )
+                        .abs()
                             / 10.0;
                     score /= penalty;
                     potential_destinations.push((score, candidate_dest));
@@ -343,6 +394,12 @@ fn ghost_movement(
                 ghost.hunt_target = false;
             }
         }
+        // Reset the settle timer whenever the ghost actually changes floor, so
+        // the next floor change is penalised again.
+        if pos.z.round() != floor_before_move {
+            ghost.floor_stay_timer = 0.0;
+        }
+
         if ghost.get_health() < 0.0 {
             summary.ghosts_unhaunted += 1;
             if let Some(breach) = ghost.breach_id {
@@ -658,6 +715,34 @@ fn ghost_enrage(
     measure.end_ms();
 }
 
+/// Vertical attenuation factor used when measuring a candidate destination's
+/// distance from a `GhostInfluence` object.
+///
+/// Lower means vertical separation matters less, so an object on another floor
+/// can still pull the ghost. Kept well above 1.0 so floors are not treated as
+/// interchangeable.
+const GHOST_INFLUENCE_ZF: f32 = 12.0;
+
+/// Softening term in the object-influence falloff, in tiles.
+///
+/// Influence falls off as `1 / (distance + GHOST_INFLUENCE_FALLOFF)`. The
+/// softening keeps the value finite at zero range and, crucially, keeps
+/// influence meaningful at the ranges found on large maps.
+const GHOST_INFLUENCE_FALLOFF: f32 = 5.0;
+
+/// Weight of a single `GhostInfluence` object on a candidate destination score,
+/// before the attractive/repulsive multiplier and charge value are applied.
+///
+/// This is `1 / (distance + GHOST_INFLUENCE_FALLOFF)`.
+///
+/// Using linear distance rather than squared distance matters: with `1/(d²+1)`
+/// an object 10 tiles away contributes ~1% of its charge, which is swamped by
+/// the base score of 1.0 in `ghost_movement` and made the ghost ignore haunted
+/// objects on large maps (upstream bug B18).
+fn ghost_influence_weight(distance: f32) -> f32 {
+    1.0 / (distance + GHOST_INFLUENCE_FALLOFF)
+}
+
 /// Calculates the score contribution from object influences.
 fn calculate_object_influence_score(
     potential_destination: Position,
@@ -667,30 +752,37 @@ fn calculate_object_influence_score(
     let mut score = 0.0;
     // Iterate through objects with GhostInfluence
     for (object_position, ghost_influence) in object_query.iter() {
-        let distance2 = potential_destination.distance2_zf(object_position, 20.0);
+        let distance = potential_destination.distance_zf(object_position, GHOST_INFLUENCE_ZF);
+        let weight = ghost_influence_weight(distance) * ghost_influence.charge_value;
 
         // Apply influence based on distance and charge value
         match ghost_influence.influence_type {
             InfluenceType::Attractive => {
                 // Add to score for Attractive objects, weighted by attractive_influence_multiplier
-                score += config.attractive_influence_multiplier * ghost_influence.charge_value
-                    / (distance2 + 1.0);
+                score += config.attractive_influence_multiplier * weight;
             }
             InfluenceType::Repulsive => {
                 // Subtract from score for Repulsive objects, weighted by
                 // repulsive_influence_multiplier
-                score -= config.repulsive_influence_multiplier * ghost_influence.charge_value
-                    / (distance2 + 1.0);
+                score -= config.repulsive_influence_multiplier * weight;
             }
         }
     }
     score
 }
 
+/// Seconds a ghost must stay on a floor before a floor change is cheap again.
+const FLOOR_SETTLE_SECS: f32 = 8.0;
+
+/// Multiplier applied to the floor-change penalty while the ghost is still
+/// settling on its current floor and is not hunting.
+const FLOOR_UNSETTLED_PENALTY_MULT: f32 = 20.0;
+
 /// Calculates penalties for movement choices (walls, floor changes).
 fn calculate_movement_penalties(
     potential_destination: Position,
     current_ghost_pos: &Position,
+    current_ghost: &GhostSprite,
     bf: &Res<BoardData>,
     _difficulty: &Res<CurrentDifficulty>, // Available for future use if penalties scale with difficulty
 ) -> f32 {
@@ -711,7 +803,16 @@ fn calculate_movement_penalties(
     // Floor Change Penalty
     // Penalize if the destination is on a different floor (rounded Z)
     if potential_destination.z.round() != current_ghost_pos.z.round() {
-        penalty_score += FLOOR_CHANGE_PENALTY_BASE;
+        // Only allow cheap floor changes once the ghost has settled on its
+        // current floor. Without this the ghost oscillates vertically, since
+        // every sampled candidate can win by a hair on a different floor.
+        // During a hunt the penalty is waived entirely so the ghost can still
+        // chase across floors and cannot be kited.
+        let mut floor_change_penalty = FLOOR_CHANGE_PENALTY_BASE;
+        if current_ghost.floor_stay_timer < FLOOR_SETTLE_SECS && !current_ghost.hunt_target {
+            floor_change_penalty *= FLOOR_UNSETTLED_PENALTY_MULT;
+        }
+        penalty_score += floor_change_penalty;
     }
 
     penalty_score
