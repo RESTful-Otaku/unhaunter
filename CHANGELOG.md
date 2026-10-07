@@ -30,7 +30,13 @@
 * Added **floor-settle hysteresis** to stop the ghost ping-ponging between floors while wandering. The ghost now tracks `floor_stay_timer`, and a floor change is penalised 20× more until it has held its current floor for 8 seconds. The penalty is waived entirely during a hunt so the ghost still chases across floors and cannot be kited.
 * **Balance note:** the influence falloff curve, sample count and floor penalty are gameplay-visible values. They are changed here because they *are* the upstream fix, not as independent tuning — the ghost now visibly seeks out haunted objects, which is the intended behaviour.
 * Reviewed and **not** ported: `b09-shared-truck-sounds` and `fix/truck-ui-button-cooldown` networking halves (both require `bevy_replicon` authority/replication infrastructure this tree does not have); `dev-kira-audio` (a `bevy_kira_audio` backend migration — a large dependency change needing its own plan per the repo's upgrade policy); `55-add-reverbs-to-sound-effects` (upstream's own commit message states the effect "doesn't work as expected ... more of a single delay effect"); `feat/quinnet-transport-migration` (networking); `copilot/fix-tar-gz-folder-issue` (packaging, unrelated to this fork's layout).
-* Deferred: `environmental-tension-miasma-hazards` (13 commits) adds miasma-driven hazard particles that chase and damage the player. The mechanic is portable and worth adding, but it depends on an upstream-only asset (`img/particle_spark.png`) and a large systems rewrite, so it needs its own branch and an assets decision rather than a drive-by port.
+* Deferred: `environmental-tension-miasma-hazards` (13 commits) adds miasma-driven hazard particles that chase and damage the player. **The mechanic is now implemented here** — see **Miasma Hazards** below. Only the upstream-specific `img/particle_spark.png` visual was not taken; this tree reuses the existing miasma puff art with a hot tint, which keeps the art direction consistent and avoids introducing a second particle visual language for one effect.
+
+**Miasma Hazards**
+
+* Rooms where miasma pressure builds past a high threshold now occasionally **condense a hazard**: a drifting ember that homes in on the visible player, bounces off walls, and burns them on contact for as long as they stand in it. Hiding is safe. This gives the miasma system — previously pure visual density — an actual consequence, and reads diegetically: the room itself becomes dangerous where the ghost is haunting it.
+* Hazards consume the pressure that produced them, are capped at 10 at once, live for 10 seconds, and fade in and out rather than popping in or out. They are lit by the map's lighting field, so they disappear in darkness instead of glowing through it, and hidden players are never targeted by damage.
+* Ported in substance from upstream's `environmental-tension-miasma-hazards` branch, minus its replication layer (this tree is single-player).
 
 **Gameplay Fixes**
 
