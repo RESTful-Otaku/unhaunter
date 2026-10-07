@@ -6,10 +6,12 @@ use rand::Rng;
 use uncore::behavior::Behavior;
 use uncore::components::board::boardposition::BoardPosition;
 use uncore::components::board::chunk::{CellIterator, ChunkIterator};
+use uncore::components::board::mapcolor::MapColor;
 use uncore::components::board::position::Position;
 use uncore::components::game::GameSprite;
 use uncore::components::game_config::GameConfig;
 use uncore::components::ghost_sprite::GhostSprite;
+use uncore::components::player::Hiding;
 use uncore::components::player_sprite::PlayerSprite;
 use uncore::components::sprite_type::SpriteType;
 use uncore::events::board_data_rebuild::BoardDataToRebuild;
@@ -23,7 +25,7 @@ use uncore::states::AppState;
 use uncore::types::root::game_assets::GameAssets;
 use unstd::plugins::board::rebuild_collision_data;
 
-use crate::components::MiasmaSprite;
+use crate::components::{MiasmaHazard, MiasmaSprite};
 use crate::metrics;
 use crate::resources::MiasmaConfig;
 
@@ -657,6 +659,248 @@ fn update_miasma(
     measure.end_ms();
 }
 
+// ---------------------------------------------------------------------------
+// Miasma hazards
+//
+// Heavily pressured miasma occasionally condenses into a drifting hazard that
+// homes in on a visible player and burns them. Ported in substance from
+// upstream's `environmental-tension-miasma-hazards` branch.
+// ---------------------------------------------------------------------------
+
+/// Miasma pressure a tile must exceed before it can condense a hazard.
+pub const HAZARD_PRESSURE_THRESHOLD: f32 = 100.0;
+
+/// At this pressure, a tile condenses a hazard with probability
+/// `HAZARD_MAX_CHANCE_PER_SEC` per second. Below the threshold the rate falls
+/// off linearly.
+const HAZARD_PRESSURE_SCALE: f32 = 20000.0;
+const HAZARD_MAX_CHANCE_PER_SEC: f32 = 0.05;
+
+/// Hard cap on simultaneous hazards, so a pathological board cannot flood the
+/// screen.
+const HAZARD_MAX_COUNT: usize = 10;
+
+/// Seconds a hazard lives before it dissipates.
+pub const HAZARD_LIFETIME_SECS: f32 = 10.0;
+
+/// Acceleration toward the targeted player, in tiles/s².
+const HAZARD_ACCEL: f32 = 10.0;
+
+/// Terminal drift speed, in tiles/s.
+const HAZARD_MAX_SPEED: f32 = 2.0;
+
+/// Contact radius for damage, in tiles.
+const HAZARD_CONTACT_RADIUS: f32 = 0.5;
+
+/// Health drained per second while a hazard is in contact.
+const HAZARD_DAMAGE_PER_SEC: f32 = 50.0;
+
+/// Sprite scale and peak opacity of a hazard, and its tint.
+const HAZARD_SPRITE_SCALE: f32 = 0.55;
+const HAZARD_MAX_ALPHA: f32 = 0.85;
+const HAZARD_TINT: Color = Color::srgb(1.0, 0.35, 0.2);
+
+/// Per-tile probability per second of condensing a hazard from pressure.
+///
+/// Exposed as a pure function so the falloff can be unit-tested.
+pub fn hazard_spawn_chance_per_sec(pressure: f32) -> f32 {
+    if pressure <= HAZARD_PRESSURE_THRESHOLD {
+        return 0.0;
+    }
+    ((pressure - HAZARD_PRESSURE_THRESHOLD) / HAZARD_PRESSURE_SCALE)
+        .clamp(0.0, HAZARD_MAX_CHANCE_PER_SEC)
+}
+
+/// Opacity of a hazard at a given age, fading in and out over its lifetime.
+///
+/// Hazards should condense and dissipate rather than pop, both for readability
+/// and to avoid a sudden flash in peripheral vision.
+pub fn hazard_opacity(time_alive: f32) -> f32 {
+    const FADE: f32 = 0.6;
+    if time_alive <= 0.0 || time_alive >= HAZARD_LIFETIME_SECS {
+        return 0.0;
+    }
+    (time_alive / FADE)
+        .min((HAZARD_LIFETIME_SECS - time_alive) / FADE)
+        .clamp(0.0, 1.0)
+}
+
+/// Condenses hazards out of heavily pressured tiles in the ghost's room.
+fn spawn_miasma_hazards(
+    time: Res<Time>,
+    mut board_data: ResMut<BoardData>,
+    ghosts: Query<&Position>,
+    roomdb: Res<RoomDB>,
+    handles: Res<GameAssets>,
+    q_hazards: Query<&MiasmaHazard>,
+    mut commands: Commands,
+) {
+    // Hazards key off the room the ghost is haunting: the pressure build-up that
+    // makes a room dangerous should coincide with where the threat is.
+    let Some(ghost_pos) = ghosts.iter().next() else {
+        return;
+    };
+    let Some(room_id) = roomdb.room_tiles.get(&ghost_pos.to_board_position()) else {
+        return;
+    };
+    if q_hazards.iter().count() >= HAZARD_MAX_COUNT {
+        return;
+    }
+
+    let dt = time.delta_secs();
+    let mut rng = random_seed::rng();
+
+    for (bpos, r_id) in roomdb.room_tiles.iter() {
+        if r_id != room_id {
+            continue;
+        }
+        let idx = bpos.ndidx();
+        let pressure = board_data.miasma.pressure_field[idx];
+        let chance = hazard_spawn_chance_per_sec(pressure);
+        if chance <= 0.0 || !rng.random_bool((chance * dt) as f64) {
+            continue;
+        }
+
+        // Condensing consumes the pressure that produced it, so a room has to
+        // keep churning rather than emitting hazards forever.
+        board_data.miasma.pressure_field[idx] = (pressure - HAZARD_PRESSURE_THRESHOLD).max(0.0);
+
+        let spawn = bpos.to_position();
+        let pos = Position {
+            x: spawn.x + rng.random_range(-0.4..0.4),
+            y: spawn.y + rng.random_range(-0.4..0.4),
+            z: spawn.z + 0.45,
+            global_z: 0.0,
+        };
+
+        // Reuse the miasma puff art: a hazard is condensed miasma, so sharing
+        // the silhouette keeps the visual language consistent. The hot tint and
+        // the fade come from MapColor, which the lighting field also reads, so a
+        // hazard darkens with the room instead of glowing through it.
+        commands
+            .spawn(Sprite {
+                image: handles.images.miasma.clone(),
+                color: Color::NONE,
+                anchor: Anchor::Custom(handles.anchors.grid1x1),
+                ..default()
+            })
+            .insert(Transform::from_scale(Vec3::splat(HAZARD_SPRITE_SCALE)))
+            .insert(MapColor {
+                color: HAZARD_TINT.with_alpha(0.0),
+            })
+            .insert(SpriteType::Other)
+            .insert(pos)
+            .insert(GameSprite)
+            .insert(MiasmaHazard::default());
+    }
+}
+
+/// Drifts hazards toward the nearest visible player on the same floor, bouncing
+/// off walls.
+fn update_miasma_hazards(
+    time: Res<Time>,
+    mut commands: Commands,
+    mut set: ParamSet<(
+        Query<(Entity, &mut Position, &mut MiasmaHazard), Without<PlayerSprite>>,
+        Query<&Position, With<PlayerSprite>>,
+    )>,
+    board_data: Res<BoardData>,
+) {
+    let dt = time.delta_secs();
+
+    // Collected up front: the ParamSet cannot be borrowed mutably for hazards
+    // while the player half is still borrowed.
+    let player_positions: Vec<Position> = set.p1().iter().copied().collect();
+
+    for (entity, mut pos, mut hazard) in set.p0().iter_mut() {
+        hazard.time_alive += dt;
+        if hazard.time_alive >= HAZARD_LIFETIME_SECS {
+            commands.entity(entity).despawn();
+            continue;
+        }
+
+        // Home in on the nearest visible player on this floor.
+        let mut nearest: Option<Vec2> = None;
+        let mut min_dist2 = f32::MAX;
+        for player_pos in player_positions.iter() {
+            if player_pos.z.round() as i64 != pos.z.round() as i64 {
+                continue;
+            }
+            let dist2 = player_pos.distance2(&pos);
+            if dist2 < min_dist2 {
+                min_dist2 = dist2;
+                nearest = Some(Vec2::new(player_pos.x, player_pos.y));
+            }
+        }
+        if let Some(target) = nearest {
+            let dir = (target - Vec2::new(pos.x, pos.y)).normalize_or_zero();
+            hazard.velocity += dir * HAZARD_ACCEL * dt;
+        }
+        hazard.velocity = hazard.velocity.clamp_length_max(HAZARD_MAX_SPEED);
+
+        let mut next = *pos;
+        next.x += hazard.velocity.x * dt;
+        next.y += hazard.velocity.y * dt;
+
+        let next_bpos = next.to_board_position();
+        match board_data.collision_field.get(next_bpos.ndidx()) {
+            Some(collision) if !collision.player_free => {
+                // Reflect off whichever axis we tried to cross, then nudge clear
+                // of the wall so we cannot get stuck inside it.
+                let cur_bpos = pos.to_board_position();
+                if next_bpos.x != cur_bpos.x {
+                    hazard.velocity.x *= -1.0;
+                }
+                if next_bpos.y != cur_bpos.y {
+                    hazard.velocity.y *= -1.0;
+                }
+                let push = (pos.to_vec3() - next.to_vec3())
+                    .truncate()
+                    .normalize_or_zero();
+                pos.x += push.x * 0.15;
+                pos.y += push.y * 0.15;
+            }
+            _ => {
+                pos.x = next.x;
+                pos.y = next.y;
+            }
+        }
+    }
+}
+
+/// Burns players who stay in contact with a hazard. Hidden players are safe.
+fn miasma_hazard_damage(
+    time: Res<Time>,
+    hazards: Query<&Position, With<MiasmaHazard>>,
+    mut players: Query<(&Position, &mut PlayerSprite), Without<Hiding>>,
+) {
+    if hazards.is_empty() {
+        return;
+    }
+    let dt = time.delta_secs();
+    let contact2 = HAZARD_CONTACT_RADIUS * HAZARD_CONTACT_RADIUS;
+
+    for (pos, mut player) in &mut players {
+        let touching = hazards.iter().any(|hazard_pos| {
+            hazard_pos.z.round() as i64 == pos.z.round() as i64
+                && pos.distance2(hazard_pos) < contact2
+        });
+        if touching {
+            player.health -= HAZARD_DAMAGE_PER_SEC * dt;
+        }
+    }
+}
+
+/// Syncs hazard sprites to their fade curve. The transform translation is
+/// handled by `apply_perspective`, which reads `Position`.
+fn animate_miasma_hazards(mut hazards: Query<(&mut MapColor, &MiasmaHazard), With<MiasmaHazard>>) {
+    for (mut map_color, hazard) in &mut hazards {
+        map_color
+            .color
+            .set_alpha(hazard_opacity(hazard.time_alive) * HAZARD_MAX_ALPHA);
+    }
+}
+
 pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(
         Update,
@@ -667,4 +911,109 @@ pub(crate) fn app_setup(app: &mut App) {
         Update,
         (animate_miasma_sprites, update_miasma).run_if(in_state(AppState::InGame)),
     );
+    app.add_systems(
+        Update,
+        (
+            spawn_miasma_hazards,
+            update_miasma_hazards,
+            miasma_hazard_damage,
+        )
+            .run_if(in_state(AppState::InGame)),
+    );
+    app.add_systems(Update, animate_miasma_hazards);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hazard_spawn_chance_is_zero_below_the_threshold() {
+        assert_eq!(hazard_spawn_chance_per_sec(0.0), 0.0);
+        assert_eq!(hazard_spawn_chance_per_sec(50.0), 0.0);
+        assert_eq!(
+            hazard_spawn_chance_per_sec(HAZARD_PRESSURE_THRESHOLD),
+            0.0,
+            "exactly at the threshold nothing should condense"
+        );
+        assert_eq!(
+            hazard_spawn_chance_per_sec(HAZARD_PRESSURE_THRESHOLD - 1.0),
+            0.0,
+            "just under the threshold nothing should condense"
+        );
+    }
+
+    #[test]
+    fn hazard_spawn_chance_rises_then_saturates() {
+        let low = hazard_spawn_chance_per_sec(HAZARD_PRESSURE_THRESHOLD + 1.0);
+        let mid = hazard_spawn_chance_per_sec(HAZARD_PRESSURE_THRESHOLD + 10_000.0);
+        let high = hazard_spawn_chance_per_sec(1.0e9);
+
+        assert!(low > 0.0);
+        assert!(mid > low, "chance must grow with pressure");
+        assert_eq!(high, HAZARD_MAX_CHANCE_PER_SEC, "chance must saturate");
+        assert!(mid <= HAZARD_MAX_CHANCE_PER_SEC);
+    }
+
+    #[test]
+    fn hazard_spawn_chance_is_always_a_probability() {
+        for pressure in [100.0, 150.0, 1_000.0, 1.0e6, f32::MAX] {
+            let chance = hazard_spawn_chance_per_sec(pressure);
+            assert!(
+                (0.0..=HAZARD_MAX_CHANCE_PER_SEC).contains(&chance),
+                "chance {chance} out of range at pressure {pressure}"
+            );
+        }
+    }
+
+    #[test]
+    fn hazard_opacity_fades_in_and_out() {
+        assert_eq!(hazard_opacity(0.0), 0.0, "must not pop into existence");
+        assert_eq!(
+            hazard_opacity(HAZARD_LIFETIME_SECS),
+            0.0,
+            "must dissipate before despawning"
+        );
+        assert_eq!(
+            hazard_opacity(HAZARD_LIFETIME_SECS + 5.0),
+            0.0,
+            "past its lifetime it is fully faded"
+        );
+
+        let mid = hazard_opacity(HAZARD_LIFETIME_SECS / 2.0);
+        assert!(mid > 0.9, "peak opacity should reach the top of the curve");
+    }
+
+    #[test]
+    fn hazard_opacity_is_monotonic_up_then_down() {
+        let mut previous = -1.0;
+        let mut rising = true;
+        let mut t = 0.0;
+        while t <= HAZARD_LIFETIME_SECS {
+            let alpha = hazard_opacity(t);
+            assert!((0.0..=1.0).contains(&alpha), "alpha {alpha} out of range");
+
+            if alpha < previous {
+                rising = false;
+            } else if rising {
+                previous = alpha;
+            } else {
+                // Once descending it must stay descending.
+                assert!(
+                    alpha <= previous,
+                    "opacity must not rise again after peaking"
+                );
+                previous = alpha;
+            }
+            t += 0.1;
+        }
+    }
+
+    /// A hazard at peak opacity must not exceed the ceiling the animate system
+    /// multiplies into `MapColor`.
+    #[test]
+    fn hazard_peak_alpha_is_within_the_render_ceiling() {
+        let peak = hazard_opacity(HAZARD_LIFETIME_SECS / 2.0) * HAZARD_MAX_ALPHA;
+        assert!(peak <= 1.0, "hazard alpha {peak} would exceed full opacity");
+    }
 }

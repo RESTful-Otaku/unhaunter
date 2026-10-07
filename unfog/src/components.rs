@@ -28,3 +28,27 @@ pub struct MiasmaSprite {
     /// Speed of movement of the particle so it denoises the miasma velocity field.
     pub direction: Vec2,
 }
+
+/// A drifting hazard that condenses out of heavily-pressured miasma, homes in on
+/// a visible player and burns them on contact.
+///
+/// Ported in substance from upstream's `environmental-tension-miasma-hazards`
+/// branch, minus its replication layer: this tree is single-player, so hazards
+/// are spawned and damaged locally.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct MiasmaHazard {
+    /// Current drift velocity in the XY plane.
+    pub velocity: Vec2,
+    /// Seconds since the hazard condensed. Used for its life span and to fade it
+    /// in and out rather than popping into existence.
+    pub time_alive: f32,
+}
+
+impl Default for MiasmaHazard {
+    fn default() -> Self {
+        Self {
+            velocity: Vec2::ZERO,
+            time_alive: 0.0,
+        }
+    }
+}
