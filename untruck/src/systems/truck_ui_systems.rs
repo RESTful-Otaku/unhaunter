@@ -159,14 +159,9 @@ fn hold_button_system(
             continue;
         }
 
-        // Skip disabled buttons
+        // Skip disabled buttons. `disabled` is owned by
+        // `crate::journal::button_system`, which folds in the craft allowance.
         if button.disabled {
-            continue;
-        }
-
-        // Check if this is a craft repellent button and we've reached the limit
-        if matches!(button.class, TruckButtonType::CraftRepellent) && !craft_tracker.can_craft() {
-            button.disabled = true;
             continue;
         }
 
@@ -263,9 +258,11 @@ fn hold_button_system(
                         // Trigger action
                         match button_class {
                             TruckButtonType::CraftRepellent => {
-                                // Check if we can still craft
+                                // Re-check the allowance at fire time; the
+                                // button's `disabled` flag is owned elsewhere.
+                                // No latch: `craft_tracker.craft()` bumps the
+                                // count, so a refund legitimately re-enables it.
                                 if craft_tracker.can_craft() {
-                                    button.disabled = true; // Disable button to prevent multiple triggers
                                     ev_truckui.write(TruckUIEvent::CraftRepellent);
                                     info!("Sent CraftRepellent event");
                                 } else {
@@ -418,10 +415,14 @@ fn truckui_event_handle(
     }
 }
 
-// System to update the craft repellent button text based on remaining crafts
+/// Updates the craft repellent button's label to show the remaining allowance.
+///
+/// This system owns the button's **text only**. `disabled` is owned by
+/// `crate::journal::button_system`, which folds in the ghost selection, the
+/// flask state and the craft allowance.
 fn update_craft_button_text(
     craft_tracker: Res<RepellentCraftTracker>,
-    mut q_button: Query<(&mut TruckUIButton, &Children), With<Button>>,
+    mut q_button: Query<(&TruckUIButton, &Children), With<Button>>,
     mut q_text: Query<&mut Text>,
 ) {
     // Only update when the resource has changed
@@ -429,22 +430,20 @@ fn update_craft_button_text(
         return;
     }
 
-    for (mut button, children) in &mut q_button {
+    for (button, children) in &mut q_button {
         if matches!(button.class, TruckButtonType::CraftRepellent) {
             let remaining = craft_tracker.remaining_crafts();
-            let can_craft = craft_tracker.can_craft();
 
-            // Update button disabled state
-            button.disabled = !can_craft;
-
-            // Find the text child and update text
+            // Find the text child and update text. Do not label this button
+            // "End Mission": it is not the end-mission button, and pressing it
+            // does nothing once the allowance is spent.
             for &child in children {
                 if let Ok(mut text) = q_text.get_mut(child) {
-                    if remaining > 0 {
-                        text.0 = format!("Craft Repellent ({})", remaining);
+                    text.0 = if remaining > 0 {
+                        format!("Craft Unhaunter™ Repellent ({remaining} left)")
                     } else {
-                        text.0 = "End Mission - No More Repellents".to_string();
-                    }
+                        "Out of Repellent Bottles".to_string()
+                    };
                     break;
                 }
             }
@@ -464,7 +463,9 @@ pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(
         Update,
         (
-            hold_button_system.after(unstd::picking::truck_focus_nav),
+            hold_button_system
+                .after(unstd::picking::truck_focus_nav)
+                .after(crate::journal::button_system),
             truckui_event_handle.after(hold_button_system),
             update_craft_button_text,
         )
@@ -472,4 +473,73 @@ pub(crate) fn app_setup(app: &mut App) {
     );
     app.add_systems(OnEnter(AppState::InGame), init_repellent_tracker);
     app.add_systems(OnExit(AppState::InGame), reset_repellent_tracker);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::RepellentCraftTracker;
+
+    #[test]
+    fn craft_allowance_respects_the_limit() {
+        let mut t = RepellentCraftTracker::default();
+        t.reset(2);
+        assert_eq!(t.remaining_crafts(), 2);
+        assert!(t.can_craft());
+
+        t.craft();
+        assert_eq!(t.remaining_crafts(), 1);
+        assert!(t.can_craft());
+
+        t.craft();
+        assert_eq!(t.remaining_crafts(), 0);
+        assert!(!t.can_craft());
+    }
+
+    #[test]
+    fn craft_never_exceeds_the_limit() {
+        let mut t = RepellentCraftTracker::default();
+        t.reset(1);
+        t.craft();
+        t.craft();
+        t.craft();
+        assert_eq!(t.crafted_count, 1);
+        assert_eq!(t.remaining_crafts(), 0);
+    }
+
+    /// Returning a full, unopened flask refunds the allowance, which must make
+    /// crafting possible again. The craft button used to latch itself
+    /// `disabled` once the limit was hit and never cleared it, so a refund
+    /// could not re-enable crafting for the rest of the truck visit.
+    #[test]
+    fn refund_re_enables_crafting() {
+        let mut t = RepellentCraftTracker::default();
+        t.reset(1);
+        t.craft();
+        assert!(!t.can_craft());
+
+        t.refund();
+        assert!(t.can_craft());
+        assert_eq!(t.remaining_crafts(), 1);
+    }
+
+    #[test]
+    fn refund_never_goes_negative() {
+        let mut t = RepellentCraftTracker::default();
+        t.reset(2);
+        t.refund();
+        t.refund();
+        t.refund();
+        assert_eq!(t.crafted_count, 0);
+    }
+
+    #[test]
+    fn reset_clears_the_allowance_for_a_new_mission() {
+        let mut t = RepellentCraftTracker::default();
+        t.reset(2);
+        t.craft();
+        t.reset(3);
+        assert_eq!(t.crafted_count, 0);
+        assert_eq!(t.remaining_crafts(), 3);
+        assert!(t.can_craft());
+    }
 }

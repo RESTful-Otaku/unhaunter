@@ -1,4 +1,5 @@
 use super::uibutton::{TruckButtonState, TruckButtonType, TruckUIButton};
+use crate::systems::truck_ui_systems::RepellentCraftTracker;
 use bevy::prelude::*;
 use bevy_persistent::Persistent;
 use bevy_platform::collections::HashSet;
@@ -61,7 +62,7 @@ fn force_discard_evidence_system(
     }
 }
 
-fn button_system(
+pub(crate) fn button_system(
     mut interaction_query: Query<
         (
             Ref<Interaction>,
@@ -82,6 +83,7 @@ fn button_system(
     mut potential_id_timer: ResMut<PotentialIDTimer>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     difficulty: Res<CurrentDifficulty>,
+    craft_tracker: Res<RepellentCraftTracker>,
     mut ev_rumble: EventWriter<uncore::rumble::RumbleFeedback>,
 ) {
     let mut selected_evidences_found = HashSet::<Evidence>::new();
@@ -266,9 +268,16 @@ fn button_system(
             }
         }
 
-        // Update Craft Repellent button
+        // Update Craft Repellent button. This system is the single owner of
+        // `disabled` for this button: `hold_button_system` and
+        // `update_craft_button_text` used to also write it, with no ordering
+        // between them, so whichever ran last silently dropped the others'
+        // conditions and one of them could latch the button off permanently.
         if let TruckButtonType::CraftRepellent = tui_button.class {
             let mut disabled = gg.ghost_type.is_none();
+            if !disabled && !craft_tracker.can_craft() {
+                disabled = true;
+            }
             if !disabled {
                 for (player, gear) in q_gear.iter() {
                     if player.id == gc.player_id
