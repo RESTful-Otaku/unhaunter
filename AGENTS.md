@@ -294,6 +294,30 @@ forces a value change, call it out in the commit message and CHANGELOG.
 
 ---
 
+`bevy` is a large dependency graph; a link failure is far more often a stale or
+corrupted artifact than a real code error.
+
+### 6.2 Troubleshooting: transient linker failures
+
+If the binary link fails with something like:
+
+```
+reloc against `.debug_str': error 4
+final link failed
+```
+
+…on a crate you did **not** touch, while `cargo check`, `cargo clippy` and
+`cargo test` all pass, it is a corrupted incremental artifact. Do not start
+changing code — clear just that crate:
+
+```bash
+cargo clean -p <crate-name>
+cargo build --bin unhaunter_game
+```
+
+Observed on `libuntmxmap` and resolved with no code change. Escalate to a full
+`cargo clean` only if the per-crate clean does not help.
+
 ## 7. Boundaries — when to stop and ask
 
 Proceed autonomously with: bug fixes, features, refactors, tests, docs,
