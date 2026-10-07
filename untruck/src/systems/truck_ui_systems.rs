@@ -25,6 +25,11 @@ pub struct ProgressIndicator;
 #[derive(Resource, Default)]
 pub struct HoldSoundEntity(pub Option<Entity>);
 
+/// Cooldown armed after a hold button activates, in seconds. Mirrors the 1.0s
+/// hold duration so the button becomes pressable again after roughly the time it
+/// took to trigger.
+const HOLD_BUTTON_COOLDOWN_SECS: f32 = 1.0;
+
 /// Tracks the number of repellent bottles crafted and returned during the current mission.
 /// This resource is used to enforce the per-mission craft limit based on difficulty.
 #[derive(Resource, Default)]
@@ -134,6 +139,15 @@ fn keyboard(
 ///
 /// When a hold is completed, this system sends the appropriate event based on the
 /// button type (e.g., `TruckUIEvent::CraftRepellent` or `TruckUIEvent::EndMission`).
+/// Ticks down hold-button cooldowns set after an activation.
+fn truck_button_cooldown_system(time: Res<Time>, mut q_button: Query<&mut TruckUIButton>) {
+    for mut button in &mut q_button {
+        if button.cooldown_timer > 0.0 {
+            button.cooldown_timer = (button.cooldown_timer - time.delta_secs()).max(0.0);
+        }
+    }
+}
+
 fn hold_button_system(
     mut commands: Commands,
     time: Res<Time>,
@@ -159,6 +173,11 @@ fn hold_button_system(
             continue;
         }
 
+        // Clear the release gate as soon as the player lets go.
+        if *interaction != Interaction::Pressed {
+            button.require_release = false;
+        }
+
         // Skip disabled buttons. `disabled` is owned by
         // `crate::journal::button_system`, which folds in the craft allowance.
         if button.disabled {
@@ -176,6 +195,21 @@ fn hold_button_system(
 
         match *interaction {
             Interaction::Pressed => {
+                // Gating: a button that just fired (or is still cooling down)
+                // must not start a new hold until the player releases.
+                if button.cooldown_timer > 0.0 || button.require_release {
+                    if button.holding {
+                        button.holding = false;
+                        button.hold_timer = None;
+                        if let Some(entity) = hold_sound.take()
+                            && let Ok(mut cmd_e) = commands.get_entity(entity)
+                        {
+                            cmd_e.despawn();
+                        }
+                    }
+                    continue;
+                }
+
                 if !button.holding {
                     // Start holding
                     button.holding = true;
@@ -274,6 +308,17 @@ fn hold_button_system(
                                 info!("Sent EndMission event");
                             }
                             _ => {}
+                        }
+
+                        // Arm the cooldown and the release gate so holding the button
+                        // through the activation cannot re-fire it, and so the
+                        // hold sound never overlaps itself.
+                        button.cooldown_timer = HOLD_BUTTON_COOLDOWN_SECS;
+                        button.require_release = true;
+                        if let Some(entity) = hold_sound.take()
+                            && let Ok(mut cmd_e) = commands.get_entity(entity)
+                        {
+                            cmd_e.despawn();
                         }
 
                         // Reset button state
@@ -463,6 +508,7 @@ pub(crate) fn app_setup(app: &mut App) {
     app.add_systems(
         Update,
         (
+            truck_button_cooldown_system,
             hold_button_system
                 .after(unstd::picking::truck_focus_nav)
                 .after(crate::journal::button_system),
@@ -477,7 +523,7 @@ pub(crate) fn app_setup(app: &mut App) {
 
 #[cfg(test)]
 mod tests {
-    use super::RepellentCraftTracker;
+    use super::{HOLD_BUTTON_COOLDOWN_SECS, RepellentCraftTracker};
 
     #[test]
     fn craft_allowance_respects_the_limit() {
@@ -541,5 +587,38 @@ mod tests {
         assert_eq!(t.crafted_count, 0);
         assert_eq!(t.remaining_crafts(), 3);
         assert!(t.can_craft());
+    }
+
+    /// The gate that stops a hold button re-firing: while `require_release` is
+    /// set the button must not begin a new hold, and only a release clears it.
+    #[test]
+    fn hold_button_requires_release_before_rearming() {
+        let mut button = uncore::components::truck_ui_button::TruckUIButton::from(
+            uncore::types::truck_button::TruckButtonType::EndMission,
+        );
+        assert!(
+            button.hold_duration.is_some(),
+            "EndMission is a hold button"
+        );
+        assert!(!button.require_release);
+        assert_eq!(button.cooldown_timer, 0.0);
+
+        // Activation arms both gates.
+        button.cooldown_timer = HOLD_BUTTON_COOLDOWN_SECS;
+        button.require_release = true;
+        let blocked = button.cooldown_timer > 0.0 || button.require_release;
+        assert!(blocked, "must not start a new hold while still held");
+
+        // A release clears the gate; the cooldown still has to tick down.
+        button.require_release = false;
+        assert!(
+            button.cooldown_timer > 0.0,
+            "cooldown still blocks immediately after release"
+        );
+        button.cooldown_timer = 0.0;
+        assert!(
+            !(button.cooldown_timer > 0.0 || button.require_release),
+            "rearmed once cooldown expires and the button was released"
+        );
     }
 }

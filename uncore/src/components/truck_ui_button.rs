@@ -27,6 +27,14 @@ pub struct TruckUIButton {
     pub frame_counter: u32,
     /// Whether the button is locked computer side, meaning it has a value already that cannot be changed anymore.
     pub computer_locked: bool,
+    /// Seconds remaining before a hold button may be activated again.
+    pub cooldown_timer: f32,
+    /// Whether the button must be released before it can start a new hold.
+    ///
+    /// Without this a hold button re-triggers while the player keeps holding:
+    /// `holding` is cleared on activation but `Interaction` stays `Pressed`, so
+    /// the next frame starts a fresh hold and fires again.
+    pub require_release: bool,
 }
 
 impl TruckUIButton {
@@ -183,6 +191,8 @@ impl From<TruckButtonType> for TruckUIButton {
             blinking_hint_active: false,
             frame_counter: 0,
             computer_locked: false,
+            cooldown_timer: 0.0,
+            require_release: false,
         }
     }
 }
