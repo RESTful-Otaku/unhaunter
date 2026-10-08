@@ -22,6 +22,14 @@
 * Rebinding a gamepad button can now be **cancelled** with the bound Back/Start button, mirroring keyboard Escape; the cancel prompt is device-aware.
 * The keyboard/gamepad binding lists no longer hard-code `Press [Escape] to go back` — the prompt uses the live Back binding, so it shows `[Start]` on a controller.
 
+**Quality & Tooling**
+
+* Restructured CI around the new promotion model. `main` is now the release line, `staging` is the "green but unplayed" line, and feature branches land in `staging`. `main` and `staging` get a stricter vetting pass than feature branches.
+* Added a **release-candidate gate** (`.github/workflows/release-candidate.yml`) that runs on any PR into `main` and on version tags: it builds and tests under the **release profile** (debug and release differ — overflow checks and debug assertions vanish), then does three consecutive headless boots to catch runtime panics and state that leaks between runs. It also states explicitly what automation does *not* prove: feel, balance, audio, visuals, performance on real hardware, content integrity and save migration.
+* Added a **headless boot check** to CI (software rasteriser under `xvfb`), so "it compiles" is no longer the only evidence — the game is proven to start without panicking.
+* Added a **silent-test-loss guard** (`.github/ci/check-test-count.sh` + `test-baseline.txt`). A refactor that deletes tests previously passed CI silently; the count is now pinned and CI fails on a regression, with instructions for raising the baseline deliberately.
+* CI now produces a downloadable **playtest artefact** from every green build, so there is something concrete to battle-test rather than only a green tick.
+
 **Upstream Sync**
 
 * Ported upstream's fix for **truck hold-button auto re-push** (`upstream/fix/truck-ui-button-cooldown`, commit `41be4a90`). Holding a hold-button (Craft Repellent, End Mission) through its activation re-fired it, because `holding` was cleared on activation while `Interaction` stayed `Pressed`, so the next frame began a fresh hold. Each re-hold also orphaned the previous hold-progress sound. `TruckUIButton` gains `cooldown_timer` and `require_release`, a `truck_button_cooldown_system` ticks the former, and the hold sound is despawned on activation and on gating.

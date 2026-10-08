@@ -1,0 +1,14 @@
+name: Linux Deps
+
+description: Apt packages Bevy links against. Call this instead of repeating the apt block.
+runs:
+  composite:
+    steps:
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            g++ pkg-config \
+            libx11-dev libxkbcommon-x11-0 libasound2-dev libudev-dev \
+            libwayland-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev \
+            xvfb libgl1-mesa-dri
