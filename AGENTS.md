@@ -34,14 +34,14 @@ main  ──────────────►  stable, battle-tested.  Tag
   ▲
   │  promotion (battle-tested, signed off)
   │
-staging ────────────►  code-complete and green, NOT yet battle-tested.
+integration ────────►  code-complete and green, NOT yet battle-tested.
   ▲
   │  merge (after the automated gate passes)
   │
 fix/ chore/ feat/ improv/ docs/ assets/ gameplay/ polish/ ──► one logical change each
 ```
 
-1. Work on a **new branch** off `staging`, one logical change per branch, named
+1. Work on a **new branch** off `integration`, one logical change per branch, named
    by kind:
 
    | Prefix | Use for |
@@ -55,10 +55,10 @@ fix/ chore/ feat/ improv/ docs/ assets/ gameplay/ polish/ ──► one logical 
    | `gameplay/` | Gameplay systems, balance, difficulty, progression |
    | `polish/` | Feel, feedback, UI/UX, VFX, audio refinement |
 
-2. Once the automated gate (§2.2) passes, merge the branch into **`staging`**.
+2. Once the automated gate (§2.2) passes, merge the branch into **`integration`**.
    This is the "green but unproven" state.
 
-3. Promote `staging` → `main` only when the work is **battle-tested** — i.e.
+3. Promote `integration` → `main` only when the work is **battle-tested** — i.e.
    actually played, with the user's eyes on it. Then tag the release.
 
 - Branch names are descriptive: `fix/hunt-warning-intensity-ramp`,
@@ -71,7 +71,7 @@ fix/ chore/ feat/ improv/ docs/ assets/ gameplay/ polish/ ──► one logical 
 check/clippy/test/smoke proves the game builds and boots; it does not prove a
 change is *good*. Anything that alters balance, feel, difficulty, AI behaviour,
 or new mechanics is unbattle-tested until played, and therefore belongs in
-`staging`, not `main`.
+`integration`, not `main`.
 
 ### 2.2 The validation gate
 
@@ -356,7 +356,7 @@ Observed on `libuntmxmap` and resolved with no code change. Escalate to a full
 ## 7. Boundaries — when to stop and ask
 
 Proceed autonomously with: bug fixes, features, refactors, tests, docs,
-CHANGELOG, branch → `staging` → push.
+CHANGELOG, branch → `integration` → push.
 
 **Ask first** before:
 
@@ -377,22 +377,23 @@ Honest reporting is worth more than a green-looking log.
 ## 8. Session rhythm
 
 1. `git fetch upstream && git fetch origin`; run the §3.2 sync routine.
-2. Reconcile `main` and `staging` with `origin` before starting.
+2. Reconcile `main` and `integration` with `origin` before starting.
 3. Pick the highest-value item from §5.1 that is not already in flight.
-4. Branch off `staging` → implement → `cargo fmt` → gate → build + smoke →
+4. Branch off `integration` → implement → `cargo fmt` → gate → build + smoke →
    CHANGELOG → commit.
-5. Merge the branch into `staging` with `--no-ff`, keeping the branch.
+5. Merge the branch into `integration` with `--no-ff`, keeping the branch.
 6. Repeat for further items, or stop and report.
-7. Before finishing: push `staging` (and `main` if it moved), update
+7. Before finishing: push `integration` (and `main` if it moved), update
    `CHANGELOG.md`, report honestly on what was done, what was measured, and what
    remains unverified.
 
 ### Promotion to the release line
 
-Promotion `staging` → `main` is **the user's call**, not mine — it depends on
+Promotion `integration` → `main` is **the user's call**, not mine — it depends on
 their playtesting. My part is to:
 
-- keep `staging` green at all times, so promotion is always a clean fast-forward;
+- keep `integration` green at all times, so promotion is always a clean
+  fast-forward;
 - be explicit in each report about which changes are still unplayed, so they can
   decide what to test;
 - not merge to `main` on my own initiative.
@@ -403,6 +404,18 @@ When promotion happens, tag it:
 git tag -a v<major>.<minor>.<patch> -m "..."   # on main
 git push origin main --tags
 ```
+
+### Note on the name `integration`
+
+`origin` already contains a branch called `staging`, and it is **not** part of
+this workflow. It is an abandoned divergent branch: merge-base with `main` is
+`2f8f56db` (2024-03-08), with ~1044 commits of its own, and it is not a branch
+that exists upstream. It predates the promotion topology.
+
+It was deliberately **not** reused or overwritten — force-pushing a remote branch
+someone may still want is destructive, and it is gated. If the user wants the old
+branch gone or wants this work to live on `staging` instead, that is their call
+to make explicitly.
 
 ### Reporting
 
