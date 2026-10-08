@@ -1,0 +1,103 @@
+name: Platform Builds
+
+# Cross-platform build verification.
+#
+# AGENTS.md requires honest claims. A claim like "it runs on Windows" is only
+# worth anything if something proves it, so this compiles the game for every
+# platform CI can actually reach.
+#
+# Scope note, stated plainly:
+#   Linux   - the release platform, gated in ci.yml.
+#   Windows - builds a .exe and is packaged for release.
+#   macOS   - builds; unsigned, so it is not distributable as-is.
+#   Web     - wasm32-unknown-unknown via wasm-pack.
+#
+# NOT reachable from CI or from any toolchain available here:
+#   Android / iOS  - need touch UI. The game has no virtual stick or touch
+#                    buttons; it is keyboard + mouse + gamepad only.
+#   PlayStation / Xbox - require licensed, NDA'd console SDKs and certified dev
+#                    accounts. No public toolchain can target them.
+#
+# These are informational, not release gates: `continue-on-error` means a broken
+# platform reports red without blocking unrelated work. A platform is promoted
+# to blocking by removing it from that list once it is verified working.
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [staging, main]
+  workflow_dispatch:
+
+concurrency:
+  group: platforms-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows (x86_64-pc-windows-msvc)
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            build: cargo build --release --bin unhaunter_game --target x86_64-pc-windows-msvc
+            artifact: target/x86_64-pc-windows-msvc/release/unhaunter_game.exe
+          - name: macOS (aarch64-apple-darwin)
+            os: macos-latest
+            target: aarch64-apple-darwin
+            build: cargo build --release --bin unhaunter_game --target aarch64-apple-darwin
+            artifact: target/aarch64-apple-darwin/release/unhaunter_game
+          - name: macOS (x86_64-apple-darwin)
+            os: macos-latest
+            target: x86_64-apple-darwin
+            build: cargo build --release --bin unhaunter_game --target x86_64-apple-darwin
+            artifact: target/x86_64-apple-darwin/release/unhaunter_game
+          - name: Web (wasm32-unknown-unknown)
+            os: ubuntu-latest
+            target: wasm32-unknown-unknown
+            # wasm-pack also emits the JS bindings and the pkg/ dir that
+            # index.html loads, so it builds more than plain cargo would.
+            build: wasm-pack build --release --target web
+            artifact: pkg/unhaunter_bg.wasm
+
+    # Informational only - see the header note.
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      # Linux needs ALSA/libudev/X11 dev packages; the other hosts do not.
+      - if: runner.os == 'Linux'
+        uses: ./.github/actions/linux-deps
+
+      - uses: taiki-e/install-action@v2
+        if: matrix.target == 'wasm32-unknown-unknown'
+        with:
+          tool: wasm-pack
+
+      - name: Build
+        run: ${{ matrix.build }}
+
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: unhaunter-${{ matrix.target }}
+          path: ${{ matrix.artifact }}
+          retention-days: 14

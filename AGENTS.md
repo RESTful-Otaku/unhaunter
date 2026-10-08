@@ -75,6 +75,14 @@ green, is a corrupted artifact — not a code error:
 cargo clean -p <crate> && cargo build --bin unhaunter_game
 ```
 
+### If assets go missing
+
+Run the game with **`cargo run --bin unhaunter_game`**, not
+`./target/debug/unhaunter_game`. Launching the binary directly makes Bevy
+resolve assets next to the executable (`target/debug/assets/`) rather than the
+manifest dir, producing ~110 `Path not found` errors and a silent, asset-less
+game. Packaged builds ship `assets/` beside the binary, so releases are fine.
+
 ## 4. Upstream sync
 
 Fetch both remotes each session. `main` tracks `upstream/main` closely (fork
@@ -111,7 +119,32 @@ Keep `origin/main` and `origin/staging` identical to local at session end
 **Never force-push.** It can destroy an unpushed commit, which history cannot
 undo. Fast-forward only.
 
-## 6. What to work on
+## 6. Platform support
+
+`main` must run on every platform it claims. Claims need evidence, not
+assertion, so `.github/workflows/platforms.yml` compiles each reachable target on
+every push. Anything not compiled there is unproven.
+
+| Platform | Status | Notes |
+|---|---|---|
+| Linux x86_64 | release platform | The only one gated in `ci.yml`. |
+| Windows | built, packaged | x86_64-pc-windows-msvc. |
+| macOS | builds | arm64 + x86_64. Unsigned, so not distributable as-is. |
+| Web | builds | wasm32 via `wasm-pack`; `pkg/` is gitignored. |
+| Android / iOS | **not supported** | Needs touch UI. No virtual stick or touch buttons exist — the game is keyboard + mouse + gamepad only. |
+| PlayStation / Xbox | **not possible** | Licensed NDA'd console SDKs and certified accounts. No public toolchain targets them. |
+
+### Local toolchain limits
+
+Rust here is **Homebrew-installed, not rustup**, so only
+`x86_64-unknown-linux-gnu` exists. Cross-compiling locally is therefore
+impossible — `rustup target add` does not exist, and no mingw or wasm toolchain is
+present. Non-Linux verification happens in CI, which has rustup.
+
+**Do not claim a non-Linux platform works based on a local build.** There wasn't
+one. Say "CI builds it" or "unverified".
+
+## 7. What to work on
 
 Order:
 
@@ -155,7 +188,7 @@ Each of these has occurred more than once, so sweep for them deliberately:
 - Photosensitivity: keep any flashing effect well below the 3–60 Hz range.
 - Debug flags default **off** (`DEBUG_HUNTS`).
 
-## 7. Code
+## 8. Code
 
 - `rustfmt` is authoritative. Clippy is `-D warnings` on
   `--all-targets --all-features`; no `#[allow]` without a written reason.
@@ -170,7 +203,7 @@ Each of these has occurred more than once, so sweep for them deliberately:
   `unstd/src/plugins/root.rs`, and a `GameAssets` field. Prefer reusing existing
   art over a new visual language.
 
-## 8. Boundaries
+## 9. Boundaries
 
 Ask first: force-pushing; deleting a merged branch; large mechanical upgrades
 (Bevy/edition bumps — need a plan and their own branch); undoing something the
@@ -182,7 +215,7 @@ Proceed freely: fixes, features, refactors, tests, docs, changelog, branch →
 **Never claim verification you do not have.** Visual, audio, and performance
 claims are unproven until observed. Honest reporting beats a green-looking log.
 
-## 9. Session rhythm
+## 10. Session rhythm
 
 1. Fetch both remotes; run the §4 sync routine.
 2. Reconcile `main` and `staging` with `origin`.

@@ -1,9 +1,5 @@
 ### Unreleased
 
-**Quality & Tooling**
-
-* Added a CI workflow (`.github/workflows/ci.yml`) that runs on `main` and feature branches: `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, the full test suite, a native binary build, and builds of the QA/dev tools (`ghost_list`, `ghost_radio`, `walkie_voice_generator`) so they cannot silently rot.
-
 **Rendering & VFX**
 
 * Added a **hunt-warning vignette**: a red pulse at the screen edges during the pre-hunt warning, ramping with the ghost's warning intensity. Previously the only cues were the ghost turning red (invisible if it is dark or off-screen) and the walkie audio.
@@ -21,6 +17,16 @@
 * The Settings menu navigation bar now reflects the **live control bindings and active device** (e.g. `[A]/[B]` on a controller, `[Esc]`/`[Enter]` on keyboard) instead of hard-coded keys.
 * Rebinding a gamepad button can now be **cancelled** with the bound Back/Start button, mirroring keyboard Escape; the cancel prompt is device-aware.
 * The keyboard/gamepad binding lists no longer hard-code `Press [Escape] to go back` — the prompt uses the live Back binding, so it shows `[Start]` on a controller.
+
+**Build Fixes**
+
+* **Fixed the build requiring a manual environment variable.** Where ALSA, libudev and the Xorg headers come from Homebrew, every `cargo build` failed with `The system library 'alsa' required by crate 'alsa-sys' was not found` unless `PKG_CONFIG_PATH` had been exported first. That path now lives in `.cargo/config.toml`, so a plain `cargo build` and `cargo run` work with no setup. Cargo does not override an already-exported `PKG_CONFIG_PATH`, so anyone whose libraries live elsewhere is unaffected.
+
+**Platform Support**
+
+* Added a cross-platform build matrix (`.github/workflows/platforms.yml`) compiling Windows (x86_64-pc-windows-msvc), macOS (arm64 and x86_64) and Web (`wasm32-unknown-unknown` via `wasm-pack`) on every push, so "it runs on X" is backed by a build rather than an assertion. Informational rather than a release gate until verified working.
+* Documented platform status honestly: Linux is the release platform; Windows/macOS/Web build; **Android and iOS are unsupported** because the game has no touch UI — no virtual stick or touch buttons, it is keyboard, mouse and gamepad only; **PlayStation and Xbox are not possible** without licensed NDA'd console SDKs and certified developer accounts.
+* Recorded that local cross-compilation is impossible on this host: Rust is Homebrew-installed rather than rustup, so only `x86_64-unknown-linux-gnu` exists. Non-Linux verification happens in CI.
 
 **Quality & Tooling**
 

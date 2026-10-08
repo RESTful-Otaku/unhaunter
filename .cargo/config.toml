@@ -1,3 +1,15 @@
+[env]
+# Bevy links against ALSA, libudev and the Xorg/xkeyboard headers. On this host
+# those come from Homebrew, so their .pc files live outside the default search
+# path and every build script fails with "The system library `alsa` ... was not
+# found" unless PKG_CONFIG_PATH points at them.
+#
+# Putting it here means a plain `cargo build` just works, with no env var to
+# remember. Cargo does NOT override a PKG_CONFIG_PATH that is already set in the
+# environment, so anyone whose libraries live elsewhere still wins by exporting
+# their own.
+PKG_CONFIG_PATH = "/home/linuxbrew/.linuxbrew/lib/pkgconfig:/home/linuxbrew/.linuxbrew/opt/systemd/lib/pkgconfig:/home/linuxbrew/.linuxbrew/opt/xorgproto/share/pkgconfig"
+
 [target.wasm32-unknown-unknown]
 runner = "wasm-server-runner"
 
