@@ -1,0 +1,87 @@
+name: Release Candidate
+
+# Extra scrutiny for the release line. CI proves a change compiles and boots;
+# this adds the release profile and a soak, because debug and release are not
+# equivalent (overflow checks and debug assertions disappear).
+#
+# What this still does NOT prove, and cannot: feel, balance, audio, visuals,
+# performance on real hardware, content integrity, or save migration. Promotion
+# staging -> main stays a human decision after playtesting.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  workflow_dispatch:
+
+concurrency:
+  group: rc-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  release:
+    name: Release Profile
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/linux-deps
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --bin unhaunter_game
+      - run: cargo test --workspace --all-features --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-rc-${{ github.sha }}
+          path: target/release/unhaunter_game
+          retention-days: 30
+
+  # Repeated boots catch state that leaks across runs — a recurring bug class
+  # here — and panics that only fire after a slow path is taken.
+  soak:
+    name: Soak
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/linux-deps
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --bin unhaunter_game
+      - run: |
+          for i in 1 2 3; do
+            echo "=== boot $i/3 ==="
+            set +e
+            LIBGL_ALWAYS_SOFTWARE=1 \
+              timeout --signal=TERM 90 \
+              xvfb-run -a --server-args="-screen 0 1280x800x24" \
+              ./target/release/unhaunter_game --mute > "/tmp/soak-$i.log" 2>&1
+            STATUS=$?
+            set -e
+            echo "exit status: $STATUS"
+            if [ "$STATUS" -ne 124 ] && [ "$STATUS" -ne 0 ]; then
+              echo "::error::boot $i exited abnormally (status $STATUS)"
+              tail -40 "/tmp/soak-$i.log"
+              exit 1
+            fi
+            if grep -qE "panicked at|thread '[^']*' panicked" "/tmp/soak-$i.log"; then
+              echo "::error::panic during boot $i"
+              grep -nE "panicked at|thread '[^']*' panicked" -A6 "/tmp/soak-$i.log" | head -40
+              exit 1
+            fi
+          done
+          echo "all boots clean"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: soak-logs-${{ github.sha }}
+          path: /tmp/soak-*.log
+          retention-days: 14

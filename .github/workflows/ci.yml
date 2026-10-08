@@ -1,91 +1,138 @@
 name: CI
 
+# The gate. Mirrors AGENTS.md §3 exactly — keep them in step.
+# Anything that passes here has earned `staging`, not `main`.
+
 on:
   push:
     branches:
       - main
-      - 'feat/**'
+      - staging
       - 'fix/**'
       - 'chore/**'
-      - 'ci/**'
+      - 'feat/**'
+      - 'improv/**'
+      - 'docs/**'
+      - 'assets/**'
+      - 'gameplay/**'
+      - 'polish/**'
       - 'perf/**'
+      - 'ci/**'
   pull_request:
-    branches:
-      - main
+    branches: [staging, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
-  # Keep incremental builds off in CI for reproducibility and cache size.
   CARGO_INCREMENTAL: 0
 
 jobs:
-  # Fast, parallel code-quality checks that do not need system audio/display libs.
   fmt:
-    name: Formatting
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt
-      - name: cargo fmt --check
-        run: cargo fmt --all -- --check
+        with: { components: rustfmt }
+      - run: cargo fmt --all -- --check
 
-  # Full build + lint + tests. Needs the Linux dev libs Bevy links against.
-  test:
-    name: Build, Lint & Test
+  # Clippy with --all-targets type-checks everything, so this also replaces a
+  # separate `cargo check` job.
+  lint:
+    name: Clippy
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/linux-deps
+      - uses: dtolnay/rust-toolchain@stable
+        with: { components: clippy }
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/linux-deps
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      # Fails if the passed count drops below the committed baseline, so a
+      # refactor cannot silently delete tests.
+      - run: .github/ci/check-test-count.sh
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/linux-deps
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --bin unhaunter_game
+      # What a human downloads to playtest the change.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unhaunter-${{ github.sha }}
+          path: target/release/unhaunter_game
+          retention-days: 14
+
+  tools:
+    name: QA Tools
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Linux dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            g++ pkg-config \
-            libx11-dev libxkbcommon-x11-0 libasound2-dev libudev-dev \
-            libwayland-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev
-
+      - uses: ./.github/actions/linux-deps
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy
-
       - uses: Swatinem/rust-cache@v2
+      # These back QA and perf benchmarking; rot here goes unnoticed until the
+      # day they are needed.
+      - run: cargo build -p ghost_list -p ghost_radio -p walkie_voice_generator --bins
 
-      - name: Clippy (deny warnings)
-        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
-
-      - name: Tests
-        run: cargo test --workspace --all-features
-
-      - name: Check native binary builds
-        run: cargo build --bin unhaunter_game
-
-  # Build the QA/dev tool binaries so they cannot silently rot.
-  tools:
-    name: Dev Tools Build
+  # check/clippy/test prove it compiles. This proves it boots.
+  smoke:
+    name: Headless Boot
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Linux dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++ pkg-config libx11-dev libxkbcommon-x11-0 libasound2-dev libudev-dev
-
+      - uses: ./.github/actions/linux-deps
       - uses: dtolnay/rust-toolchain@stable
-
       - uses: Swatinem/rust-cache@v2
-
-      - name: Build ghost_list
-        run: cargo build -p ghost_list
-
-      - name: Build ghost_radio
-        run: cargo build -p ghost_radio
-
-      - name: Build walkie_voice_generator
-        run: cargo build -p walkie_voice_generator
+      - run: cargo build --bin unhaunter_game
+      # Runners have no GPU, so force the software rasteriser.
+      - name: Boot
+        run: |
+          set +e
+          LIBGL_ALWAYS_SOFTWARE=1 \
+            timeout --signal=TERM 60 \
+            xvfb-run -a --server-args="-screen 0 1280x800x24" \
+            ./target/debug/unhaunter_game --mute > /tmp/smoke.log 2>&1
+          STATUS=$?
+          set -e
+          # 124 = still running when the timeout fired, which is the good case.
+          if [ "$STATUS" -ne 124 ] && [ "$STATUS" -ne 0 ]; then
+            echo "::error::exited abnormally (status $STATUS)"
+            tail -40 /tmp/smoke.log
+            exit 1
+          fi
+          if grep -qE "panicked at|thread '[^']*' panicked" /tmp/smoke.log; then
+            echo "::error::panic during boot"
+            grep -nE "panicked at|thread '[^']*' panicked" -A6 /tmp/smoke.log | head -40
+            exit 1
+          fi
+          echo "booted clean"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: smoke-log-${{ github.sha }}
+          path: /tmp/smoke.log
+          retention-days: 7
