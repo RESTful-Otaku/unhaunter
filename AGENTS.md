@@ -22,28 +22,56 @@ better without breaking compatibility with the upstream project it came from.
 
 These hold for every change, no exceptions.
 
-### 2.1 Branch discipline
+### 2.1 Branch discipline and the release line
 
-- **Never commit directly to `main`.** `main` is the integration branch and must
-  stay buildable and green at all times.
-- Every change lands on a **new branch**, named by kind:
+**`main` is the release branch.** It holds the stable, battle-tested version of
+the game. Anything not yet proven in play does **not** go there.
 
-  | Prefix | Use for |
-  |---|---|
-  | `fix/` | Bug fixes — something was wrong |
-  | `chore/` | Build, deps, tooling, refactors with no behaviour change |
-  | `feat/` | New features and new capability |
-  | `improv/` | Making an existing thing measurably better |
-  | `docs/` | Documentation only |
-  | `assets/` | New or modified game assets |
-  | `gameplay/` | Gameplay systems, balance, difficulty, progression |
-  | `polish/` | Feel, feedback, UI/UX, VFX, audio refinement |
+Branch topology — work is *promoted* through three stages:
 
-- One logical change per branch. Do not batch unrelated fixes into one branch.
+```
+main  ──────────────►  stable, battle-tested.  Tagged releases.
+  ▲
+  │  promotion (battle-tested, signed off)
+  │
+staging ────────────►  code-complete and green, NOT yet battle-tested.
+  ▲
+  │  merge (after the automated gate passes)
+  │
+fix/ chore/ feat/ improv/ docs/ assets/ gameplay/ polish/ ──► one logical change each
+```
+
+1. Work on a **new branch** off `staging`, one logical change per branch, named
+   by kind:
+
+   | Prefix | Use for |
+   |---|---|
+   | `fix/` | Bug fixes — something was wrong |
+   | `chore/` | Build, deps, tooling, refactors with no behaviour change |
+   | `feat/` | New features and new capability |
+   | `improv/` | Making an existing thing measurably better |
+   | `docs/` | Documentation only |
+   | `assets/` | New or modified game assets |
+   | `gameplay/` | Gameplay systems, balance, difficulty, progression |
+   | `polish/` | Feel, feedback, UI/UX, VFX, audio refinement |
+
+2. Once the automated gate (§2.2) passes, merge the branch into **`staging`**.
+   This is the "green but unproven" state.
+
+3. Promote `staging` → `main` only when the work is **battle-tested** — i.e.
+   actually played, with the user's eyes on it. Then tag the release.
+
 - Branch names are descriptive: `fix/hunt-warning-intensity-ramp`,
   `perf/light-field-cache`, not `fix/stuff`.
 - **Branches are retained after merge as rollback points. Do not delete them**
   unless explicitly asked.
+- Never commit directly to `main`.
+
+**Automated validation is necessary but not sufficient.** Passing
+check/clippy/test/smoke proves the game builds and boots; it does not prove a
+change is *good*. Anything that alters balance, feel, difficulty, AI behaviour,
+or new mechanics is unbattle-tested until played, and therefore belongs in
+`staging`, not `main`.
 
 ### 2.2 The validation gate
 
@@ -328,7 +356,7 @@ Observed on `libuntmxmap` and resolved with no code change. Escalate to a full
 ## 7. Boundaries — when to stop and ask
 
 Proceed autonomously with: bug fixes, features, refactors, tests, docs,
-CHANGELOG, branch/commit/merge-to-local-main.
+CHANGELOG, branch → `staging` → push.
 
 **Ask first** before:
 
@@ -349,13 +377,32 @@ Honest reporting is worth more than a green-looking log.
 ## 8. Session rhythm
 
 1. `git fetch upstream && git fetch origin`; run the §3.2 sync routine.
-2. Reconcile `main` with `origin/main` before starting.
+2. Reconcile `main` and `staging` with `origin` before starting.
 3. Pick the highest-value item from §5.1 that is not already in flight.
-4. Branch → implement → `cargo fmt` → gate → build + smoke → CHANGELOG → commit.
-5. Merge to local `main` with `--no-ff`, keeping the branch.
+4. Branch off `staging` → implement → `cargo fmt` → gate → build + smoke →
+   CHANGELOG → commit.
+5. Merge the branch into `staging` with `--no-ff`, keeping the branch.
 6. Repeat for further items, or stop and report.
-7. Before finishing: sync `origin/main`, update `CHANGELOG.md`, report honestly
-   on what was done, what was measured, and what remains unverified.
+7. Before finishing: push `staging` (and `main` if it moved), update
+   `CHANGELOG.md`, report honestly on what was done, what was measured, and what
+   remains unverified.
+
+### Promotion to the release line
+
+Promotion `staging` → `main` is **the user's call**, not mine — it depends on
+their playtesting. My part is to:
+
+- keep `staging` green at all times, so promotion is always a clean fast-forward;
+- be explicit in each report about which changes are still unplayed, so they can
+  decide what to test;
+- not merge to `main` on my own initiative.
+
+When promotion happens, tag it:
+
+```bash
+git tag -a v<major>.<minor>.<patch> -m "..."   # on main
+git push origin main --tags
+```
 
 ### Reporting
 
