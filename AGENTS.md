@@ -178,42 +178,49 @@ not.
 git rev-list --left-right --count origin/main...main   # must be 0  0
 ```
 
-### 4.1 Authentication — read this
+### 4.1 Authentication — resolved, use plain `git push origin main`
 
-`origin` is **HTTPS with no working credentials**: `git push origin main` fails
-with `Invalid username or token or Password authentication is not supported`.
-There is no `gh` CLI and no credential helper installed.
+`origin` is **SSH**:
 
-An **SSH key works** and authenticates as `RESTful-Otaku`
-(`ssh -T git@github.com` → `Hi RESTful-Otaku!`). So:
-
-```bash
-git push git@github.com:RESTful-Otaku/unhaunter.git main:main
+```
+origin  git@github.com:RESTful-Otaku/unhaunter.git
 ```
 
-Prefer fixing `origin` once so plain `git push` works:
+The SSH key at `~/.ssh/id_ed25519` authenticates as `RESTful-Otaku`. Plain
+`git push origin main` works and is the normal path — use it, do not work around
+it with an explicit SSH URL.
 
-```bash
-git remote set-url origin git@github.com:RESTful-Otaku/unhaunter.git
-```
+This was originally HTTPS with no working credentials (`Invalid username or
+token`, no `gh` CLI, no credential helper). The user switched it to SSH and
+explicitly authorised this, so **no need to ask before pushing**. If a push ever
+fails on auth, diagnose it rather than silently switching transports.
 
-### 4.2 Branch protection on `main`
+`upstream` stays HTTPS since it is only ever fetched, never pushed to.
 
-`origin` has a rule: **changes to `main` must go through a pull request.** Direct
-pushes succeed only because an admin bypass rule is pre-authorised on the
-account, and the remote prints:
+### 4.2 Branch protection on `main` — bypass is fine
+
+`origin` has a rule requiring pull requests for `main`. Direct pushes succeed via
+a pre-authorised admin bypass and the remote prints:
 
 ```
 remote: Bypassed rule violations for refs/heads/main:
 remote: - Changes must be made through a pull request.
 ```
 
-So: prefer opening a PR rather than pushing `main` directly. If a direct push is
-needed to satisfy the sync requirement, it is allowed, but the bypass is a
-signal that PR workflow is the intended path — prefer PRs when practical and say
-so.
+**The user has explicitly authorised direct pushes to `main` and does not want
+PR ceremony** — they will roll back from git history if anything goes wrong, which
+is the correct tool for it. So: push directly, ignore that notice, and do not
+propose PRs unless asked.
 
-Never force-push `main`. Only fast-forwards.
+Two standing rules survive regardless, because they protect *them* rather than
+the process:
+
+- **Never force-push**, even though rollback is easy. A force-push can destroy a
+  commit that has not been pushed anywhere else yet, which history cannot undo.
+  Fast-forward only. To undo, push a revert.
+- Never delete a merged branch; they are the rollback points.
+
+To revert a pushed change: `git revert <sha>` on `main`, then push.
 
 ---
 
@@ -325,9 +332,9 @@ CHANGELOG, branch/commit/merge-to-local-main.
 
 **Ask first** before:
 
-- Force-pushing anything, ever.
+- Force-pushing anything, ever. (Rollback is the user's preferred undo tool, so
+  this is the one destructive action still gated — see §4.2.)
 - Deleting merged branches (retention is required).
-- Changing `git config`, remotes, or credentials.
 - Anything that rewrites history on a shared branch.
 - Large mechanical upgrades (Bevy version bumps, edition changes) — these need
   a plan and a dedicated branch, not a drive-by.
